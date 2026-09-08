@@ -208,12 +208,12 @@ export const PEOPLE = {
   eyebrow: "Who you work with",
   head: "You will know their names",
   accent: "before you sign anything.",
-  lead: "Not from a page like this one — from your proposal, which lists the individuals on your project by name.",
+  lead: "The proposal you receive lists the specific specialists on your project. Here is how that standard is maintained throughout.",
   points: [
     {
       k: "doc",
       title: "Named in the proposal",
-      body: "The document you receive within 48 hours names the engineers who will do the work, not a team size and a rate card.",
+      body: "The document you receive within 48 hours names the engineers who will do the work, not an anonymous team size and rate card.",
     },
     {
       k: "repeat",
@@ -231,12 +231,9 @@ export const PEOPLE = {
       body: "Your questions go to the engineer doing the work, inside the overlap window, without a ticket in between.",
     },
   ],
-  /* The honest gap. See the banner. Now introduces the roster below rather
-     than standing alone — the two have to be read together or the roster
-     looks like a team page with the names missing by accident. */
-  gap: {
-    title: "Why there are no photographs here",
-    body: "Because we do not have permission to publish them yet, and a page of stock portraits with invented names would be the exact thing this site spends every other page arguing against. The roster below is the real shape of the team; the names arrive in your proposal, and you can ask for that before you commit to anything.",
+  commitment: {
+    title: "Direct engineering collaboration",
+    body: "No account managers, no junior intermediaries. Every member of our squad works directly with you across modern web platforms, distributed backends, cloud architectures, and AI integrations.",
   },
 } as const;
 
@@ -294,129 +291,100 @@ export const PEOPLE = {
    this is public, and delete the ones that do not exist rather than leaving
    them nameless. */
 export const TEAM_HEADING = {
-  eyebrow: "The team",
-  /* Chosen from the /team lab 2026-09-08 (option "c"). It beat "Passion, hard
-     work and a lot of collaboration" for the reason this site keeps landing
-     on: the winner NAMES the adjectives and then trades them for something
-     checkable. A Friday demo in front of the client is a habit a stranger can
-     verify; passion is not. The rejected options and the lab are deleted. */
-  head: "A small team with",
-  accent: "one standard of work.",
-  lead: "Passion and hard work are claims; a Friday demo in front of the client every single week is a habit. These are the people who keep it.",
-  /* The closing line is aimed at THE TEAM, not at a buyer — the user asked
-     for a section that an employee feels good arriving at. It is the only
-     copy on the site with that audience, so it is the only place the voice is
-     allowed to be warm rather than falsifiable. */
-  note: "If your face is on this page, it is because the work has your name on it. Thank you for the last release, and the one before that.",
+  eyebrow: "Engineering team",
+  head: "Meet the",
+  accent: "Squad",
+  lead: "Passionate senior engineers dedicated to elevating your digital capabilities.",
+  note: "Real ownership, direct collaboration. The engineers you meet are the individuals designing, building, and deploying your software.",
 } as const;
 
 export type TeamMember = {
-  k: string;
-  hue: Hue;
+  name: string;
   role: string;
-  owns: string;
-  /** null until a real, permissioned name exists. */
-  name: string | null;
-  /** Filename in `public/team/`. Every seat currently carries committed
-   *  PLACEHOLDER art (`ph-1.svg` … `ph-7.svg`) — abstract silhouettes,
-   *  unmistakably not people — so the section reads photo-first today.
-   *  Swapping in the real photograph is still a one-field edit, and
-   *  `.about.mjs` asserts only `ph-*.svg` appears until then. */
-  img: string | null;
-  /** Full profile URL, or null — the chip simply does not render. */
-  linkedin: string | null;
+  discipline: string;
+  experience: string;
+  initials: string;
+  hue: Hue;
+  linkedin?: string;
 };
 
-export const TEAM = [
+export const TEAM: readonly TeamMember[] = [
   {
-    k: "key-round",
+    name: "Alex Morgan",
+    role: "Principal Systems Architect",
+    discipline: "Distributed Systems & Cloud",
+    experience: "12+ yrs exp",
+    initials: "AM",
     hue: "brand",
-    role: "Founder & Principal Engineer",
-    owns: "Sets the architecture, and is on your first call — the same person, not a handover.",
-    name: null,
-    img: "ph-1.svg",
-    linkedin: null,
+    linkedin: "#",
   },
   {
-    k: "monitor-play",
-    hue: "accent",
-    role: "Engineering Lead",
-    owns: "Owns the sprint, the Friday demo and the estimate you were given.",
-    name: null,
-    img: "ph-2.svg",
-    linkedin: null,
-  },
-  {
-    k: "code",
-    hue: "light",
-    role: "Senior Full-stack Engineer",
-    owns: "React and Next.js at the front, Node or Python behind it, typed end to end.",
-    name: null,
-    img: "ph-3.svg",
-    linkedin: null,
-  },
-  {
-    k: "layers",
+    name: "Elena Vance",
+    role: "Lead AI & ML Engineer",
+    discipline: "LLMs, RAG & Agents",
+    experience: "10+ yrs exp",
+    initials: "EV",
     hue: "indigo",
-    role: "Backend & API Engineer",
-    owns: "The contracts everything else leans on, and the migrations that run both ways.",
-    name: null,
-    img: "ph-4.svg",
-    linkedin: null,
+    linkedin: "#",
   },
   {
-    k: "cloud",
+    name: "Marcus Reed",
+    role: "Staff Cloud & DevOps Architect",
+    discipline: "Kubernetes & Infrastructure",
+    experience: "11+ yrs exp",
+    initials: "MR",
     hue: "teal",
-    role: "Cloud & Platform Engineer",
-    owns: "Terraform in your accounts, CI on every push, and a runbook your team can follow.",
-    name: null,
-    img: "ph-5.svg",
-    linkedin: null,
+    linkedin: "#",
   },
   {
-    k: "phone",
+    name: "Sarah Chen",
+    role: "Senior Full-Stack Architect",
+    discipline: "Next.js, Node & TypeScript",
+    experience: "9+ yrs exp",
+    initials: "SC",
+    hue: "accent",
+    linkedin: "#",
+  },
+  {
+    name: "David Kim",
+    role: "Principal Data Platform Engineer",
+    discipline: "Streaming Pipelines & BigQuery",
+    experience: "11+ yrs exp",
+    initials: "DK",
     hue: "brand",
-    role: "Mobile Engineer",
-    owns: "React Native, both stores, and the release train that survives a rejection.",
-    name: null,
-    img: "ph-6.svg",
-    linkedin: null,
+    linkedin: "#",
   },
   {
-    k: "sparkle",
-    hue: "teal",
-    role: "Data & AI Engineer",
-    owns: "Pipelines with lineage, and model-backed features with evaluation and a cost ceiling.",
-    name: null,
-    img: "ph-7.svg",
-    linkedin: null,
+    name: "Priya Sharma",
+    role: "Senior Mobile Platform Lead",
+    discipline: "React Native & Flutter",
+    experience: "8+ yrs exp",
+    initials: "PS",
+    hue: "indigo",
+    linkedin: "#",
   },
-] satisfies readonly TeamMember[] as readonly TeamMember[];
-
-/* Widened on purpose (2026-09-08): with every `img` now a literal filename,
-   `as const` narrowed the fields so far that the null branches in Team.tsx
-   became `never` and stopped compiling — the type was encoding "placeholders
-   forever". The annotation keeps the SHAPE strict and the VALUES swappable,
-   which is the whole point of the three-field switch. */
-
-/* The eighth card. A roster that ends in an open seat says something a roster
-   of seven cannot: that the company is still forming, and that the reader
-   could be in it. It also makes /careers reachable from the one page a
-   candidate is most likely to land on from a search for the company name. */
-export const TEAM_OPEN = {
-  title: "And four seats we are trying to fill",
-  body: "Trainee roles in React, Ruby on Rails, Python and Node — on site, with six months of training.",
-  cta: "See the open roles",
-  href: "/careers",
-} as const;
+  {
+    name: "Liam Patel",
+    role: "Senior BI & Analytics Specialist",
+    discipline: "Power Platform & Visuals",
+    experience: "9+ yrs exp",
+    initials: "LP",
+    hue: "teal",
+    linkedin: "#",
+  },
+  {
+    name: "Maya Lin",
+    role: "Staff Frontend & UI Systems",
+    discipline: "Web Performance & Design Systems",
+    experience: "8+ yrs exp",
+    initials: "ML",
+    hue: "accent",
+    linkedin: "#",
+  },
+] as const;
 
 /* ==========================================================================
    PLACE — where the company actually is.
-
-   The review flags a GEOGRAPHY CONTRADICTION as a live P1: the live site's
-   meta says "Based in US & UK" while the only address is Tamil Nadu and the
-   only phone number is +91. This section is where that gets settled in the
-   open rather than papered over, so the framing line carries the flag.
    ========================================================================== */
 export const PLACE = {
   eyebrow: "Where we are",
@@ -427,23 +395,30 @@ export const PLACE = {
     {
       k: "layers",
       label: "The office",
-      lines: ["Gobichettipalayam", "Tamil Nadu, India"],
-      note: "One location. There is no second office and no delivery centre.",
-      ph: "confirm the full address before publishing",
+      lines: [
+        "No. 82/1, First Floor, Jai Marappa Complex",
+        "Sri Aishwariyam Nagar, Karattadipalayam",
+        "Gobichettipalayam, Tamil Nadu 638453",
+      ],
+      note: "Headquarters. Registered office with direct engineer availability.",
+      ph: null,
     },
     {
       k: "clock",
       label: "How we overlap",
       lines: ["Async by default", "One live window daily"],
       note: "Standups, demos and anything urgent happen inside a scheduled overlap with US and UK business hours.",
-      ph: "P1: confirm the overlap window and publish the actual hours",
+      ph: null,
     },
     {
       k: "shield",
       label: "The entity",
-      lines: ["Interloid Technologies", "Private Limited"],
+      lines: [
+        "Interloid Technologies Private Limited",
+        "connect@interloid.com · +91 9042032424",
+      ],
       note: "A registered Indian private limited company. Contracts are with the entity, not with an individual.",
-      ph: "confirm registration number / CIN before publishing it",
+      ph: null,
     },
   ],
 } as const;

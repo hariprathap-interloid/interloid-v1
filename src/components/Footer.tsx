@@ -18,15 +18,12 @@ const SERVICE_LINKS = CAPABILITIES.map((c) => c.name);
    compiling — the property has to stay OPTIONAL rather than disappear,
    because the next link added before its route exists needs it. */
 const COMPANY_LINKS: { href: string; label: string; placeholder?: string }[] = [
-  /* "Why us", matching the nav — renamed from "Commitments" with it on
-     2026-09-08. Same destination, and one link naming the page two ways is
-     how a nav loses trust, so these two lists move together. */
+  { href: "/about", label: "About us" },
   { href: "/why-choose-us", label: "Why us" },
   { href: "/#process", label: "How we work" },
   { href: "/#work", label: "Selected work" },
-  { href: "/#contact", label: "Contact" },
-  { href: "/about", label: "About us" },
   { href: "/careers", label: "Careers" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export default function Footer() {
@@ -98,21 +95,23 @@ export default function Footer() {
 
           <div>
             <h3 className="mb-6 font-semibold text-white">Where we are</h3>
-            <address
-              className="text-sm not-italic leading-relaxed text-ink-foreground/70"
-              data-placeholder="confirm address + phone"
-            >
-              Gobichettipalayam
+            <address className="text-sm not-italic leading-relaxed text-ink-foreground/70">
+              No. 82/1, First Floor, Jai Marappa Complex
               <br />
-              Tamil Nadu, India
+              Sri Aishwariyam Nagar, Karattadipalayam
+              <br />
+              Gobichettipalayam, Tamil Nadu 638453
             </address>
-            {/* §7 P1: the live site's meta says "Based in US & UK" while the
-                only address is Tamil Nadu. This is the honest framing and
-                still needs the user's confirmation. */}
-            <p
-              className="mt-4 text-sm text-ink-foreground/70"
-              data-placeholder="P1: confirm geography framing"
-            >
+            <p className="mt-3 text-sm text-ink-foreground/70">
+              <a href="tel:+919042032424" className="hover:text-white transition-colors">
+                +91 9042032424
+              </a>
+              <br />
+              <a href="mailto:connect@interloid.com" className="hover:text-white transition-colors">
+                connect@interloid.com
+              </a>
+            </p>
+            <p className="mt-2 text-xs text-ink-foreground/50">
               India-based · US &amp; UK overlap hours
             </p>
           </div>

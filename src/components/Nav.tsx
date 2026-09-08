@@ -89,7 +89,7 @@ export default function Nav() {
     document.documentElement.classList.toggle("dark", next);
     try {
       localStorage.setItem("interloid-theme", next ? "dark" : "light");
-    } catch {}
+    } catch { }
   }, []);
 
   /* ---- scrollspy ----------------------------------------------------------
@@ -163,10 +163,9 @@ export default function Nav() {
   }, [open]);
 
   const linkClass = (href: string) =>
-    `nav-link rounded-full px-4 py-2 text-sm transition-all hover:bg-card hover:text-primary ${
-      current === href
-        ? "bg-card text-primary font-semibold shadow-sm"
-        : "font-medium text-muted-foreground"
+    `nav-link rounded-full px-4 py-2 text-sm transition-all hover:bg-card hover:text-primary ${current === href
+      ? "bg-card text-primary font-semibold shadow-sm"
+      : "font-medium text-muted-foreground"
     }`;
 
   return (
@@ -178,9 +177,8 @@ export default function Nav() {
            starts exactly where the page's first line of text starts. Adding
            one back would offset the header from the page by 16px at every
            width — which is how this was wrong before. */
-        className={`fixed left-0 right-0 top-0 z-50 transition-[padding] duration-300 ease-in-out ${
-          scrolled ? "py-3" : "py-6"
-        }`}
+        className={`fixed left-0 right-0 top-0 z-50 transition-[padding] duration-300 ease-in-out ${scrolled ? "py-3" : "py-6"
+          }`}
       >
         <div className="shell">
           <div
@@ -190,9 +188,8 @@ export default function Nav() {
                wrong node. An attribute survives markup changes; a position
                does not. */
             data-navbar
-            className={`relative mx-auto flex w-full items-center justify-between gap-6 border transition-all duration-300 ease-in-out ${
-              scrolled ? PILL : REST
-            }`}
+            className={`relative mx-auto flex w-full items-center justify-between gap-6 border transition-all duration-300 ease-in-out ${scrolled ? PILL : REST
+              }`}
           >
             <a
               href="/"
@@ -341,11 +338,10 @@ export default function Nav() {
       <div
         ref={menuRef}
         id="mobileMenu"
-        className={`fixed left-4 right-4 top-24 z-40 origin-top rounded-3xl border border-border bg-card p-6 shadow-2xl transition-all duration-300 ease-in-out xl:hidden ${
-          open
+        className={`fixed left-4 right-4 top-24 z-40 origin-top rounded-3xl border border-border bg-card p-6 shadow-2xl transition-all duration-300 ease-in-out xl:hidden ${open
             ? "visible scale-100 opacity-100"
             : "invisible scale-95 opacity-0"
-        }`}
+          }`}
       >
         <nav aria-label="Mobile" className="flex flex-col">
           {LINKS.map((l) => (

@@ -4,7 +4,6 @@ import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import Nav from "@/components/Nav";
-import PlaceholderToggle from "@/components/PlaceholderToggle";
 import Process from "@/components/Process";
 import PullQuote from "@/components/PullQuote";
 import Reveal from "@/components/Reveal";
@@ -51,7 +50,6 @@ export default function Home() {
         <CtaAnchor />
       </main>
       <Footer />
-      <PlaceholderToggle />
     </>
   );
 }

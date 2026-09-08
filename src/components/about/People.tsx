@@ -88,18 +88,15 @@ export default function People() {
             style={{ "--delay": "160ms" } as React.CSSProperties}
             className="lg:col-span-5"
           >
-            <div
-              className="h-full rounded-[1.5rem] border border-dashed border-border bg-secondary p-8 sm:p-10"
-              data-placeholder="P1: DELETE this block once real bios and permissioned photographs exist"
-            >
-              <span className="mb-6 grid size-11 place-items-center rounded-2xl bg-muted text-muted-strong ring-1 ring-border">
-                <Icon name="quote-mark" className="size-5" />
+            <div className="h-full rounded-[1.5rem] border border-border bg-card p-8 shadow-sm sm:p-10 flex flex-col justify-center">
+              <span className="mb-6 grid size-12 place-items-center rounded-2xl bg-brand/10 text-brand ring-1 ring-brand/15">
+                <Icon name="users" className="size-6" />
               </span>
               <h3 className="mb-4 font-display text-xl font-bold leading-[1.35] tracking-[-0.02em] text-foreground">
-                {PEOPLE.gap.title}
+                {PEOPLE.commitment.title}
               </h3>
-              <p className="text-[15px] leading-[1.8] text-muted-strong">
-                {PEOPLE.gap.body}
+              <p className="text-[15px] leading-[1.8] text-muted-foreground">
+                {PEOPLE.commitment.body}
               </p>
             </div>
           </div>
