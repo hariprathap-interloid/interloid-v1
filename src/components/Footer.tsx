@@ -28,9 +28,9 @@ const COMPANY_LINKS: { href: string; label: string; placeholder?: string }[] = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-ink-deep py-20 text-ink-foreground">
+    <footer className="border-t border-white/5 bg-ink-deep py-10 sm:py-12 text-ink-foreground md:py-20">
       <div className="shell">
-        <div className="mb-16 grid grid-cols-1 gap-12 md:grid-cols-4">
+        <div className="mb-10 sm:mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mb-16 md:grid-cols-4 sm:gap-8 md:gap-12">
           <div>
             <div className="mb-5 flex items-center gap-2.5">
               <span

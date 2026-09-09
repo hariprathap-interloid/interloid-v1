@@ -34,7 +34,7 @@ export default function Hero() {
     <section
       id="home"
       data-hero
-      className="relative flex min-h-screen items-center overflow-hidden px-6 pt-24 lg:px-16"
+      className="relative flex min-h-screen items-center overflow-hidden px-6 pt-24 sm:px-8 md:px-12 lg:px-16"
     >
       <div className="hero-fallback" aria-hidden="true" />
       <HeroStage />
@@ -44,7 +44,7 @@ export default function Hero() {
         <div className="max-w-3xl 2xl:max-w-[48rem]">
           <div
             data-reveal
-            className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-4 py-2 shadow-sm"
+            className="mb-4 sm:mb-5 md:mb-7 inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-4 py-2 shadow-sm"
           >
             <span
               className="size-2 rounded-full bg-accent"
@@ -60,7 +60,7 @@ export default function Hero() {
           <h1
             data-reveal
             style={{ "--delay": "100ms" } as React.CSSProperties}
-            className="mb-7 font-hero text-[2.6rem] font-black leading-[1.04] tracking-tight text-foreground sm:text-5xl md:text-[3.5rem] lg:text-6xl 2xl:text-7xl"
+            className="mb-4 sm:mb-5 md:mb-7 font-hero text-[2.2rem] font-black leading-[1.04] tracking-tight text-foreground sm:text-5xl md:text-[3.5rem] lg:text-6xl 2xl:text-7xl"
           >
             The problem isn&rsquo;t ideas.
             <br />
@@ -76,7 +76,7 @@ export default function Hero() {
           <p
             data-reveal
             style={{ "--delay": "200ms" } as React.CSSProperties}
-            className="mb-5 max-w-2xl text-xl font-semibold text-foreground sm:text-2xl"
+            className="mb-4 sm:mb-5 max-w-2xl text-lg font-semibold text-foreground sm:text-2xl"
           >
             Defined problems in. Deployed software out.
           </p>
@@ -84,7 +84,7 @@ export default function Hero() {
           <p
             data-reveal
             style={{ "--delay": "260ms" } as React.CSSProperties}
-            className="mb-10 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg"
+            className="mb-6 sm:mb-8 md:mb-10 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg"
           >
             Interloid combines senior engineering expertise with modern AI and
             agentic workflows to accelerate every stage of development. We
@@ -102,7 +102,7 @@ export default function Hero() {
           >
             <a
               href="#contact"
-              className="shine group relative inline-flex h-14 items-center gap-2 overflow-hidden rounded-full bg-primary px-9 text-lg font-medium text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:bg-brand-light hover:shadow-2xl hover:shadow-primary/40 active:scale-95"
+              className="shine group relative inline-flex h-12 sm:h-14 items-center gap-2 overflow-hidden rounded-full bg-primary px-7 sm:px-9 text-base sm:text-lg font-medium text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:bg-brand-light hover:shadow-2xl hover:shadow-primary/40 active:scale-95"
             >
               Book a free 30-min consult
               <svg
@@ -124,7 +124,7 @@ export default function Hero() {
                 hero-level promise. Land the case studies or repoint this. */}
             <a
               href="#work"
-              className="inline-flex h-14 items-center rounded-full border border-border bg-card/60 px-8 text-lg font-medium text-foreground backdrop-blur-sm transition-all hover:border-primary hover:bg-card hover:text-primary active:scale-95"
+              className="inline-flex h-12 sm:h-14 items-center rounded-full border border-border bg-card/60 px-6 sm:px-8 text-base sm:text-lg font-medium text-foreground backdrop-blur-sm transition-all hover:border-primary hover:bg-card hover:text-primary active:scale-95"
             >
               See the proof
             </a>

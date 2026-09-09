@@ -50,7 +50,7 @@ export default function Faq() {
   return (
     <section
       id="faq"
-      className="relative overflow-hidden border-t border-border bg-secondary py-32"
+      className="relative overflow-hidden border-t border-border bg-secondary py-12 sm:py-16 md:py-24 lg:py-32"
     >
       {/* Dot-grid backdrop — DS §2.6, and prototype 1 has it on exactly this
           section (`.grid-backdrop` on #faq and #work). The radial mask is the
@@ -69,10 +69,10 @@ export default function Faq() {
       <div className="relative z-10 shell">
         {/* max-w-3xl, not 2xl: at 2xl the H2 orphaned "week." onto its own
             line. The intro keeps its own narrower measure below. */}
-        <div className="mx-auto mb-16 max-w-3xl text-center">
+        <div className="mx-auto mb-8 sm:mb-12 max-w-3xl text-center md:mb-16">
           <h2
             data-reveal
-            className="font-display text-4xl font-medium leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl"
+            className="font-display text-2xl font-medium leading-tight tracking-tight text-foreground sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
           >
             Questions we get{" "}
             <span className="bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
@@ -114,7 +114,7 @@ export default function Faq() {
                       aria-controls={`faq-a-${i}`}
                       id={`faq-q-${i}`}
                       onClick={() => setOpen(isOpen ? null : i)}
-                      className="flex w-full items-center justify-between gap-6 rounded-[1rem] p-6 text-left font-display text-[17px] font-semibold text-foreground focus-visible:shadow-[inset_0_0_0_2px_var(--ring)]"
+                      className="flex w-full items-center justify-between gap-2 sm:gap-3 rounded-[1rem] p-4 sm:p-5 text-left font-display text-[15px] sm:text-[17px] font-semibold text-foreground focus-visible:shadow-[inset_0_0_0_2px_var(--ring)] sm:gap-6 sm:p-6"
                     >
                       {f.q}
                       <span
@@ -137,7 +137,7 @@ export default function Faq() {
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <p className="px-6 pb-6 leading-[1.7] text-muted-foreground">
+                      <p className="px-4 sm:px-5 pb-4 sm:pb-5 leading-[1.7] text-muted-foreground sm:px-6 sm:pb-6">
                         {f.a}
                       </p>
                     </div>

@@ -78,7 +78,7 @@ export default function CtaAnchor({
          the pixel) -> pt-24/pb-40 (96/160px). The slab's own padding is
          untouched, so the card is the same size and only the ground around it
          grew — that was the ask, and it is the one knob that does it. */
-      className="relative bg-background px-4 pb-40 pt-24 sm:px-6"
+      className="relative bg-background px-4 pb-12 pt-12 sm:px-6 sm:pb-24 sm:pt-20 lg:pb-40 lg:pt-24"
     >
       {/* Not `.shell`: the section already owns the gutter (`px-4 sm:px-6`
           above), so the shell's clamped padding would double it. Only the cap
@@ -87,7 +87,7 @@ export default function CtaAnchor({
         <div /* `.cta`: 4rem/1.5rem, then 5rem/4rem at sm. Radius is a flat 3rem,
               not the token scale's rounded-4xl (2.55rem). */
           data-cta-slab
-          className="relative flex flex-col items-center justify-center overflow-hidden rounded-[3rem] bg-ink px-6 py-16 text-center shadow-[0_25px_50px_-12px_rgba(15,23,43,.35)] sm:px-16 sm:py-20">
+          className="relative flex flex-col items-center justify-center overflow-hidden rounded-[1.25rem] bg-ink px-5 py-10 text-center shadow-[0_25px_50px_-12px_rgba(15,23,43,.35)] sm:rounded-[2rem] sm:px-10 sm:py-18 md:rounded-[3rem] md:px-16 md:py-20">
           <div
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-brand/40 via-ink to-ink"
             aria-hidden="true"
@@ -122,7 +122,7 @@ export default function CtaAnchor({
               </span>
             </div>
 
-            <h2 className="mb-5 font-display text-4xl font-medium leading-[1.1] tracking-tight text-white md:text-5xl lg:text-6xl">
+            <h2 className="mb-4 sm:mb-5 font-display text-2xl font-medium leading-[1.1] tracking-tight text-white sm:text-3xl md:text-5xl lg:text-6xl">
               {headline}
               <br />
               {/* `/srgb`: Tailwind v4 interpolates gradients in oklab by default,
@@ -136,7 +136,7 @@ export default function CtaAnchor({
             {/* This paragraph is the reason to take prototype 1's version:
                 offering to name someone else is the most disarming thing on
                 the page, and it costs nothing to say. */}
-            <p className="mb-10 max-w-xl text-[17px] leading-[1.7] text-ink-foreground">
+            <p className="mb-6 sm:mb-8 md:mb-10 max-w-xl text-sm sm:text-base leading-[1.7] text-ink-foreground sm:text-[17px]">
               {lead}
             </p>
 
@@ -166,7 +166,7 @@ export default function CtaAnchor({
 
             {/* prototype 1's `.cta__meta` — three objection-removers under
                 the button, where the hesitation actually happens. */}
-            <ul className="mt-10 flex flex-wrap justify-center gap-6">
+            <ul className="mt-6 sm:mt-10 flex flex-wrap justify-center gap-3 sm:gap-6">
               {meta.map(
                 (m) => (
                   <li

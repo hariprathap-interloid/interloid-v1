@@ -23,7 +23,7 @@ export default function Testimonials() {
   return (
     <section
       id="feedback"
-      className="relative overflow-hidden border-t border-border bg-background py-32"
+      className="relative overflow-hidden border-t border-border bg-background py-12 sm:py-16 md:py-24 lg:py-32"
     >
       <div className="relative z-10 shell">
         <SectionHeading
@@ -34,7 +34,7 @@ export default function Testimonials() {
           What it&rsquo;s like to
         </SectionHeading>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {QUOTES.map((q, i) => (
             /* Wrapper reveals, figure hovers — same split as WorkCard and
                CommitmentTile. `[data-reveal]` is unlayered in globals.css and
@@ -48,7 +48,7 @@ export default function Testimonials() {
             >
               <figure
                 data-placeholder="P0 TRUST: collect 2-3 real testimonials with written permission"
-                className="flex h-full flex-col rounded-[1.5rem] border border-border bg-card p-8 shadow-sm transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl"
+                className="flex h-full flex-col rounded-[1.5rem] border border-border bg-card p-5 sm:p-6 shadow-sm transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl md:p-8"
               >
                 <span className="mb-4 text-faint" aria-hidden="true">
                   <svg

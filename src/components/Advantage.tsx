@@ -32,7 +32,7 @@ export default function Advantage() {
   return (
     <section
       id="advantage"
-      className="relative overflow-hidden bg-secondary py-32"
+      className="relative overflow-hidden bg-secondary py-12 sm:py-16 md:py-24 lg:py-32"
     >
       <div
         className="pointer-events-none absolute bottom-0 left-0 size-[600px] -translate-x-1/3 translate-y-1/3 rounded-full bg-brand/15 blur-[120px]"
@@ -53,7 +53,7 @@ export default function Advantage() {
           Commitments we
         </SectionHeading>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {BENTO.map((b, i) => (
             <CommitmentTile
               key={b.title}

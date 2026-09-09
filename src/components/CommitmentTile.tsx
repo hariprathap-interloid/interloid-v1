@@ -129,13 +129,13 @@ export default function CommitmentTile({
     <div
       data-reveal
       style={{ "--delay": `${index * 100}ms` } as React.CSSProperties}
-      className={`h-full ${wide ? "lg:col-span-2" : ""}`}
+      className={`h-full ${wide ? "md:col-span-2 lg:col-span-2" : ""}`}
     >
       <article
         ref={ref}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
-        className={`group relative flex h-full flex-col justify-between overflow-hidden rounded-[1.5rem] border border-border/80 bg-card/60 p-8 shadow-[0_20px_35px_-20px_rgba(15,23,43,.25)] backdrop-blur-[16px] transition-[background-color,border-color,box-shadow] duration-500 ease-out lg:min-h-[18rem] hover:border-border hover:bg-card/85 hover:shadow-[0_28px_50px_-20px_rgba(31,93,160,.22)] ${
+        className={`group relative flex h-full flex-col justify-between overflow-hidden rounded-[1.5rem] border border-border/80 bg-card/60 p-5 sm:p-6 shadow-[0_20px_35px_-20px_rgba(15,23,43,.25)] backdrop-blur-[16px] transition-[background-color,border-color,box-shadow] duration-500 ease-out md:p-8 lg:min-h-[18rem] hover:border-border hover:bg-card/85 hover:shadow-[0_28px_50px_-20px_rgba(31,93,160,.22)] ${
           wide ? "lg:flex-row lg:items-center lg:gap-8" : ""
         }`}
       >
@@ -171,10 +171,7 @@ export default function CommitmentTile({
           aria-hidden="true"
         />
 
-        <div /* shrink-0 is load-bearing: the tile is a flex column inside a fixed
-         18rem row, so on a tile with long copy the plate gets squashed —
-         measured 44.9px instead of 56px before this. */
-          className={`relative z-10 mb-8 grid size-14 shrink-0 place-items-center rounded-[1rem] border border-white bg-card/85 text-brand shadow-sm backdrop-blur-[8px] transition-transform duration-500 group-hover:scale-110 ${
+        <div className={`relative z-10 mb-5 sm:mb-6 grid size-14 shrink-0 place-items-center rounded-[1rem] border border-white bg-card/85 text-brand shadow-sm backdrop-blur-[8px] transition-transform duration-500 group-hover:scale-110 md:mb-8 ${
             wide ? "lg:mb-0" : ""
           }`}
         >

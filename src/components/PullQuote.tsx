@@ -56,7 +56,7 @@ export default function PullQuote({
   link?: { label: string; href: string };
 } = {}) {
   return (
-    <section className="relative overflow-hidden border-y border-border bg-card py-24">
+    <section className="relative overflow-hidden border-y border-border bg-card py-12 sm:py-16 md:py-24">
       <div className="relative z-10 shell">
         <figure
           data-reveal

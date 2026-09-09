@@ -28,7 +28,7 @@ export default function Process() {
   return (
     <section
       id="process"
-      className="relative overflow-hidden border-t border-border bg-background py-32"
+      className="relative overflow-hidden border-t border-border bg-background py-12 sm:py-16 md:py-24 lg:py-32"
     >
       <div className="relative z-10 shell">
         {/* Badge is prototype 1's form (icon + sentence case).
@@ -50,9 +50,9 @@ export default function Process() {
           From first call to
         </SectionHeading>
 
-        <div className="relative mt-20">
+        <div className="relative mt-10 sm:mt-14 md:mt-20">
           <ProcessPath />
-          <ol className="relative z-10 flex flex-col justify-between gap-12 lg:flex-row lg:gap-6">
+          <ol className="relative z-10 flex flex-col justify-between gap-6 sm:gap-10 md:gap-12 lg:flex-row lg:gap-6">
             {STEPS.map((s, i) => (
               <li
                 key={s.n}
@@ -104,7 +104,7 @@ export default function Process() {
                     {s.n}
                   </div>
                 </div>
-                <div className="ml-8 flex flex-col items-start pt-2 text-left lg:ml-0 lg:mt-10 lg:items-center lg:text-center">
+                <div className="ml-6 sm:ml-8 flex flex-col items-start pt-2 text-left sm:ml-10 lg:ml-0 lg:mt-10 lg:items-center lg:text-center">
                   <span /* `.step__time`: Inter (NOT mono), .1875rem/.625rem padding,
                      .08em tracking, on the page ground rather than muted. */
                   className="mb-2 rounded-full bg-background px-2.5 py-[3px] text-[11px] font-bold uppercase tracking-[0.08em] text-accent-strong ring-1 ring-border">

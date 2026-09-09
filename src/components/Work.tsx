@@ -23,7 +23,7 @@ export default function Work() {
   return (
     <section
       id="work"
-      className="relative overflow-hidden border-t border-border bg-background pb-8 pt-32"
+      className="relative overflow-hidden border-t border-border bg-background pb-8 pt-12 sm:pt-16 md:pt-24 lg:pt-32"
     >
       <div className="relative z-10 shell">
         <SectionHeading
@@ -34,7 +34,7 @@ export default function Work() {
           Shipped, then
         </SectionHeading>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {CASES.map((c, i) => {
             const h = HUE[c.hue];
             return (
