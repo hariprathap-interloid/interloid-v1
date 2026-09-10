@@ -1,4 +1,4 @@
-import HeroStage from "./HeroStage";
+import HeroScatter from "./HeroScatter";
 
 /* ==========================================================================
    HERO — treatment C "Terms" layout, contrast headline.
@@ -37,7 +37,7 @@ export default function Hero() {
       className="relative flex min-h-screen items-center overflow-hidden px-6 pt-24 lg:px-16"
     >
       <div className="hero-fallback" aria-hidden="true" />
-      <HeroStage />
+      <HeroScatter />
       <div className="scrim" aria-hidden="true" />
       <div className="scrim-spread" data-scrim-spread aria-hidden="true" />
       <div className="relative z-10 mx-auto w-full max-w-[1600px]">
