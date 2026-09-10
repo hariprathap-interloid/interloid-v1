@@ -293,7 +293,7 @@ export const PEOPLE = {
 export const TEAM_HEADING = {
   eyebrow: "Engineering team",
   head: "Meet the",
-  accent: "Squad",
+  accent: "Builders",
   lead: "Passionate senior engineers dedicated to elevating your digital capabilities.",
   note: "Real ownership, direct collaboration. The engineers you meet are the individuals designing, building, and deploying your software.",
 } as const;

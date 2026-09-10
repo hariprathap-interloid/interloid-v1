@@ -96,12 +96,14 @@ export default function Team() {
                 <div
                   key={m.name}
                   data-reveal
-                  style={{ "--delay": `${(i % 4) * 60}ms` } as React.CSSProperties}
+                  style={
+                    { "--delay": `${(i % 4) * 60}ms` } as React.CSSProperties
+                  }
                   className="w-[280px] shrink-0 snap-center sm:w-[300px]"
                 >
                   <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-accent/40 hover:shadow-xl">
                     {/* Visual Avatar Plate */}
-                    <div className="relative flex h-52 flex-col items-center justify-center overflow-hidden bg-secondary/50 p-6 sm:h-56">
+                    <div className="relative flex h-52 flex-col items-center justify-center  bg-secondary/50 p-6 sm:h-56 z-50!">
                       {/* Ambient radial glow using hue */}
                       <div
                         className={`pointer-events-none absolute inset-0 ${h.glow} opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-75`}
@@ -119,7 +121,9 @@ export default function Team() {
 
                       {/* Avatar badge with initials */}
                       <div className="relative z-10 flex size-20 items-center justify-center rounded-2xl border border-border bg-card shadow-md ring-4 ring-secondary transition-transform duration-300 group-hover:scale-105 group-hover:border-primary/40">
-                        <span className={`font-display text-2xl font-black tracking-tight ${h.text}`}>
+                        <span
+                          className={`font-display text-2xl font-black tracking-tight ${h.text}`}
+                        >
                           {m.initials}
                         </span>
                         {/* Senior status indicator */}
@@ -132,10 +136,18 @@ export default function Team() {
                       {/* LinkedIn badge straddling bottom edge */}
                       <a
                         href={m.linkedin || "#"}
-                        target={m.linkedin && m.linkedin !== "#" ? "_blank" : undefined}
-                        rel={m.linkedin && m.linkedin !== "#" ? "noopener noreferrer" : undefined}
+                        target={
+                          m.linkedin && m.linkedin !== "#"
+                            ? "_blank"
+                            : undefined
+                        }
+                        rel={
+                          m.linkedin && m.linkedin !== "#"
+                            ? "noopener noreferrer"
+                            : undefined
+                        }
                         aria-label={`${m.name} profile`}
-                        className="absolute bottom-0 right-5 translate-y-1/2 grid size-9 place-items-center rounded-full border border-border bg-card text-[#0A66C2] shadow-md ring-2 ring-card transition-all duration-300 hover:scale-110 hover:bg-[#0A66C2] hover:text-white"
+                        className="absolute bottom-0 right-5  z-50! translate-y-1/2 grid size-9 place-items-center rounded-full border border-border bg-card text-[#0A66C2] shadow-md ring-2 ring-card transition-all duration-300 hover:scale-110 hover:bg-[#0A66C2] hover:text-white"
                       >
                         <svg
                           viewBox="0 0 24 24"

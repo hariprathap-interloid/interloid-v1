@@ -93,13 +93,16 @@ const SIZE_SCATTER = 0.085;
    the geometry, and the result is a regular lattice at every size. Surplus
    particles do not vanish (the field still needs them); they FADE OUT as the
    mark forms, which is what the per-particle alpha attribute is for. */
-const MARK_SPACING_PX = 4.3; /* centre-to-centre gap in the assembled mark */
-const MARK_COVERAGE = 0.62; /* fraction of its bounding box the mark fills */
-/* Square size as a fraction of the spacing, so its SQUARE is the ink coverage:
-   0.62 leaves only 38% covered, which read as a pale speckle with the mark's
-   shape lost. 0.74 gives ~55% — still visibly separate squares, but enough ink
-   for the silhouette and its counters to read. */
-const MARK_DOT_RATIO = 0.74;
+const MARK_SPACING_PX = 4.3; /* finest centre-to-centre gap worth drawing */
+/* The step of the lattice the source points ALREADY sit on, in unit space.
+   MEASURED from logo-points.json, not guessed: nearest-neighbour distance
+   across its 3810 points is p25 .023, median .028, p95 .0294. Everything about
+   the mark's grain follows from this number. */
+const SOURCE_STEP = 0.0285;
+/* Square size as a fraction of the spacing, so its SQUARE is the ink coverage.
+   0.88 leaves a hairline between neighbours: the grid still reads as squares,
+   but the mark's edges and counters stay crisp rather than gappy. */
+const MARK_DOT_RATIO = 0.88;
 
 /* Vertical room on narrow screens. The nav is transparent at rest and owns the
    first ~70px; without accounting for it the mark rode up under the wordmark
@@ -140,7 +143,7 @@ export default function HeroScatter() {
 
       /* The mark is optional: if the points cannot be fetched the field still
          renders and simply never gathers, rather than losing the hero. */
-      let logo: { count: number; pos: number[] } | null = null;
+      let logo: { count: number; pos: number[]; col?: number[] } | null = null;
       try {
         logo = await (await fetch("/logo-points.json")).json();
       } catch (e) {
@@ -202,12 +205,16 @@ export default function HeroScatter() {
       const z0 = new Float32Array(N); /* scatter depth */
       const homeXu = new Float32Array(N); /* paired home, UNIT space */
       const homeYu = new Float32Array(N);
+      /* Which home each particle was paired with, so the mark's baked colour
+         can be looked up by home index. */
+      const homeIdx = new Uint32Array(N);
       const homeR = new Float32Array(N); /* snapped mark radius, UNIT space */
       const dTh = new Float32Array(N); /* shortest sweep to the home angle */
       /* 1 = this particle is one of the mark's lattice points. */
       const member = new Uint8Array(N);
       const delay = new Float32Array(N); /* departure stagger, 0..SPREAD */
       const phase = new Float32Array(N);
+      const tone = new Float32Array(N); /* per-particle brightness in the field */
 
       const pos = new Float32Array(N * 3);
       const col = new Float32Array(N * 3);
@@ -239,14 +246,9 @@ export default function HeroScatter() {
         if (r0[i] < rMin) rMin = r0[i];
         if (r0[i] > rMax) rMax = r0[i];
 
-        /* Scatter colour: biased toward brand so the field stays legible on a
-           pale ground, with accent as highlights rather than half the cloud. */
-        tmp
-          .copy(C.brand)
-          .lerp(Math.random() < 0.3 ? C.accent : C.light, Math.random() * 0.85);
-        colScatter[i * 3] = tmp.r;
-        colScatter[i * 3 + 1] = tmp.g;
-        colScatter[i * 3 + 2] = tmp.b;
+        /* Colour is not decided here — see paintPalette. This is only the
+           per-particle tone that keeps the field from looking flat. */
+        tone[i] = 0.72 + Math.random() * 0.5;
       }
 
       /* Far particles depart first, so every path lands together instead of
@@ -259,21 +261,8 @@ export default function HeroScatter() {
       if (hasLogo) {
         const src = logo!.pos;
         const lth = new Float32Array(N);
-        /* Kept separate from colLogo: the pairing loop below reads this by
-           HOME index and writes colLogo by PARTICLE index, and doing that in
-           one array would overwrite entries later ranks still need. */
-        const lcol = new Float32Array(N * 3);
         for (let i = 0; i < N; i++) {
-          const x = src[i * 2];
-          const y = src[i * 2 + 1];
-          lth[i] = Math.atan2(y, x);
-          /* Mark colour: a clean ramp across the mark's width. Random colours
-             survive fine as noise but make the assembled logo look speckled,
-             so the two palettes are cross-faded with k. */
-          tmp.copy(C.brand).lerp(C.accent, clamp((x + 1) / 2));
-          lcol[i * 3] = tmp.r;
-          lcol[i * 3 + 1] = tmp.g;
-          lcol[i * 3 + 2] = tmp.b;
+          lth[i] = Math.atan2(src[i * 2 + 1], src[i * 2]);
         }
 
         /* NON-CROSSING ASSIGNMENT. Sort both sets by angle and pair them
@@ -293,15 +282,17 @@ export default function HeroScatter() {
           const q = byLogo[rank];
           homeXu[p] = src[q * 2];
           homeYu[p] = src[q * 2 + 1];
+          homeIdx[p] = q;
+        }
 
-          /* Colour travels with the particle, not with the slot. */
-          colLogo[p * 3] = lcol[q * 3];
-          colLogo[p * 3 + 1] = lcol[q * 3 + 1];
-          colLogo[p * 3 + 2] = lcol[q * 3 + 2];
+        /* Fixed for the life of the page — home positions never move, and
+           SCALE is applied at draw time. */
+        for (let i = 0; i < N; i++) {
+          homeR[i] = Math.hypot(homeXu[i], homeYu[i]);
+          dTh[i] = sweep(Math.atan2(homeYu[i], homeXu[i]) - th0[i]);
         }
 
       }
-      col.set(colScatter);
 
       const geo = new THREE.BufferGeometry();
       geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
@@ -360,6 +351,102 @@ export default function HeroScatter() {
          in layout.tsx writes it first (HANDOFF §5.19). Additive blending only
          ever brightens, so it is useless on a pale ground but is what makes
          the cloud glow on the dark one. */
+      /* THE MARK'S OWN COLOURS, taken from interloid-logo.svg rather than from
+         the muted --brand/--accent pair the FIELD uses. Rasterising the logo
+         and reading its histogram gives a vivid diagonal gradient — deep blue
+         (#0033ff–#1166ff) into bright cyan (#11eeff–#22eeff), running
+         top-left to bottom-right — and the old #1f5da0 -> #289dbe ramp across
+         x alone was both far duller and running the wrong way.
+
+         The cyan end is pulled back on LIGHT only. The logo's true #22eeff is
+         near-white in value, so on the pale hero it disappears; globals.css
+         already notes #289dbe is only 3.15:1 there. Dark keeps the full
+         vividness, where additive blending makes it glow. */
+      const markRamp = { a: new THREE.Color(), b: new THREE.Color() };
+      const hsl = { h: 0, s: 0, l: 0 };
+      const baked = logo?.col;
+
+      /* ONE PALETTE FOR BOTH STATES.
+
+         The field used to carry its own muted --brand mix, which read as a
+         single flat blue next to the mark's vivid blue-to-cyan. Now every
+         particle carries the colour of the home it is paired with, from the
+         moment it appears: the logo's colours are present in the scatter and
+         simply assemble, rather than appearing out of nowhere at the end.
+
+         The field varies each particle's brightness by `tone` so it still has
+         depth and does not read as a flat wash. */
+      const writeColour = (i: number) => {
+        colLogo[i * 3] = tmp.r;
+        colLogo[i * 3 + 1] = tmp.g;
+        colLogo[i * 3 + 2] = tmp.b;
+        const t = tone[i];
+        colScatter[i * 3] = Math.min(1, tmp.r * t);
+        colScatter[i * 3 + 1] = Math.min(1, tmp.g * t);
+        colScatter[i * 3 + 2] = Math.min(1, tmp.b * t);
+      };
+
+      const paintPalette = () => {
+        if (!hasLogo) {
+          /* No mark: the field keeps the original --brand mix. */
+          for (let i = 0; i < N; i++) {
+            tmp
+              .copy(C.brand)
+              .lerp(i % 3 === 0 ? C.accent : C.light, (tone[i] - 0.72) / 0.5);
+            writeColour(i);
+          }
+          return;
+        }
+        if (baked) {
+          /* Sampled per point from the artwork, so the mark carries the logo's
+             own gradient exactly — including which way it runs. Guessing the
+             axis by hand got it backwards and never reached cyan at all.
+             Dimmed on LIGHT: the artwork is drawn for a white ground, and its
+             brightest cyan is near-white in value, so it needs taking down to
+             hold against the pale hero. Multiplying keeps the hue. */
+          /* HUE IS THE SIGNAL; lightness gets normalised.
+
+             Sampling the artwork verbatim also samples its glossy bevel — a
+             highlight running the rim that reaches luminance ~197 against a
+             median of 74. As a smooth gradient in the logo that reads as
+             shine; chopped into separate squares it reads as scattered pale
+             grey chips along the mark's edge, which is what showed up on the
+             left side.
+
+             So each point keeps the hue it sampled (that is what carries the
+             logo's blue-to-cyan run) while saturation gets a floor and
+             lightness a band. Nothing can wash out, nothing can blow out. */
+          const lMin = isLight ? 0.3 : 0.42;
+          const lMax = isLight ? 0.58 : 0.7;
+          for (let i = 0; i < N; i++) {
+            const q = homeIdx[i] * 3;
+            tmp.setRGB(
+              baked[q] / 255,
+              baked[q + 1] / 255,
+              baked[q + 2] / 255,
+              THREE.SRGBColorSpace,
+            );
+            tmp.getHSL(hsl, THREE.SRGBColorSpace);
+            tmp.setHSL(
+              hsl.h,
+              Math.max(hsl.s, 0.72),
+              clamp(hsl.l, lMin, lMax),
+              THREE.SRGBColorSpace,
+            );
+            writeColour(i);
+          }
+          return;
+        }
+        /* Fallback if the artwork colours are missing from the points file. */
+        markRamp.a.set(isLight ? "#1b3ee8" : "#3060ff");
+        markRamp.b.set(isLight ? "#1cabd8" : "#35e4ff");
+        for (let i = 0; i < N; i++) {
+          const t = clamp((homeXu[i] - homeYu[i] + 2) / 4);
+          tmp.copy(markRamp.a).lerp(markRamp.b, t);
+          writeColour(i);
+        }
+      };
+
       let isLight = !document.documentElement.classList.contains("dark");
       /* Declared before applyTheme because applyTheme runs immediately and
          writes them; leaving them below would be a temporal dead zone. */
@@ -375,8 +462,11 @@ export default function HeroScatter() {
            right for a sparse field but leaves the dense mark looking washed
            out against the pale ground. Cross-faded with k alongside size. */
         opScatter = isLight ? 0.78 : 0.62;
-        opLogo = isLight ? 0.95 : 0.8;
-        lastK = -1; /* force the frame loop to re-derive size and opacity */
+        opLogo = isLight ? 1 : 0.8;
+        paintPalette(); /* both palettes are theme-dependent */
+        col.set(colScatter);
+        aCol.needsUpdate = true;
+        lastK = -1; /* force the frame loop to re-derive colour, size, opacity */
       };
       applyTheme();
 
@@ -465,48 +555,41 @@ export default function HeroScatter() {
       const buildLattice = (h: number) => {
         if (!hasLogo) return;
         const markWidthPx = 2 * SCALE * (h / FRAME.h);
-        /* Logo unit space spans 2 (x from -1 to 1), so this is the cell size
-           in unit space for the requested pixel spacing. */
-        const cell = (MARK_SPACING_PX / markWidthPx) * 2;
-        const best = new Map<number, { p: number; d2: number }>();
+        /* The source points ALREADY sit on a lattice of their own, so the only
+           question is whether the mark is big enough to draw all of them. */
+        const stepPx = (SOURCE_STEP / 2) * markWidthPx;
 
-        for (let p = 0; p < N; p++) {
-          const kx = Math.round(homeXu[p] / cell);
-          const ky = Math.round(homeYu[p] / cell);
-          const cx = kx * cell;
-          const cy = ky * cell;
-          const dx = homeXu[p] - cx;
-          const dy = homeYu[p] - cy;
-          const d2 = dx * dx + dy * dy;
-          const key = (kx + 4096) * 8192 + (ky + 4096);
-          const cur = best.get(key);
-          if (!cur || d2 < cur.d2) best.set(key, { p, d2 });
+        if (stepPx >= MARK_SPACING_PX) {
+          /* Big enough — draw every point exactly where the artwork puts it.
+             Re-quantising here is what wrecked the mark: it is already a
+             lattice, so a second grid only fights it, and snapping points to
+             cell centres dragged them into the counters and blurred the
+             negative space the logo is built from. */
+          member.fill(1);
+          markCount = N;
+          sizeLogo = pxToWorld(stepPx * MARK_DOT_RATIO, h);
+        } else {
+          /* Too small to show every point as a separate square, so THIN them:
+             one per coarser cell, nearest the centre. Note this only SELECTS —
+             the survivors keep their own positions, never a snapped one, so
+             the shape and its counters survive intact. */
+          const cell = (MARK_SPACING_PX / markWidthPx) * 2;
+          const best = new Map<number, { p: number; d2: number }>();
+          for (let i = 0; i < N; i++) {
+            const kx = Math.round(homeXu[i] / cell);
+            const ky = Math.round(homeYu[i] / cell);
+            const dx = homeXu[i] - kx * cell;
+            const dy = homeYu[i] - ky * cell;
+            const d2 = dx * dx + dy * dy;
+            const key = (kx + 4096) * 8192 + (ky + 4096);
+            const cur = best.get(key);
+            if (!cur || d2 < cur.d2) best.set(key, { p: i, d2 });
+          }
+          member.fill(0);
+          for (const v of best.values()) member[v.p] = 1;
+          markCount = best.size;
+          sizeLogo = pxToWorld(MARK_SPACING_PX * MARK_DOT_RATIO, h);
         }
-
-        member.fill(0);
-        /* Non-members still travel to their own unsnapped home — they are
-           invisible by the time the mark lands, but they must not all pile
-           onto one spot on the way in. */
-        for (let p = 0; p < N; p++) {
-          homeR[p] = Math.hypot(homeXu[p], homeYu[p]);
-          dTh[p] = sweep(Math.atan2(homeYu[p], homeXu[p]) - th0[p]);
-        }
-        for (const [key, v] of best) {
-          const kx = Math.floor(key / 8192) - 4096;
-          const ky = (key % 8192) - 4096;
-          const cx = kx * cell;
-          const cy = ky * cell;
-          member[v.p] = 1;
-          homeR[v.p] = Math.hypot(cx, cy);
-          dTh[v.p] = sweep(Math.atan2(cy, cx) - th0[v.p]);
-        }
-
-        markCount = best.size;
-        /* Size from the spacing actually achieved. On desktop the mark's own
-           points are further apart than the requested cell, so the lattice is
-           data-limited and the squares must grow to match. */
-        const spacing = markWidthPx / Math.sqrt(markCount / MARK_COVERAGE);
-        sizeLogo = pxToWorld(spacing * MARK_DOT_RATIO, h);
         lastK = -1; /* size and fades depend on this, so re-derive next frame */
       };
 
