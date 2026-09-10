@@ -3,45 +3,109 @@
 import { useEffect, useRef } from "react";
 
 /* ==========================================================================
-   HERO SCATTER — a faithful port of hero-order.js's SCATTERED state.
+   HERO MARK — a scattered field that gathers into the Interloid logo and
+   disperses again, on a loop. Owns both states.
 
-   This is the reference prototype at progress = 0 and nothing else: no scroll
-   track, no timed cycle, no lattice, no condense-into-the-logo. Grouping comes
-   later and will reuse HeroStage's timed approach, which is why HeroStage.tsx
-   is left untouched rather than edited into this.
-
-   WHY THIS IS A REWRITE, NOT A TUNING. The first attempt built a small dense
-   ball parked to the right of the copy. The reference is a different object:
+   The scattered state is a faithful port of hero-order.js at progress 0:
    particles sit on a HUGE shell (r = 8–16 world units against a camera at
-   z = 15), so the cloud swallows the whole frame, and with sizeAttenuation the
-   handful of particles near the camera draw as big squares while the far ones
-   fall to single specks. That size spread across a full-bleed sparse field IS
-   the look — it cannot be reached by resizing a compact cloud.
+   z = 15) so the cloud swallows the whole frame, and with sizeAttenuation the
+   few particles near the camera draw as big squares while the far ones fall to
+   single specks. That size spread across a full-bleed sparse field IS the look
+   — it cannot be reached by resizing a compact cloud. The constants lifted
+   from the reference (r, the .62 y-flatten, size .085, opacity .78, the .04
+   drift, the .1 breathing) are a spec: changing one changes the match.
 
-   The numbers below (N, r, OFFSET_X, the .62 y-flatten, size .085, opacity
-   .78, the .04 drift, the .1 breathing) are lifted verbatim from
-   hero-order.js. Treat them as a spec: changing one changes the match.
+   ---------------------------------------------------------------------------
+   THE FLAT-MARK COLLAPSE — the one thing that must never regress.
 
-   POINTSMATERIAL, DELIBERATELY. It draws SQUARES, which is what was asked for
-   and what the reference shows. HeroStage §5.16 avoids it for the logo mark —
-   squares read as noise when they have to resolve into a legible shape — but
-   noise is precisely the point of a scattered field. sizeAttenuation also
-   carries the depth read on its own, so no custom shader is needed here.
+   The logo is FLAT: every home point sits at z = 0. Rotate a flat cloud and it
+   collapses to a LINE every time it passes 90°, which is what "the cloud goes
+   horizontal" was. This is HeroStage §5.15, and it survived review there three
+   times because the first cycle looks fine.
 
-   ROTATION IS CUMULATIVE HERE, and that is correct. HeroStage §5.15 bans
-   `rotation.y = t * k` because that cloud is FLAT, so every pass through 90°
-   collapses it to a line. This cloud is a true 3D shell, so it presents the
-   same silhouette at every angle and the slow drift just keeps it alive.
+   So rotation is multiplied by (1 - k) and reaches EXACTLY zero at k = 1. That
+   single factor does three jobs: it kills the collapse, it makes the mark
+   square-on and legible, and it makes the mark mouse-inert — pointer input is
+   live only while the field is scattered, which is the required behaviour.
 
-   LOADING and TEARDOWN follow HeroStage: `three` is imported inside the effect
-   behind requestIdleCallback so it code-splits out of the initial bundle and
-   cannot touch first paint (HANDOFF §8, FCP 364ms), and every listener,
-   observer and GPU resource is collected for cleanup because React StrictMode
-   runs this effect twice in dev.
+   Note this differs from hero-order.js on purpose. The reference damps its
+   drift to 30% (`t*.04*(1-k*.7)`), never to zero. On its lattice that is fine;
+   on a flat mark it is the bug.
+
+   The drift is also accumulated INCREMENTALLY and frozen once the gather
+   starts. Writing `rotation.y = t * .04 * (1 - k)` instead would wind the whole
+   field back to zero from wherever elapsed time had taken it — a fast reverse
+   spin that gets worse the longer the page has been open.
+   ---------------------------------------------------------------------------
+
+   CLEAN CONVERGE, NOT CHAOS. Crossing travel paths are the main reason an
+   assembly reads as noise. Particles are matched to home points by ANGLE
+   (both sets sorted, paired rank-to-rank) and then travel in POLAR space, so
+   every path is a smooth arc and no two cross. Far particles leave first so
+   the mark completes together instead of trickling in.
+
+   POINTSMATERIAL, DELIBERATELY. It draws SQUARES, which is what the reference
+   shows and what was asked for. HeroStage §5.16 avoids it for the mark alone;
+   here the same material has to serve a noise field and a legible mark, which
+   is why `size` is animated with k — one world-space size cannot do both.
+
+   LOADING and TEARDOWN follow HeroStage: `three` and the point data are
+   fetched inside the effect behind requestIdleCallback so they code-split out
+   of the initial bundle and cannot touch first paint (HANDOFF §8, FCP 364ms),
+   and every listener, observer and GPU resource is collected for cleanup
+   because React StrictMode runs this effect twice in dev.
    ========================================================================== */
 
-const N = 4200;
-const OFFSET_X = 4.2;
+/* Seconds. Retuning the rhythm is one line each. */
+const SCATTER_HOLD = 4.0; /* k = 0 — pointer live */
+const CONDENSE = 3.0;
+const LOGO_HOLD = 3.5; /* k = 1 — mark still, pointer inert */
+const DISPERSE = 2.5;
+const CYCLE = SCATTER_HOLD + CONDENSE + LOGO_HOLD + DISPERSE;
+
+/* Fraction of the gather spent staggering departures. */
+const SPREAD = 0.3;
+
+/* Point size at each end of the cycle.
+
+   SCATTER is an absolute world size, and correctly so: the field's shell is a
+   fixed 8-16 world units at every breakpoint, so its grain does not vary.
+
+   The MARK is different — it is sized from SCALE, which shrinks hard on narrow
+   viewports. A fixed world size there made the points overlap into one solid
+   filled shape on mobile, losing the particle character entirely. So the mark's
+   size is a FRACTION of SCALE, which holds the same grain at every width. */
+const SIZE_SCATTER = 0.085;
+
+/* THE MARK IS A LATTICE, NOT A SAMPLE.
+
+   The field and the mark need different POINT COUNTS. 3810 points across a
+   611px desktop mark is a legible dotted logo; the same 3810 across a 133px
+   phone mark is ~2px apart, so the squares merge into one solid silhouette.
+
+   The first attempt at fixing that kept a random SUBSET of the mark's points.
+   That failed badly, and the reason is worth keeping: a random sample of a
+   shape clumps and leaves holes, so at low counts it reads as speckled noise
+   rather than as a logo. Evenly spaced dots are what make a halftone legible.
+
+   So the mark is QUANTISED to a grid at the target spacing — one point per
+   occupied cell, snapped to that cell's centre. The count then falls out of
+   the geometry, and the result is a regular lattice at every size. Surplus
+   particles do not vanish (the field still needs them); they FADE OUT as the
+   mark forms, which is what the per-particle alpha attribute is for. */
+const MARK_SPACING_PX = 4.3; /* centre-to-centre gap in the assembled mark */
+const MARK_COVERAGE = 0.62; /* fraction of its bounding box the mark fills */
+/* Square size as a fraction of the spacing, so its SQUARE is the ink coverage:
+   0.62 leaves only 38% covered, which read as a pale speckle with the mark's
+   shape lost. 0.74 gives ~55% — still visibly separate squares, but enough ink
+   for the silhouette and its counters to read. */
+const MARK_DOT_RATIO = 0.74;
+
+/* Vertical room on narrow screens. The nav is transparent at rest and owns the
+   first ~70px; without accounting for it the mark rode up under the wordmark
+   and left ~9px to the badge at 320px wide. */
+const NAV_PX = 70;
+const MARK_MARGIN_PX = 16;
 
 function webglOK() {
   try {
@@ -74,10 +138,33 @@ export default function HeroScatter() {
       const THREE = await import("three");
       if (cancelled) return;
 
-      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      /* The mark is optional: if the points cannot be fetched the field still
+         renders and simply never gathers, rather than losing the hero. */
+      let logo: { count: number; pos: number[] } | null = null;
+      try {
+        logo = await (await fetch("/logo-points.json")).json();
+      } catch (e) {
+        console.error("logo points unavailable; scatter runs alone", e);
+      }
+      if (cancelled) return;
 
-      /* sRGB equivalents of theme.css --brand / --accent / --brand-light,
-         same three the reference mixes between. */
+      const hasLogo = !!logo && logo.count > 0;
+      /* One particle per home point, so the mark lands complete with nothing
+         left drifting. Without the data, fall back to the reference count. */
+      const N = hasLogo ? logo!.count : 4200;
+
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+      const ease = (t: number) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      /* Shortest signed angular delta, so nothing takes the long way round. */
+      const sweep = (d: number) => {
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        return d;
+      };
+
+      /* sRGB equivalents of --brand / --accent / --brand-light. */
       const C = {
         brand: new THREE.Color("#1f5da0"),
         accent: new THREE.Color("#289dbe"),
@@ -96,62 +183,200 @@ export default function HeroScatter() {
       const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 100);
       camera.position.z = 15;
 
-      /* `chaos` is the resting scatter; `pos` is what the GPU reads. */
-      const chaos = new Float32Array(N * 3);
+      /* ------------------------------------------------------------------
+         Geometry, in POLAR around the cloud's own centre.
+
+         Positions are centre-relative and the object is MOVED, rather than an
+         offset being baked into every vertex. That way rotation happens about
+         the cloud's own axis; baking the offset in (as hero-order.js does)
+         rotates it about the world origin instead, which swings the whole
+         field sideways across the screen.
+
+         The move is scaled by k, so the SCATTER sits centred on the viewport
+         and covers the full page, and only the MARK travels to its home beside
+         the copy. Parking the field at the mark's home instead left the left
+         third of the page noticeably thin.
+         ------------------------------------------------------------------ */
+      const r0 = new Float32Array(N); /* scatter radius, world units */
+      const th0 = new Float32Array(N); /* scatter angle */
+      const z0 = new Float32Array(N); /* scatter depth */
+      const homeXu = new Float32Array(N); /* paired home, UNIT space */
+      const homeYu = new Float32Array(N);
+      const homeR = new Float32Array(N); /* snapped mark radius, UNIT space */
+      const dTh = new Float32Array(N); /* shortest sweep to the home angle */
+      /* 1 = this particle is one of the mark's lattice points. */
+      const member = new Uint8Array(N);
+      const delay = new Float32Array(N); /* departure stagger, 0..SPREAD */
+      const phase = new Float32Array(N);
+
       const pos = new Float32Array(N * 3);
       const col = new Float32Array(N * 3);
+      const colScatter = new Float32Array(N * 3);
+      const colLogo = new Float32Array(N * 3);
+      /* 1 = drawn. Surplus particles ride this to 0 as the mark forms. */
+      const fade = new Float32Array(N).fill(1);
 
       const tmp = new THREE.Color();
-      for (let k = 0; k < N; k++) {
-        /* r far exceeds the camera distance, so the shell encloses the
-           viewer — this is what makes the field full-bleed rather than an
-           object sitting in frame. y is flattened to .62 so the cloud reads
-           wide in a 16:9 band. */
+      let rMin = Infinity;
+      let rMax = 0;
+
+      for (let i = 0; i < N; i++) {
+        /* r far exceeds the camera distance, so the shell encloses the viewer
+           — this is what makes the field full-bleed rather than an object
+           sitting in frame. y flattened to .62 so it reads wide in a 16:9
+           band. */
         const r = 8 + Math.random() * 8;
         const th = Math.random() * Math.PI * 2;
         const ph = Math.acos(2 * Math.random() - 1);
-        chaos[k * 3] = r * Math.sin(ph) * Math.cos(th) + OFFSET_X;
-        chaos[k * 3 + 1] = r * Math.sin(ph) * Math.sin(th) * 0.62;
-        chaos[k * 3 + 2] = r * Math.cos(ph);
+        const x = r * Math.sin(ph) * Math.cos(th);
+        const y = r * Math.sin(ph) * Math.sin(th) * 0.62;
 
-        /* Biased toward brand so the cloud stays legible on a pale ground;
-           accent shows up as highlights rather than half the cloud. */
+        r0[i] = Math.hypot(x, y);
+        th0[i] = Math.atan2(y, x);
+        z0[i] = r * Math.cos(ph);
+        phase[i] = Math.random() * Math.PI * 2;
+
+        if (r0[i] < rMin) rMin = r0[i];
+        if (r0[i] > rMax) rMax = r0[i];
+
+        /* Scatter colour: biased toward brand so the field stays legible on a
+           pale ground, with accent as highlights rather than half the cloud. */
         tmp
           .copy(C.brand)
           .lerp(Math.random() < 0.3 ? C.accent : C.light, Math.random() * 0.85);
-        col[k * 3] = tmp.r;
-        col[k * 3 + 1] = tmp.g;
-        col[k * 3 + 2] = tmp.b;
+        colScatter[i * 3] = tmp.r;
+        colScatter[i * 3 + 1] = tmp.g;
+        colScatter[i * 3 + 2] = tmp.b;
       }
-      pos.set(chaos);
+
+      /* Far particles depart first, so every path lands together instead of
+         the mark trickling in from the outside. */
+      const rSpan = rMax - rMin || 1;
+      for (let i = 0; i < N; i++) {
+        delay[i] = SPREAD * (1 - (r0[i] - rMin) / rSpan);
+      }
+
+      if (hasLogo) {
+        const src = logo!.pos;
+        const lth = new Float32Array(N);
+        /* Kept separate from colLogo: the pairing loop below reads this by
+           HOME index and writes colLogo by PARTICLE index, and doing that in
+           one array would overwrite entries later ranks still need. */
+        const lcol = new Float32Array(N * 3);
+        for (let i = 0; i < N; i++) {
+          const x = src[i * 2];
+          const y = src[i * 2 + 1];
+          lth[i] = Math.atan2(y, x);
+          /* Mark colour: a clean ramp across the mark's width. Random colours
+             survive fine as noise but make the assembled logo look speckled,
+             so the two palettes are cross-faded with k. */
+          tmp.copy(C.brand).lerp(C.accent, clamp((x + 1) / 2));
+          lcol[i * 3] = tmp.r;
+          lcol[i * 3 + 1] = tmp.g;
+          lcol[i * 3 + 2] = tmp.b;
+        }
+
+        /* NON-CROSSING ASSIGNMENT. Sort both sets by angle and pair them
+           rank-to-rank. Rank matching is monotonic in angle, so it preserves
+           cyclic order — which is precisely the condition for no two travel
+           paths to cross. This is the difference between a converge that reads
+           as deliberate and one that reads as noise. */
+        const byScatter = Array.from({ length: N }, (_, i) => i).sort(
+          (a, b) => th0[a] - th0[b],
+        );
+        const byLogo = Array.from({ length: N }, (_, i) => i).sort(
+          (a, b) => lth[a] - lth[b],
+        );
+
+        for (let rank = 0; rank < N; rank++) {
+          const p = byScatter[rank];
+          const q = byLogo[rank];
+          homeXu[p] = src[q * 2];
+          homeYu[p] = src[q * 2 + 1];
+
+          /* Colour travels with the particle, not with the slot. */
+          colLogo[p * 3] = lcol[q * 3];
+          colLogo[p * 3 + 1] = lcol[q * 3 + 1];
+          colLogo[p * 3 + 2] = lcol[q * 3 + 2];
+        }
+
+      }
+      col.set(colScatter);
 
       const geo = new THREE.BufferGeometry();
       geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
       geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+      geo.setAttribute("aFade", new THREE.BufferAttribute(fade, 1));
 
-      const mat = new THREE.PointsMaterial({
-        size: 0.085,
-        vertexColors: true,
+      /* A hand-written stand-in for PointsMaterial, because PointsMaterial has
+         no per-particle alpha and the surplus particles must fade out as the
+         mark forms. Everything else is deliberately identical to it: SQUARE
+         points (no circular mask) and the same `size * (height/2) / -z`
+         attenuation, so the approved scatter is pixel-for-pixel unchanged.
+
+         The one correction is uDpr. gl_PointSize is in DEVICE pixels and
+         PointsMaterial does not account for that (HeroStage §5.17), so on a
+         retina phone it renders every point at half the intended CSS size.
+         Folding dpr into uScale keeps the grain honest on real devices. */
+      const uni = {
+        uSize: { value: SIZE_SCATTER },
+        uScale: { value: 450 },
+        uOpacity: { value: 0.78 },
+      };
+      const mat = new THREE.ShaderMaterial({
+        uniforms: uni,
         transparent: true,
-        opacity: 0.78,
-        blending: THREE.NormalBlending,
         depthWrite: false,
-        sizeAttenuation: true,
+        vertexColors: true,
+        blending: THREE.NormalBlending,
+        vertexShader: `
+          attribute float aFade;
+          varying vec3 vColor;
+          varying float vFade;
+          uniform float uSize, uScale;
+          void main() {
+            vColor = color;
+            vFade = aFade;
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = uSize * uScale / -mv.z;
+            gl_Position = projectionMatrix * mv;
+          }`,
+        fragmentShader: `
+          varying vec3 vColor;
+          varying float vFade;
+          uniform float uOpacity;
+          void main() {
+            if (vFade < 0.01) discard;
+            gl_FragColor = vec4(vColor, uOpacity * vFade);
+          }`,
       });
       const points = new THREE.Points(geo, mat);
       scene.add(points);
-      const attr = geo.getAttribute("position");
+      const aPos = geo.getAttribute("position");
+      const aCol = geo.getAttribute("color");
+      const aFade = geo.getAttribute("aFade");
 
       /* Theme is OBSERVED, never set — Nav owns `.dark` and the inline script
-         in layout.tsx writes it first (HANDOFF §5.19). The reference is
-         light-only; additive blending only ever brightens, so it is useless on
-         a pale ground but is what makes the cloud glow on the dark one. */
+         in layout.tsx writes it first (HANDOFF §5.19). Additive blending only
+         ever brightens, so it is useless on a pale ground but is what makes
+         the cloud glow on the dark one. */
       let isLight = !document.documentElement.classList.contains("dark");
+      /* Declared before applyTheme because applyTheme runs immediately and
+         writes them; leaving them below would be a temporal dead zone. */
+      let opScatter = 0.78;
+      let opLogo = 0.95;
+      let lastK = -1;
       const applyTheme = () => {
         mat.blending = isLight
           ? THREE.NormalBlending
           : THREE.AdditiveBlending;
-        mat.opacity = isLight ? 0.78 : 0.62;
+        mat.needsUpdate = true;
+        /* Opacity, like size, cannot serve both states from one value: 0.78 is
+           right for a sparse field but leaves the dense mark looking washed
+           out against the pale ground. Cross-faded with k alongside size. */
+        opScatter = isLight ? 0.78 : 0.62;
+        opLogo = isLight ? 0.95 : 0.8;
+        lastK = -1; /* force the frame loop to re-derive size and opacity */
       };
       applyTheme();
 
@@ -166,76 +391,290 @@ export default function HeroScatter() {
         attributeFilter: ["class"],
       });
 
-      /* Pointer parallax, exactly the reference's interaction: the cloud tilts
-         toward the cursor. Note the reference has NO cursor repulsion in this
-         mode — an earlier pass here added one, and it is dropped to keep this
-         a true duplicate. */
-      const ptr = { x: 0, y: 0, tx: 0, ty: 0 };
+      /* Pointer parallax. Its whole contribution is scaled by (1 - k) in the
+         frame loop, so it fades out as the mark forms and is exactly zero
+         while the mark is held.
+
+         RELATIVE, NOT ABSOLUTE — this is what stops the lurching.
+
+         Mapping the cursor's absolute position straight onto the target means
+         any DISCONTINUITY in that position swings the whole field. Three ways
+         that happened, all reported:
+           · page loads with the cursor already parked off-centre, so the first
+             1px nudge told the field to swing to a target it had never seen;
+           · the cursor leaves the window and comes back somewhere else;
+           · a second monitor — dragging across the seam teleports the cursor
+             the full width of the screen in a single event.
+
+         So the target accumulates MOVEMENT instead. The first event after the
+         cursor appears only seeds the reference point and moves nothing, and
+         each event can shift the target by at most STEP, so a teleport becomes
+         one small nudge rather than a lurch. Real movement fires many events,
+         so it accumulates normally and still feels direct. */
+      const STEP = 0.12;
+      const ptr = { x: 0, y: 0, tx: 0, ty: 0, lx: 0, ly: 0, seen: false };
+      const step = (d: number) => (d > STEP ? STEP : d < -STEP ? -STEP : d);
       const onMove = (e: PointerEvent) => {
         const r = hero.getBoundingClientRect();
-        ptr.tx = ((e.clientX - r.left) / r.width) * 2 - 1;
-        ptr.ty = -(((e.clientY - r.top) / r.height) * 2 - 1);
+        const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+        const ny = -(((e.clientY - r.top) / r.height) * 2 - 1);
+        if (ptr.seen) {
+          ptr.tx = clamp(ptr.tx + step(nx - ptr.lx), -1, 1);
+          ptr.ty = clamp(ptr.ty + step(ny - ptr.ly), -1, 1);
+        } else {
+          ptr.seen = true; /* seed only — the cursor's arrival moves nothing */
+        }
+        ptr.lx = nx;
+        ptr.ly = ny;
       };
       const onLeave = () => {
         ptr.tx = 0;
         ptr.ty = 0;
+        ptr.seen = false; /* re-seed on return, wherever it comes back */
       };
       hero.addEventListener("pointermove", onMove);
       hero.addEventListener("pointerleave", onLeave);
 
-      /* The reference sizes to the track width and window height. Here the
-         canvas fills the hero section, so it takes the hero's own box —
-         `false` keeps three from writing inline CSS over the stylesheet. */
+      /* ------------------------------------------------------------------
+         Layout — HeroStage's solved sizing, unchanged.
+         ------------------------------------------------------------------ */
+      let SCALE = 4;
+      let HOME_X = 4.6;
+      let HOME_Y = 0;
+      let sizeLogo = 0.17;
+      let markCount = N;
+      const FRAME = { w: 14, h: 14 };
+
+      /* Inverse of three's point sizing (`gl_PointSize = size * (height/2) / -z`)
+         at the mark plane, so a floor can be expressed in pixels instead of
+         hardcoding a magic world constant. */
+      const pxToWorld = (px: number, h: number) =>
+        (px * 2 * camera.position.z) / h;
+
+      /* Quantise the mark onto a lattice sized for the current mark, keep one
+         particle per occupied cell, and snap it to that cell's centre.
+
+         This is what makes a low-count mark legible. Sampling the mark's points
+         at random leaves clumps and holes and reads as noise; an even lattice
+         reads as a halftone of the shape. The cell nearest-wins so the chosen
+         point best represents its cell.
+
+         Runs on resize only, and leaves the angle PAIRING untouched — snapping
+         moves a home by at most half a cell, far too little to make travel
+         paths cross. */
+      const buildLattice = (h: number) => {
+        if (!hasLogo) return;
+        const markWidthPx = 2 * SCALE * (h / FRAME.h);
+        /* Logo unit space spans 2 (x from -1 to 1), so this is the cell size
+           in unit space for the requested pixel spacing. */
+        const cell = (MARK_SPACING_PX / markWidthPx) * 2;
+        const best = new Map<number, { p: number; d2: number }>();
+
+        for (let p = 0; p < N; p++) {
+          const kx = Math.round(homeXu[p] / cell);
+          const ky = Math.round(homeYu[p] / cell);
+          const cx = kx * cell;
+          const cy = ky * cell;
+          const dx = homeXu[p] - cx;
+          const dy = homeYu[p] - cy;
+          const d2 = dx * dx + dy * dy;
+          const key = (kx + 4096) * 8192 + (ky + 4096);
+          const cur = best.get(key);
+          if (!cur || d2 < cur.d2) best.set(key, { p, d2 });
+        }
+
+        member.fill(0);
+        /* Non-members still travel to their own unsnapped home — they are
+           invisible by the time the mark lands, but they must not all pile
+           onto one spot on the way in. */
+        for (let p = 0; p < N; p++) {
+          homeR[p] = Math.hypot(homeXu[p], homeYu[p]);
+          dTh[p] = sweep(Math.atan2(homeYu[p], homeXu[p]) - th0[p]);
+        }
+        for (const [key, v] of best) {
+          const kx = Math.floor(key / 8192) - 4096;
+          const ky = (key % 8192) - 4096;
+          const cx = kx * cell;
+          const cy = ky * cell;
+          member[v.p] = 1;
+          homeR[v.p] = Math.hypot(cx, cy);
+          dTh[v.p] = sweep(Math.atan2(cy, cx) - th0[v.p]);
+        }
+
+        markCount = best.size;
+        /* Size from the spacing actually achieved. On desktop the mark's own
+           points are further apart than the requested cell, so the lattice is
+           data-limited and the squares must grow to match. */
+        const spacing = markWidthPx / Math.sqrt(markCount / MARK_COVERAGE);
+        sizeLogo = pxToWorld(spacing * MARK_DOT_RATIO, h);
+        lastK = -1; /* size and fades depend on this, so re-derive next frame */
+      };
+
       const resize = () => {
         const w = hero.clientWidth;
         const h = hero.clientHeight;
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
+        FRAME.h =
+          2 *
+          Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) *
+          camera.position.z;
+        FRAME.w = FRAME.h * camera.aspect;
+
+        uni.uScale.value = h * 0.5 * Math.min(devicePixelRatio, 2);
+
+        if (w >= 900) {
+          SCALE = FRAME.h * 0.34;
+          HOME_X = Math.min(FRAME.w * 0.26, FRAME.w / 2 - SCALE * 1.05);
+          HOME_Y = 0;
+          buildLattice(h);
+          return;
+        }
+
+        /* NARROW. `h` is the SECTION height, not the screen — on mobile the
+           copy overflows the viewport, so sizing off FRAME.h alone puts the
+           mark edge to edge (§5.20). Everything below is therefore worked in
+           PIXELS against the band the CSS actually reserves, read from the DOM
+           so the reserved space and the mark cannot drift apart (§5.21).
+
+           The mark is fitted BETWEEN the nav and the copy with real margins,
+           rather than centred in the raw band. Centring on the band alone put
+           its top at 55px at 320px wide — under a nav that owns the first
+           ~70px — and left a 9px gap to the badge below. */
+        const band = parseFloat(getComputedStyle(hero).paddingTop) || h * 0.36;
+        const pxPerWorld = h / FRAME.h;
+        const room = band - NAV_PX - MARK_MARGIN_PX * 2;
+        const diameterPx = Math.max(64, Math.min(room, w * 0.62));
+        SCALE = diameterPx / 2 / pxPerWorld;
+        HOME_X = 0;
+        const centrePx = NAV_PX + MARK_MARGIN_PX + diameterPx / 2;
+        HOME_Y = ((h / 2 - centrePx) / h) * FRAME.h;
+        buildLattice(h);
       };
       resize();
       window.addEventListener("resize", resize);
 
+      /* Linear 0..1 across the cycle: 0 scattered, 1 mark held. */
+      const cyclePos = (t: number) => {
+        if (!hasLogo) return 0;
+        const c = t % CYCLE;
+        if (c < SCATTER_HOLD) return 0;
+        if (c < SCATTER_HOLD + CONDENSE) return (c - SCATTER_HOLD) / CONDENSE;
+        if (c < SCATTER_HOLD + CONDENSE + LOGO_HOLD) return 1;
+        return 1 - (c - SCATTER_HOLD - CONDENSE - LOGO_HOLD) / DISPERSE;
+      };
+
+      /* Writes one frame of geometry. `prog` is the linear cycle position;
+         `t` drives breathing only. */
+      const writeFrame = (prog: number, t: number) => {
+        const k = ease(clamp(prog));
+        const settle = 1 - k;
+        const stagger = 1 - SPREAD;
+
+        for (let i = 0; i < N; i++) {
+          const kp = ease(clamp((prog - delay[i]) / stagger));
+          const th = th0[i] + dTh[i] * kp;
+          /* Breathing decays to nothing as the mark forms — a resolved mark is
+             perfectly still. Applied radially so it reads as the field
+             pulsing, not as a scale wobble. */
+          const b = 1 + Math.sin(t * 0.65 + phase[i]) * 0.1 * settle;
+          const r = (r0[i] + (homeR[i] * SCALE - r0[i]) * kp) * b;
+
+          const j = i * 3;
+          pos[j] = Math.cos(th) * r;
+          pos[j + 1] = Math.sin(th) * r;
+          pos[j + 2] = z0[i] * (1 - kp);
+        }
+        aPos.needsUpdate = true;
+        return k;
+      };
+
       let raf: number | null = null;
       let t0 = performance.now();
+      let last = t0;
+      let spin = 0;
 
       const frame = (now: number) => {
         raf = requestAnimationFrame(frame);
         const t = (now - t0) / 1000;
+        const dt = Math.min((now - last) / 1000, 0.05); /* tab-switch guard */
+        last = now;
+
+        const k = writeFrame(cyclePos(t), t);
+        const settle = 1 - k;
+
+        /* Colours cross-fade with k; skipped entirely during the two holds,
+           where k does not move. */
+        if (k !== lastK) {
+          for (let n = 0; n < N * 3; n++) {
+            col[n] = colScatter[n] + (colLogo[n] - colScatter[n]) * k;
+          }
+          aCol.needsUpdate = true;
+          uni.uSize.value = SIZE_SCATTER + (sizeLogo - SIZE_SCATTER) * k;
+          uni.uOpacity.value = opScatter + (opLogo - opScatter) * k;
+          /* Surplus particles ride out to nothing exactly as the mark lands,
+             so the field keeps its density and the mark keeps its grain. */
+          if (markCount < N) {
+            for (let i = 0; i < N; i++) fade[i] = member[i] ? 1 : 1 - k;
+            aFade.needsUpdate = true;
+          }
+          lastK = k;
+        }
 
         ptr.x += (ptr.tx - ptr.x) * 0.05;
         ptr.y += (ptr.ty - ptr.y) * 0.05;
 
-        for (let n = 0; n < N; n++) {
-          const j = n * 3;
-          /* Breathing. In the reference this decays as the lattice resolves;
-             at progress 0 it runs at full amplitude. z is deliberately NOT
-             scaled by it — that is the reference's behaviour, and it keeps the
-             depth spread (and so the size spread) steady while xy pulses. */
-          const b = 1 + Math.sin(t * 0.65 + n * 0.017) * 0.1;
-          pos[j] = chaos[j] * b;
-          pos[j + 1] = chaos[j + 1] * b;
-          pos[j + 2] = chaos[j + 2];
+        /* Drift accrues only while fully scattered, and wraps there — at k = 0
+           rotation.y IS spin, so a wrap from +π to -π is the same orientation
+           and invisible. Freezing it through the gather keeps the unwind to at
+           most half a turn however long the page has been open. */
+        if (k < 1e-4) {
+          spin += dt * 0.04;
+          if (spin > Math.PI) spin -= Math.PI * 2;
+          else if (spin < -Math.PI) spin += Math.PI * 2;
         }
-        attr.needsUpdate = true;
 
-        points.rotation.y = t * 0.04 + ptr.x * 0.3;
-        points.rotation.x = ptr.y * 0.18;
+        /* EXACTLY zero at k = 1. See the flat-mark note at the top. */
+        points.rotation.y = (spin + ptr.x * 0.3) * settle;
+        points.rotation.x = ptr.y * 0.18 * settle;
+        /* Centred while scattered (full-bleed), at the mark's home once
+           gathered. */
+        points.position.set(HOME_X * k, HOME_Y * k, 0);
 
         renderer.render(scene, camera);
       };
 
       /* Paint one frame immediately so the fade-in has something to reveal. */
+      points.position.set(0, 0, 0); /* k = 0: the field is centred */
+      writeFrame(0, 0);
       renderer.render(scene, camera);
       requestAnimationFrame(() => stage.classList.add("ready"));
 
       let io: IntersectionObserver | null = null;
-      if (!reduced) {
+      if (reduced) {
+        /* Resolved, still, honest — the mark is the meaningful state. */
+        writeFrame(hasLogo ? 1 : 0, 0);
+        if (hasLogo) {
+          col.set(colLogo);
+          aCol.needsUpdate = true;
+          uni.uSize.value = sizeLogo;
+          uni.uOpacity.value = opLogo;
+          if (markCount < N) {
+            for (let i = 0; i < N; i++) fade[i] = member[i] ? 1 : 0;
+            aFade.needsUpdate = true;
+          }
+        }
+        points.rotation.set(0, 0, 0);
+        points.position.set(hasLogo ? HOME_X : 0, hasLogo ? HOME_Y : 0, 0);
+        renderer.render(scene, camera);
+      } else {
         /* Render only while on screen — §8's performance budget. */
         io = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting && raf === null) {
               t0 = performance.now();
+              last = t0;
               raf = requestAnimationFrame(frame);
             } else if (!e.isIntersecting && raf !== null) {
               cancelAnimationFrame(raf);

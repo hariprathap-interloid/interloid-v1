@@ -868,10 +868,17 @@ html.dark .scrim {
     /* This number is bought and paid for by hero copy length — it has
        been 40 / 36 / 28 / 36 across four copy passes, tracking the lead
        up and down. Round 10's lead is 32 words, so the mark gets its
-       band back. The scrim ramp below and hero-logo.js's SCALE cap both
-       key off this value; change it and re-run .verify-index.mjs, which
-       measures the CTA's bottom edge against the viewport. */
-    padding-top: 36vh;
+       band back. The scrim ramp below and the hero mark's SCALE cap both
+       key off this value; change it and re-check the CTA's bottom edge
+       against the viewport. (.verify-index.mjs, named here previously, is
+       no longer in the tree.)
+
+       The px floor is for SHORT viewports. At 320x544, 36vh is only 196px
+       and the nav owns the first ~70px of it, leaving too little for the
+       mark to resolve into anything legible. The floor only engages below
+       ~722px tall, where the CTA is already far under the fold, so the
+       calibrated 36vh is untouched everywhere it already works. */
+    padding-top: max(36vh, 260px);
     padding-bottom: 5rem;
   }
   /* Two layers. The second is the main downward ramp that clears the
