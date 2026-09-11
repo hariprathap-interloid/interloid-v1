@@ -15,7 +15,13 @@ import {
    SECTIONS still exist (StackMarquee on /services, Process on home) and are
    reachable by scrolling; only their nav shortcuts are gone.
 
-   Desktop pill at `xl:` (1280px); below that the mobile menu. Every link
+   Desktop pill at `lg:` (1024px); below that the mobile menu. It moved down
+   from `xl:` (1280px) on 2026-09-11 — measured with the pill forced on, all six
+   links sit on one row at 1024 with 67px clear either side at rest and 42px
+   once scrolled into the narrower PILL, so the 1024–1279 band was showing a
+   hamburger on a header with room to spare. Re-measure if a link is added.
+
+   Every link
    resolves: `/careers` shipped 2026-09-07 and `/about` 2026-09-08, so the
    `data-placeholder` flags this list used to carry are both gone. If a link
    is ever added before its route exists, flag it here rather than hiding it —
@@ -143,11 +149,12 @@ export default function Nav() {
         toggleRef.current?.focus();
       }
     };
-    /* 1280, not the prototype's 1024. The desktop pill appears at `xl:`
-       (1280px), so between 1024 and 1279 the mobile menu is still the ONLY
-       navigation — closing it at 1024 shut the menu on a viewport that has no
-       other nav. Fixed in the port. */
-    const mq = window.matchMedia("(min-width: 1280px)");
+    /* MUST match the pill's breakpoint exactly (`lg:`, 1024px). Below it the
+       mobile menu is the ONLY navigation, so the menu may auto-close only at
+       the width where the pill takes over: any earlier shuts the menu on a
+       viewport with no other nav (the prototype's bug), any later leaves both
+       showing at once. */
+    const mq = window.matchMedia("(min-width: 1024px)");
     const onBreak = (e: MediaQueryListEvent) => {
       if (e.matches) setOpen(false);
     };
@@ -220,7 +227,7 @@ export default function Nav() {
             </a>
 
             {/* §6.2 a pill inside a pill */}
-            <div className="hidden items-center gap-1 rounded-full border border-white/40 bg-card/80 px-3 py-2 p-1 shadow-sm backdrop-blur-sm xl:flex">
+            <div className="hidden items-center gap-1 rounded-full border border-white/40 bg-card/80 px-3 py-2 p-1 shadow-sm backdrop-blur-sm lg:flex">
               {LINKS.map((l) => (
                 <a
                   key={l.href}
@@ -285,7 +292,7 @@ export default function Nav() {
                   saves every page a scroll-and-click. */}
               <a
                 href="/content"
-                className="hidden rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 xl:inline-flex"
+                className="hidden rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 lg:inline-flex"
               >
                 Let&apos;s talk
               </a>
@@ -300,7 +307,7 @@ export default function Nav() {
                   e.stopPropagation();
                   setOpen((o) => !o);
                 }}
-                className="grid size-11 place-items-center rounded-full text-foreground transition-colors hover:bg-muted xl:hidden"
+                className="grid size-11 place-items-center rounded-full text-foreground transition-colors hover:bg-muted lg:hidden"
               >
                 <svg
                   data-icon="menu"
@@ -340,7 +347,7 @@ export default function Nav() {
       <div
         ref={menuRef}
         id="mobileMenu"
-        className={`fixed left-4 right-4 top-24 z-40 origin-top rounded-3xl border border-border bg-card p-6 shadow-2xl transition-all duration-300 ease-in-out xl:hidden ${open
+        className={`fixed left-4 right-4 top-24 z-40 origin-top rounded-3xl border border-border bg-card p-6 shadow-2xl transition-all duration-300 ease-in-out lg:hidden ${open
             ? "visible scale-100 opacity-100"
             : "invisible scale-95 opacity-0"
           }`}

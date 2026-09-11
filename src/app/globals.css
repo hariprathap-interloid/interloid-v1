@@ -322,6 +322,19 @@ html {
     0 0 0 2px var(--ink-deep),
     0 0 0 4px var(--accent);
 }
+/* Inline blanks in the /content story (brief/parts.tsx InlineBlank). The
+   ring above boxed ONE WORD inside a sentence — which turned the blank back
+   into a form field (the one thing that page exists to avoid) and covered
+   the underline of the blank on the line above. Here focus is the same 2px
+   ring colour laid along the bottom of the word, plus a faint tint behind
+   it: still a visible indicator, just shaped like the blank. Unlayered and
+   (0,2,0), so it beats the global rule above; a Tailwind utility could not,
+   because layered CSS loses to unlayered at any specificity. */
+.blank-in-text:focus-visible {
+  box-shadow: 0 2px 0 0 var(--ring);
+  background: color-mix(in srgb, var(--ring) 8%, transparent);
+  border-radius: 0.35rem 0.35rem 0 0;
+}
 
 /* DS 9.10 shine sweep - reserved for the single most important CTA. */
 @keyframes shine {

@@ -88,6 +88,18 @@ export async function sendStory(
   if (values.email && !isEmail(values.email)) delete values.email;
   if (values.phone && !isPhone(values.phone)) delete values.phone;
 
+  /* /content-lab sends `lab=1`: validated exactly like a real story, so every
+     layout variant exercises the real rules — but never saved. Harmless to
+     leave public: all it can do is NOT write a file. */
+  if (formData.get("lab") === "1") {
+    return {
+      status: "sent",
+      ref: "LAB",
+      firstName: values.name.split(/\s+/)[0],
+      contact: values.email ?? values.phone,
+    };
+  }
+
   const ref = randomUUID().slice(0, 8).toUpperCase();
   const receivedAt = new Date().toISOString();
 

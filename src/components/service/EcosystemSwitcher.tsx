@@ -48,7 +48,7 @@ export type EcosystemDesign = {
    radiogroup is ONE tab stop: tab moves past the set, arrows move within it.
    Eight separate stops would put the diagram nine tabs below the heading and
    would also be wrong — these are one choice, not eight actions. */
-function Choice<T extends string>({
+export function Choice<T extends string>({
   label,
   options,
   value,

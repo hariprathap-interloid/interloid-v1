@@ -304,19 +304,23 @@ export function tellStory(version: BriefVersion, values: Record<string, string>)
     .map((c) => {
       const lines = c.lines
         .filter((line) => line.some((s) => typeof s !== "string" && values[s.name]))
-        .map((line) => {
-          const out: string[] = [];
-          line.forEach((s, i) => {
-            if (typeof s === "string") return void out.push(s);
-            const v = values[s.name];
-            if (v) return void out.push(s.kind === "long" ? ` ${v}` : v);
-            const prev = line[i - 1];
-            if (i > 1 && typeof prev === "string" && prev.trim().length <= 6) out.pop();
-          });
-          return out.join("").replace(/\s{2,}/g, " ").replace(/\s+([.,])/g, "$1").trim();
-        });
+        .map((line) => lineText(line, values));
       return lines.length ? `${c.title}\n${lines.join("\n")}` : "";
     })
     .filter(Boolean)
     .join("\n\n");
+}
+
+/** One line of the letter as plain text — shared by tellStory and by any
+    view that shows an answered line back (the /content-lab conversation). */
+export function lineText(line: readonly Segment[], values: Record<string, string>): string {
+  const out: string[] = [];
+  line.forEach((s, i) => {
+    if (typeof s === "string") return void out.push(s);
+    const v = values[s.name]?.trim();
+    if (v) return void out.push(s.kind === "long" ? ` ${v}` : v);
+    const prev = line[i - 1];
+    if (i > 1 && typeof prev === "string" && prev.trim().length <= 6) out.pop();
+  });
+  return out.join("").replace(/\s{2,}/g, " ").replace(/\s+([.,])/g, "$1").trim();
 }

@@ -675,12 +675,28 @@ export default function HeroScatter() {
           const edge = parseFloat(getComputedStyle(hero).paddingRight) || 64;
           const left = end + COPY_GAP_PX;
           const right = w - edge;
+          /* VERTICALLY, keep the mark inside the FIRST SCREEN. The section is
+             sized by its copy, and on a short window (1024x544, say) the
+             narrower column wraps until the section is far taller than the
+             viewport — centring on the SECTION then put the mark's lower half
+             below the fold. So it centres in the band between the nav clearance
+             (the section's own padding-top) and just above the fold, whichever
+             sits higher; when the section fits the window that is simply its
+             middle, exactly as before. `min` keeps the handover continuous as
+             the window shrinks. */
+          const bandTop = parseFloat(getComputedStyle(hero).paddingTop) || 96;
+          const bandBottom = Math.min(h, window.innerHeight) - 24;
+          const centreY = Math.min(h / 2, (bandTop + bandBottom) / 2);
           /* 0.68 of the section height is the size the mark had at 1440; cap
-             there so very wide screens do not balloon it. */
-          const diameterPx = Math.max(0, Math.min(right - left, h * 0.68));
+             there so very wide screens do not balloon it — and to the visible
+             band, so the fold can never clip it. */
+          const diameterPx = Math.max(
+            0,
+            Math.min(right - left, h * 0.68, bandBottom - bandTop),
+          );
           SCALE = diameterPx / 2 / pxPerWorld;
           HOME_X = ((left + right) / 2 - w / 2) / pxPerWorld;
-          HOME_Y = 0;
+          HOME_Y = (h / 2 - centreY) / pxPerWorld;
           buildLattice(h);
           return;
         }

@@ -41,12 +41,18 @@ export default function Hero() {
       <div className="scrim" aria-hidden="true" />
       <div className="scrim-spread" data-scrim-spread aria-hidden="true" />
       <div className="relative z-10 mx-auto w-full max-w-[1600px]">
-        {/* 30rem from 900 to 1279px. Side by side with the mark there is only
+        {/* 30rem from 900 to 1439px. Side by side with the mark there is only
             ~1000px to share, and at the full 48rem the lead ran 175px under
             the mark at 1024 (247px at 1024x768, 35px even at 1280). HeroScatter
             now places the mark from where these words actually END, so this
-            cap is what buys the mark room — the overlap itself cannot recur. */}
-        <div className="max-w-3xl min-[900px]:max-w-[30rem] xl:max-w-3xl 2xl:max-w-[48rem]">
+            cap is what buys the mark room — the overlap itself cannot recur.
+
+            It widens back at 1440, deliberately not at `xl:` (1280). Widening
+            the copy pushes the mark ~185px narrower, and at 1280 that was a
+            visible step — measured 501px at 1180 dropping to 418px at 1280. At
+            1440 the mark is already near its height cap either side, so the
+            switch barely moves it. */}
+        <div className="max-w-3xl min-[900px]:max-w-[30rem] min-[1440px]:max-w-3xl 2xl:max-w-[48rem]">
           <div
             data-reveal
             className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-4 py-2 shadow-sm"
