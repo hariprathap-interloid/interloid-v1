@@ -1,5 +1,5 @@
 /* ==========================================================================
-   /content — "Tell us your story". Added 2026-09-11.
+   /contact — "Tell us your story". Added 2026-09-11.
    ==========================================================================
    Every word of the project-enquiry page lives here: the hero, the story
    the visitor writes, the letter it becomes, the send, and the thank-you.

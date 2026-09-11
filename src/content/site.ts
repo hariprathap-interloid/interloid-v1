@@ -416,8 +416,8 @@ export const WHY_HERO = {
   body: "Your code and infrastructure stay in your accounts. The engineers you meet are the engineers working on your project. Pricing is agreed before work begins, progress is demonstrated every week, and you always retain control of the work and the accounts it lives in.",
   kicker: "These aren’t promises for a sales deck. They’re commitments carried into every engagement agreement.",
   cta: "Book a free 30-min consult",
-  /* /content, the enquiry page, since 2026-09-11 (was "/#contact"). */
-  ctaHref: "/content",
+  /* /contact, the enquiry page, since 2026-09-11 (was "/#contact"). */
+  ctaHref: "/contact",
   sub: "Read the agreement",
   subHref: "#agreement",
 };

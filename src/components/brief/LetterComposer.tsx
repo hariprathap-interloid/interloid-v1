@@ -5,7 +5,15 @@ import Icon from "@/components/Icon";
 import { BRIEF_SEND, BRIEF_UI } from "@/content/brief";
 import EnvelopeSend from "./anim/EnvelopeSend";
 import Stage, { finaleOf, hasStage, type AnimKind } from "./anim/Stage";
-import { CARD, Chapters, Honeypot, PARA_MD, SendFoot, ThankYou, VersionToggle } from "./parts";
+import {
+  CARD,
+  Chapters,
+  Honeypot,
+  PARA_MD,
+  SendFoot,
+  ThankYou,
+  VersionToggle,
+} from "./parts";
 import { useStoryBrief, type Brief } from "./useStoryBrief";
 
 /* ==========================================================================
@@ -93,9 +101,13 @@ function Paper({
   bodyId?: string;
 }) {
   const { values, version, progress, who, company } = brief;
-  const pct = progress.total ? Math.round((progress.filled / progress.total) * 100) : 0;
+  const pct = progress.total
+    ? Math.round((progress.filled / progress.total) * 100)
+    : 0;
   return (
-    <div className={`${CARD} flex flex-col overflow-hidden ${FIT[fit]}`}>
+    <div
+      className={`${CARD} flex flex-col overflow-hidden ${FIT[fit]} pb-6 sm:pb-8 pr-2`}
+    >
       <div className="h-1 shrink-0 bg-secondary" aria-hidden="true">
         <div
           className="h-full bg-gradient-to-r from-brand to-accent transition-[width] duration-500 ease-out"
@@ -104,55 +116,83 @@ function Paper({
       </div>
       <div className="shrink-0 px-6 pt-6 sm:px-10 sm:pt-8">
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-5 text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">{BRIEF_UI.letterTo}</span>
+          <span className="font-semibold text-foreground">
+            {BRIEF_UI.letterTo}
+          </span>
           <span className="tabular-nums" aria-live="polite">
             {BRIEF_UI.answered(progress.filled, progress.total)}
           </span>
         </div>
       </div>
+      {/* A scroll box ONLY when fitted beside the story at `lg:`. As an
+          always-on `overflow-y-auto overscroll-contain` box it trapped the
+          swipe in the phone sheet: with nothing of its own to scroll, it
+          still refused to chain the gesture to the sheet around it, so the
+          sheet could not scroll at all. */}
       <div
         id={bodyId}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6 [scrollbar-width:thin] sm:px-10 sm:pb-8"
+        className={
+          fit === "none"
+            ? "px-6  sm:px-10 sm:pb-8"
+            : "px-6  sm:px-10  lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-width:thin] "
+        }
       >
-        <div className="mt-5 space-y-2">
-          {version.chapters.map((c) =>
-            c.lines.map((line, li) => {
-              const names = line.flatMap((s) => (typeof s === "string" ? [] : [s.name]));
-              const on = !!active && names.includes(active);
-              return (
-                <p
-                  key={`${c.key}-${li}`}
-                  data-fields={names.join(" ")}
-                  className={`${PARA_MD} -mx-3 rounded-xl px-3 py-0.5 transition-colors duration-300 ${on ? "bg-brand/[0.07]" : ""}`}
-                >
-                  {line.map((s, si) => {
-                    if (typeof s === "string") return <span key={si}>{s}</span>;
-                    const v = values[s.name]?.trim();
-                    if (v) {
+        <div>
+          <div className="mt-5 space-y-2">
+            {version.chapters.map((c) =>
+              c.lines.map((line, li) => {
+                const names = line.flatMap((s) =>
+                  typeof s === "string" ? [] : [s.name],
+                );
+                const on = !!active && names.includes(active);
+                return (
+                  <p
+                    key={`${c.key}-${li}`}
+                    data-fields={names.join(" ")}
+                    /* overflow-wrap:anywhere — an answer typed with no spaces
+                     ("wwwww…") ran straight past the card's edge. */
+                    className={`${PARA_MD} -mx-3 rounded-xl px-3 py-0.5 transition-colors duration-300 [overflow-wrap:anywhere] ${on ? "bg-brand/[0.07]" : ""}`}
+                  >
+                    {line.map((s, si) => {
+                      if (typeof s === "string")
+                        return <span key={si}>{s}</span>;
+                      const v = values[s.name]?.trim();
+                      if (v) {
+                        return (
+                          <span
+                            key={s.name}
+                            className={
+                              s.kind === "long"
+                                ? "mt-1 block text-brand"
+                                : "text-brand"
+                            }
+                          >
+                            {v}
+                          </span>
+                        );
+                      }
                       return (
-                        <span key={s.name} className={s.kind === "long" ? "mt-1 block text-brand" : "text-brand"}>
-                          {v}
+                        <span
+                          key={s.name}
+                          className={`${s.kind === "long" ? "mt-1 block w-fit" : "mx-0.5"} border-b-2 border-dashed border-border px-1 text-faint`}
+                        >
+                          {s.label}
                         </span>
                       );
-                    }
-                    return (
-                      <span
-                        key={s.name}
-                        className={`${s.kind === "long" ? "mt-1 block w-fit" : "mx-0.5"} border-b-2 border-dashed border-border px-1 text-faint`}
-                      >
-                        {s.label}
-                      </span>
-                    );
-                  })}
-                </p>
-              );
-            }),
-          )}
+                    })}
+                  </p>
+                );
+              }),
+            )}
+          </div>
+          <p className={`${PARA_MD} mt-6 [overflow-wrap:anywhere]`}>
+            {BRIEF_SEND.signoff}{" "}
+            <span className={who ? "text-brand" : "text-faint"}>
+              {who || "your name"}
+            </span>
+            {company && <span className="text-brand">, {company}</span>}
+          </p>
         </div>
-        <p className={`${PARA_MD} mt-6`}>
-          {BRIEF_SEND.signoff} <span className={who ? "text-brand" : "text-faint"}>{who || "your name"}</span>
-          {company && <span className="text-brand">, {company}</span>}
-        </p>
       </div>
     </div>
   );
@@ -192,7 +232,11 @@ export default function LetterComposer({
        "mark-send" exists for. No animation or the envelope: the plain card. */
     const finale = finaleOf(anim);
     const thanks = finale ? (
-      <ThankYou brief={brief} className={CARD} stage={<Stage kind={finale} progress={1} done fill />} />
+      <ThankYou
+        brief={brief}
+        className={CARD}
+        stage={<Stage kind={finale} progress={1} done fill />}
+      />
     ) : (
       <ThankYou brief={brief} className={`${CARD} p-8 sm:p-12`} />
     );
@@ -200,7 +244,11 @@ export default function LetterComposer({
       <section className="bg-background py-16 lg:py-24">
         <div className="shell">
           <div className="mx-auto max-w-5xl">
-            {anim === "envelope" ? <EnvelopeSend name={brief.who}>{thanks}</EnvelopeSend> : thanks}
+            {anim === "envelope" ? (
+              <EnvelopeSend name={brief.who}>{thanks}</EnvelopeSend>
+            ) : (
+              thanks
+            )}
           </div>
         </div>
       </section>
@@ -209,7 +257,9 @@ export default function LetterComposer({
 
   const show = (t: "write" | "letter") => {
     setTab(t);
-    document.getElementById(brief.formId)?.scrollIntoView({ block: "start", behavior: "smooth" });
+    document
+      .getElementById(brief.formId)
+      ?.scrollIntoView({ block: "start", behavior: "smooth" });
   };
   const openSheet = () => {
     setSheet(true);
@@ -227,10 +277,13 @@ export default function LetterComposer({
     const box = document.getElementById(letterId);
     const line = box?.querySelector<HTMLElement>(`[data-fields~="${name}"]`);
     if (!box || !line || box.scrollHeight <= box.clientHeight) return;
-    const d = line.getBoundingClientRect().top - box.getBoundingClientRect().top;
+    const d =
+      line.getBoundingClientRect().top - box.getBoundingClientRect().top;
     box.scrollBy({
       top: d - box.clientHeight / 3,
-      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
     });
   };
 
@@ -242,14 +295,27 @@ export default function LetterComposer({
     "shell grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-x-16";
   const COL_STORY = left ? "lg:col-start-1" : "lg:col-start-2";
   const COL_PREVIEW = left ? "lg:col-start-2" : "lg:col-start-1";
-  const HIDE_WRITE = mobile === "tabs" && tab === "letter" ? "hidden lg:block" : "";
-  const HIDE_PREVIEW = mobile === "drawer" || tab === "write" ? "hidden lg:block" : "";
+  const HIDE_WRITE =
+    mobile === "tabs" && tab === "letter" ? "hidden lg:block" : "";
+  const HIDE_PREVIEW =
+    mobile === "drawer" || tab === "write" ? "hidden lg:block" : "";
   /* Only one live animation at a time — see the banner. */
   const columnStage = hasStage(anim) && (wide || mobile === "tabs");
 
   return (
-    <section className={mobile === "drawer" ? "bg-background pb-32 pt-12 lg:py-24" : "bg-background py-12 lg:py-24"}>
-      <form id={brief.formId} noValidate onSubmit={brief.submit} className={GRID}>
+    <section
+      className={
+        mobile === "drawer"
+          ? "bg-background pb-32 pt-12 lg:py-24"
+          : "bg-background py-12 lg:py-24"
+      }
+    >
+      <form
+        id={brief.formId}
+        noValidate
+        onSubmit={brief.submit}
+        className={GRID}
+      >
         <Honeypot />
 
         {mobile === "tabs" && (
@@ -296,7 +362,10 @@ export default function LetterComposer({
           className={`${HIDE_WRITE} ${COL_STORY} min-w-0 lg:row-start-1`}
         >
           <div className={CARD}>
-            <VersionToggle brief={brief} className="border-b border-border px-6 py-5 sm:px-8" />
+            <VersionToggle
+              brief={brief}
+              className="border-b border-border px-6 py-5 sm:px-8"
+            />
             <div className="px-6 sm:px-8">
               <Chapters brief={brief} para={PARA_MD} />
             </div>
@@ -314,7 +383,12 @@ export default function LetterComposer({
         >
           <div className="grid gap-5 lg:sticky lg:top-24">
             {columnStage && <Stage kind={anim} progress={p} done={false} />}
-            <Paper brief={brief} active={active} fit={columnStage ? "screen-stage" : "screen"} bodyId={letterId} />
+            <Paper
+              brief={brief}
+              active={active}
+              fit={columnStage ? "screen-stage" : "screen"}
+              bodyId={letterId}
+            />
             {mobile === "tabs" && (
               <button
                 type="button"
@@ -348,8 +422,13 @@ export default function LetterComposer({
                 <Icon name="doc" className="size-5" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-[15px] font-semibold text-foreground">{BRIEF_UI.preview}</span>
-                <span className="mt-1 block h-1 overflow-hidden rounded-full bg-secondary" aria-hidden="true">
+                <span className="block text-[15px] font-semibold text-foreground">
+                  {BRIEF_UI.preview}
+                </span>
+                <span
+                  className="mt-1 block h-1 overflow-hidden rounded-full bg-secondary"
+                  aria-hidden="true"
+                >
                   <span
                     className="block h-full rounded-full bg-gradient-to-r from-brand to-accent transition-[width] duration-500"
                     style={{ width: `${Math.round(p * 100)}%` }}
@@ -359,7 +438,9 @@ export default function LetterComposer({
                   {BRIEF_UI.answered(progress.filled, progress.total)}
                 </span>
               </span>
-              <span className="shrink-0 text-sm font-semibold text-primary">{BRIEF_UI.previewAction} ↑</span>
+              <span className="shrink-0 text-sm font-semibold text-primary">
+                {BRIEF_UI.previewAction} ↑
+              </span>
             </button>
           </div>
 
@@ -373,7 +454,9 @@ export default function LetterComposer({
             className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[88vh] w-full max-w-full overflow-y-auto rounded-t-[2rem] border-0 bg-background p-0 text-muted-foreground backdrop:bg-ink/60 backdrop:backdrop-blur-sm lg:hidden"
           >
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/95 px-5 py-4 backdrop-blur">
-              <span className="font-display text-lg font-semibold text-foreground">{BRIEF_UI.sheetTitle}</span>
+              <span className="font-display text-lg font-semibold text-foreground">
+                {BRIEF_UI.sheetTitle}
+              </span>
               <button
                 type="button"
                 onClick={() => sheetRef.current?.close()}
@@ -383,7 +466,9 @@ export default function LetterComposer({
               </button>
             </div>
             <div className="grid gap-5 p-4">
-              {sheet && !wide && hasStage(anim) && <Stage kind={anim} progress={p} done={false} />}
+              {sheet && !wide && hasStage(anim) && (
+                <Stage kind={anim} progress={p} done={false} />
+              )}
               <Paper brief={brief} />
             </div>
           </dialog>

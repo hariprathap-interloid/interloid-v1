@@ -322,7 +322,7 @@ html {
     0 0 0 2px var(--ink-deep),
     0 0 0 4px var(--accent);
 }
-/* Inline blanks in the /content story (brief/parts.tsx InlineBlank). The
+/* Inline blanks in the /contact story (brief/parts.tsx InlineBlank). The
    ring above boxed ONE WORD inside a sentence — which turned the blank back
    into a form field (the one thing that page exists to avoid) and covered
    the underline of the blank on the line above. Here focus is the same 2px
@@ -334,6 +334,22 @@ html {
   box-shadow: 0 2px 0 0 var(--ring);
   background: color-mix(in srgb, var(--ring) 8%, transparent);
   border-radius: 0.35rem 0.35rem 0 0;
+}
+
+/* Tailwind v4's preflight gives buttons `cursor: default`, so every button
+   on the site — suggestion pills, toggles, send, the phone bar — showed an
+   arrow (user report, 2026-09-11). Restored for everything clickable. In
+   the BASE layer on purpose, so a utility like `disabled:cursor-wait` or
+   `cursor-not-allowed` still wins where a component asks for one. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="radio"],
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
 }
 
 /* DS 9.10 shine sweep - reserved for the single most important CTA. */

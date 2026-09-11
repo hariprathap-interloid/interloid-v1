@@ -15,7 +15,7 @@ import {
 } from "@/content/brief";
 
 /* ==========================================================================
-   sendStory — the /content enquiry.
+   sendStory — the /contact enquiry.
    ==========================================================================
    Public and unauthenticated by design: it is a contact page. That makes it
    an untrusted entry point (Next's server-actions guide), so values are
@@ -88,7 +88,7 @@ export async function sendStory(
   if (values.email && !isEmail(values.email)) delete values.email;
   if (values.phone && !isPhone(values.phone)) delete values.phone;
 
-  /* /content-lab sends `lab=1`: validated exactly like a real story, so every
+  /* /contact-lab sends `lab=1`: validated exactly like a real story, so every
      layout variant exercises the real rules — but never saved. Harmless to
      leave public: all it can do is NOT write a file. */
   if (formData.get("lab") === "1") {

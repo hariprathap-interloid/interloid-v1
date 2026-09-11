@@ -112,7 +112,7 @@ export default function Hero() {
             className="flex flex-wrap items-center gap-4"
           >
             <a
-              href="/content"
+              href="/contact"
               className="shine group relative inline-flex h-14 items-center gap-2 overflow-hidden rounded-full bg-primary px-9 text-lg font-medium text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:bg-brand-light hover:shadow-2xl hover:shadow-primary/40 active:scale-95"
             >
               Book a free 30-min consult

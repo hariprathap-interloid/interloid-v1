@@ -29,14 +29,16 @@ import type { Brief, SetValue } from "./useStoryBrief";
    Reveal's `is-in` would be wiped by React's next write (see Faq's note).
    ========================================================================== */
 
-export const PARA = "font-display text-xl leading-loose text-foreground md:text-[1.4rem]";
-export const PARA_MD = "font-display text-lg leading-loose text-foreground md:text-xl";
+export const PARA =
+  "font-display text-xl leading-loose text-foreground md:text-[1.4rem]";
+export const PARA_MD =
+  "font-display text-lg leading-loose text-foreground md:text-xl";
 
 /* The card. Lifted off a tinted ground by a long, soft shadow rather than
    the site's `shadow-sm` — on a tinted ground a 1px shadow reads as a
    border, and the letter is the one object that should come forward. */
 export const CARD =
-  "min-w-0 rounded-[2rem] border border-border bg-card shadow-[0_30px_60px_-30px_rgba(15,23,43,.28)]";
+  "min-w-0 rounded-[1.5rem] border border-border bg-card shadow-[0_30px_60px_-30px_rgba(15,23,43,.28)]";
 
 /* ── the two kinds of blank ───────────────────────────────────────────── */
 
@@ -51,28 +53,80 @@ export function InlineBlank({
   set: SetValue;
   invalid: boolean;
 }) {
+  /* ── SIZED BY ITS OWN TEXT, AND WRAPPING (rebuilt 2026-09-11) ─────────
+     The blank was an <input> sized with `size` — a count of AVERAGE
+     characters, which in a proportional face is badly wrong: the box ran
+     far wider than the words, so the full stop after it floated mid-line
+     and "I'm Asha" sat a thumb's width from "from". And an <input> is one
+     line: a long answer scrolled sideways inside it instead of wrapping.
+
+     Now an invisible copy of the text (or the hint while empty) sits in
+     the flow and alone sets the size; the real field is laid ABSOLUTELY
+     over it. The box is exactly as wide as the words, up to the line; past
+     that the copy wraps — long unspaced words included
+     (overflow-wrap:anywhere) — and the box grows DOWN, the textarea filling
+     it. Email and phone stay one-line <input>s so a phone still shows the
+     right keyboard; they are short by nature. Enter never adds a line: a
+     blank is part of a sentence, not a paragraph.
+
+     Absolute, not a shared grid cell: a first version put both in one
+     inline-grid cell, and the field's own INTRINSIC width (a textarea's
+     default ~20 columns) still sized the track — "Asha" measured 212px. An
+     absolutely-positioned field contributes nothing to its parent's size. */
+  const wraps = f.type !== "email" && f.type !== "tel";
+  /* `blank-in-text`: its focus style lives in globals.css — see there for
+     why a utility class cannot override the global ring. */
+  const skin = `blank-in-text absolute inset-0 size-full border-0 border-b-2 bg-transparent px-1 pb-0.5 font-display font-medium text-brand outline-none transition-colors placeholder:font-normal placeholder:text-faint focus:border-solid ${
+    invalid
+      ? "border-rose-500"
+      : "border-dashed border-brand/35 focus:border-brand"
+  }`;
+  const common = {
+    name: f.name,
+    value,
+    placeholder: f.hint,
+    "aria-label": f.label,
+    "aria-required": f.required || undefined,
+    "aria-invalid": invalid || undefined,
+    autoComplete: f.autoComplete ?? "off",
+    maxLength: 300,
+  };
+
   return (
-    <input
-      name={f.name}
-      type={f.type ?? "text"}
-      value={value}
-      onChange={(e) => set(f.name, e.target.value)}
-      placeholder={f.hint}
-      aria-label={f.label}
-      aria-required={f.required || undefined}
-      aria-invalid={invalid || undefined}
-      autoComplete={f.autoComplete ?? "off"}
-      /* `size` in characters grows the blank with what is typed, in every
-         browser — `field-sizing: content` is still Chromium-only. */
-      size={Math.max(f.hint.length, value.length, 6) + 1}
-      maxLength={300}
-      /* Capped short of 100% so the glued full stop beside it still fits. */
-      /* `blank-in-text`: its focus style lives in globals.css — see there
-         for why a utility class cannot override the global ring. */
-      className={`blank-in-text mx-1 max-w-[calc(100%-0.75rem)] border-0 border-b-2 bg-transparent px-1 pb-0.5 font-display font-medium text-brand outline-none transition-colors placeholder:font-normal placeholder:text-faint focus:border-solid ${
-        invalid ? "border-rose-500" : "border-dashed border-brand/35 focus:border-brand"
-      }`}
-    />
+    /* Capped short of 100% so the glued full stop beside it still fits. */
+    <span className="relative mx-1 inline-block min-w-[3ch] max-w-[calc(100%-0.75rem)] leading-snug">
+      <span
+        aria-hidden="true"
+        className={
+          wraps
+            ? "invisible block whitespace-pre-wrap border-b-2 border-transparent px-1 pb-0.5 font-display font-medium [overflow-wrap:anywhere]"
+            : "invisible block whitespace-pre border-b-2 border-transparent px-1 pb-0.5 font-display font-medium"
+        }
+      >
+        {/* The trailing space is room for the caret at the end. */}
+        {`${value || f.hint} `}
+      </span>
+      {wraps ? (
+        <textarea
+          {...common}
+          rows={1}
+          onChange={(e) =>
+            set(f.name, e.target.value.replace(/\s*\n\s*/g, " "))
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.preventDefault();
+          }}
+          className={`${skin} resize-none overflow-hidden [overflow-wrap:anywhere]`}
+        />
+      ) : (
+        <input
+          {...common}
+          type={f.type ?? "text"}
+          onChange={(e) => set(f.name, e.target.value)}
+          className={skin}
+        />
+      )}
+    </span>
   );
 }
 
@@ -99,7 +153,9 @@ export function OpenSpace({
       rows={3}
       maxLength={4000}
       className={`mt-4 block min-h-[6.5rem] w-full resize-y rounded-2xl border bg-secondary/60 p-4 font-display text-lg leading-relaxed text-brand outline-none transition-colors [field-sizing:content] placeholder:text-[15px] placeholder:leading-relaxed placeholder:text-faint focus:border-solid focus:bg-card ${
-        invalid ? "border-rose-500" : "border-dashed border-brand/30 focus:border-brand"
+        invalid
+          ? "border-rose-500"
+          : "border-dashed border-brand/30 focus:border-brand"
       }`}
     />
   );
@@ -128,16 +184,23 @@ export function Line({
              wrapping blank never leaves its full stop alone on a line. */
           const prev = line[si - 1];
           if (typeof s === "string") {
-            const afterBlank = typeof prev !== "string" && prev?.kind === "blank";
+            const afterBlank =
+              typeof prev !== "string" && prev?.kind === "blank";
             const text = afterBlank ? s.replace(/^[.,]/, "") : s;
             return text ? <span key={si}>{text}</span> : null;
           }
           if (s.kind !== "blank") return null; /* a `long` opens below */
           const next = line[si + 1];
-          const glue = typeof next === "string" ? (next.match(/^[.,]/)?.[0] ?? "") : "";
+          const glue =
+            typeof next === "string" ? (next.match(/^[.,]/)?.[0] ?? "") : "";
           return (
             <span key={s.name} className="whitespace-nowrap">
-              <InlineBlank f={s} value={values[s.name] ?? ""} set={set} invalid={invalid(s)} />
+              <InlineBlank
+                f={s}
+                value={values[s.name] ?? ""}
+                set={set}
+                invalid={invalid(s)}
+              />
               {glue}
             </span>
           );
@@ -145,9 +208,20 @@ export function Line({
       </p>
       {below.map((s) =>
         s.kind === "long" ? (
-          <OpenSpace key={s.name} f={s} value={values[s.name] ?? ""} set={set} invalid={invalid(s)} />
+          <OpenSpace
+            key={s.name}
+            f={s}
+            value={values[s.name] ?? ""}
+            set={set}
+            invalid={invalid(s)}
+          />
         ) : (
-          <Suggestions key={s.name} f={s} value={values[s.name] ?? ""} set={set} />
+          <Suggestions
+            key={s.name}
+            f={s}
+            value={values[s.name] ?? ""}
+            set={set}
+          />
         ),
       )}
     </div>
@@ -155,44 +229,47 @@ export function Line({
 }
 
 /** Every chapter of the current version, numbers in their own gutter. */
-export function Chapters({ brief, para = PARA }: { brief: Brief; para?: string }) {
+export function Chapters({
+  brief,
+  para = PARA,
+}: {
+  brief: Brief;
+  para?: string;
+}) {
   return (
     <>
       {brief.version.chapters.map((c) => (
         <section
           key={c.key}
           aria-labelledby={`ch-${c.key}-h`}
-          /* Chapter number in its own gutter from `sm:` — the prose then
-             starts on one clean edge down the whole story, and the numerals
-             read as a margin index rather than as another label. */
-          className="grid grid-cols-1 gap-x-5 border-t border-border py-8 first:border-t-0 sm:grid-cols-[2.25rem_minmax(0,1fr)]"
+          /* NO NUMBER GUTTER (removed 2026-09-11, user request). The 2.25rem
+             numeral column plus its gap pushed every sentence ~56px in from
+             the card's edge, so the story read one-sided and the blanks lost
+             that width. The number now rides above the title as a small
+             label — what phones already showed — and the prose starts on the
+             card's own edge. */
+          className="border-t border-border py-8 first:border-t-0"
         >
-          <span
-            aria-hidden="true"
-            className="hidden font-display text-2xl font-light leading-none text-brand/40 sm:block sm:pt-1"
-          >
-            {c.n}
-          </span>
-          <div className={c.n ? undefined : "sm:col-span-2"}>
-            <header className="mb-4">
-              {c.n && (
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-strong sm:hidden">
-                  Chapter {c.n}
-                </span>
-              )}
-              <h2
-                id={`ch-${c.key}-h`}
-                className="font-display text-xl font-semibold tracking-[-0.02em] text-foreground md:text-2xl"
-              >
-                {c.title}
-              </h2>
-              <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">{c.voice}</p>
-            </header>
-            <div className="space-y-5">
-              {c.lines.map((line, li) => (
-                <Line key={li} line={line} brief={brief} para={para} />
-              ))}
-            </div>
+          <header className="mb-4">
+            {c.n && (
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-strong">
+                Chapter {c.n}
+              </span>
+            )}
+            <h2
+              id={`ch-${c.key}-h`}
+              className="mt-1 font-display text-xl font-semibold tracking-[-0.02em] text-foreground md:text-2xl"
+            >
+              {c.title}
+            </h2>
+            <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
+              {c.voice}
+            </p>
+          </header>
+          <div className="space-y-5">
+            {c.lines.map((line, li) => (
+              <Line key={li} line={line} brief={brief} para={para} />
+            ))}
           </div>
         </section>
       ))}
@@ -202,10 +279,21 @@ export function Chapters({ brief, para = PARA }: { brief: Brief; para?: string }
 
 /** One-tap fills for a blank. Buttons, not radios: they write text into the
     blank and step aside, so nothing here constrains the answer. */
-export function Suggestions({ f, value, set }: { f: Blank; value: string; set: SetValue }) {
+export function Suggestions({
+  f,
+  value,
+  set,
+}: {
+  f: Blank;
+  value: string;
+  set: SetValue;
+}) {
   if (!f.suggestions) return null;
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2" aria-label={`Suggestions for ${f.label}`}>
+    <div
+      className="mt-3 flex flex-wrap items-center gap-2"
+      aria-label={`Suggestions for ${f.label}`}
+    >
       {f.suggestions.map((o) => {
         const on = value.trim().toLowerCase() === o.toLowerCase();
         return (
@@ -224,7 +312,9 @@ export function Suggestions({ f, value, set }: { f: Blank; value: string; set: S
           </button>
         );
       })}
-      <span className="text-xs text-muted-foreground">{BRIEF_UI.suggestionsOr}</span>
+      <span className="text-xs text-muted-foreground">
+        {BRIEF_UI.suggestionsOr}
+      </span>
     </div>
   );
 }
@@ -236,13 +326,23 @@ export function Suggestions({ f, value, set }: { f: Blank; value: string; set: S
     they are AND how long they take ("Quick note · 30 sec"). Side by side,
     a sentence-length heading and two pills fought for one row in the
     narrower story column. */
-export function VersionToggle({ brief, className = "" }: { brief: Brief; className?: string }) {
+export function VersionToggle({
+  brief,
+  className = "",
+}: {
+  brief: Brief;
+  className?: string;
+}) {
   const { version, set } = brief;
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
       <div>
-        <p className="font-display text-[17px] font-semibold text-foreground">{BRIEF_SEND.question}</p>
-        <p className="mt-0.5 text-sm text-muted-foreground">{BRIEF_SEND.questionHint}</p>
+        <p className="font-display text-[17px] font-semibold text-foreground">
+          {BRIEF_SEND.question}
+        </p>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          {BRIEF_SEND.questionHint}
+        </p>
       </div>
       {/* Name over time, on purpose: "Quick note · 30 sec" on one line is
           wider than half a 390px phone and broke as "30 / sec". Two lines
@@ -262,11 +362,15 @@ export function VersionToggle({ brief, className = "" }: { brief: Brief; classNa
               aria-pressed={on}
               onClick={() => set("version", k)}
               className={`flex flex-col items-center rounded-xl px-3 py-2 leading-tight transition-colors ${
-                on ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-primary"
+                on
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-primary"
               }`}
             >
               <span className="text-sm font-semibold">{v.label}</span>
-              <span className="mt-0.5 text-xs font-normal text-muted-foreground">{v.time}</span>
+              <span className="mt-0.5 text-xs font-normal text-muted-foreground">
+                {v.time}
+              </span>
             </button>
           );
         })}
@@ -278,7 +382,14 @@ export function VersionToggle({ brief, className = "" }: { brief: Brief; classNa
 /** Hidden from people, present for bots — see the action. */
 export function Honeypot() {
   return (
-    <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+    <input
+      type="text"
+      name="website"
+      tabIndex={-1}
+      autoComplete="off"
+      aria-hidden="true"
+      className="hidden"
+    />
   );
 }
 
@@ -299,7 +410,9 @@ export function SendFoot({
       {signoff && (
         <p className={PARA}>
           {BRIEF_SEND.signoff}{" "}
-          <span className={who ? "text-brand" : "text-faint"}>{who || "your name"}</span>
+          <span className={who ? "text-brand" : "text-faint"}>
+            {who || "your name"}
+          </span>
           {company && <span className="text-brand">, {company}</span>}
         </p>
       )}
@@ -313,18 +426,27 @@ export function SendFoot({
         {notice}
       </p>
 
-      <div className={`${notice || signoff ? "mt-6" : ""} flex flex-wrap items-center gap-x-8 gap-y-5`}>
+      <div
+        className={`${notice || signoff ? "mt-6" : ""} flex flex-wrap items-center gap-x-8 gap-y-5`}
+      >
         <button
           type="submit"
           disabled={pending}
           className="group inline-flex h-14 items-center gap-2 rounded-full bg-primary px-9 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95 disabled:cursor-wait disabled:opacity-70"
         >
-          {pending ? BRIEF_SEND.pending : quick ? BRIEF_SEND.ctaQuick : BRIEF_SEND.cta}
+          {pending
+            ? BRIEF_SEND.pending
+            : quick
+              ? BRIEF_SEND.ctaQuick
+              : BRIEF_SEND.cta}
           <Icon name="arrow" className="size-5" />
         </button>
         <ul className="flex flex-wrap gap-x-5 gap-y-2">
           {BRIEF_SEND.meta.map((m) => (
-            <li key={m} className="flex items-center gap-2 text-[13px] text-muted-foreground">
+            <li
+              key={m}
+              className="flex items-center gap-2 text-[13px] text-muted-foreground"
+            >
               <span className="text-accent-strong" aria-hidden="true">
                 <Icon name="check" className="size-3.5" />
               </span>
@@ -383,17 +505,31 @@ export function ThankYou({
 
       {/* Beside the logo the steps are a short list — three columns in the
           narrower words side wrapped every body to four lines. */}
-      <ol className={beside ? "mt-7 grid gap-4" : "mt-10 grid gap-6 sm:grid-cols-3"}>
+      <ol
+        className={
+          beside ? "mt-7 grid gap-4" : "mt-10 grid gap-6 sm:grid-cols-3"
+        }
+      >
         {BRIEF_DONE.steps.map((s, i) => {
-          const body = s.body.replace("{contact}", state.contact || BRIEF_DONE.contactFallback);
+          const body = s.body.replace(
+            "{contact}",
+            state.contact || BRIEF_DONE.contactFallback,
+          );
           return beside ? (
-            <li key={s.title} className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-3">
+            <li
+              key={s.title}
+              className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-3"
+            >
               <span className="grid size-9 place-items-center rounded-xl bg-brand/10 text-brand ring-1 ring-brand/15">
                 <Icon name={s.k} className="size-4" />
               </span>
               <span>
-                <strong className="block font-display text-[17px] font-semibold text-foreground">{s.title}</strong>
-                <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">{body}</span>
+                <strong className="block font-display text-[17px] font-semibold text-foreground">
+                  {s.title}
+                </strong>
+                <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">
+                  {body}
+                </span>
               </span>
             </li>
           ) : (
@@ -401,8 +537,12 @@ export function ThankYou({
               <span className="flex items-center gap-2 font-display text-sm font-semibold text-brand">
                 <Icon name={s.k} className="size-4" />0{i + 1}
               </span>
-              <h3 className="mt-2 font-display text-lg font-semibold text-foreground">{s.title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
+              <h3 className="mt-2 font-display text-lg font-semibold text-foreground">
+                {s.title}
+              </h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                {body}
+              </p>
             </li>
           );
         })}
@@ -413,10 +553,14 @@ export function ThankYou({
       >
         {state.ref !== "—" && (
           <span>
-            {BRIEF_DONE.refLabel} <strong className="font-mono text-foreground">{state.ref}</strong>
+            {BRIEF_DONE.refLabel}{" "}
+            <strong className="font-mono text-foreground">{state.ref}</strong>
           </span>
         )}
-        <Link href="/" className="inline-flex items-center gap-2 font-medium text-primary hover:text-brand-light">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 font-medium text-primary hover:text-brand-light"
+        >
           {BRIEF_DONE.back}
           <Icon name="arrow" className="size-4" />
         </Link>

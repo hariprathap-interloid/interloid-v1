@@ -2,10 +2,10 @@ import Icon from "@/components/Icon";
 import { BRIEF_DIRECT, BRIEF_FACTS, BRIEF_HERO } from "@/content/brief";
 
 /* ==========================================================================
-   BriefHero — the top of /content: the promise, then the three facts that
+   BriefHero — the top of /contact: the promise, then the three facts that
    make filling it in feel safe (how long, who reads it, what happens next).
    ==========================================================================
-   Restored 2026-09-11 from the first /content layout, at the user's request:
+   Restored 2026-09-11 from the first /contact layout, at the user's request:
    a hero band on top, the letter below it. The side-by-side spread that
    replaced it moved the facts into a column beside the letter; with the
    letter now split into questions + live preview there is no column to
@@ -14,7 +14,7 @@ import { BRIEF_DIRECT, BRIEF_FACTS, BRIEF_HERO } from "@/content/brief";
    The "Rather just talk?" line is new here: somebody in a real hurry should
    not have to fill in even three blanks, and it now costs one line.
 
-   `reveal` — ON for /content, OFF where this renders after load (the lab's
+   `reveal` — ON for /contact, OFF where this renders after load (the lab's
    switcher). Reveal.tsx observes every [data-reveal] ONCE, on mount; a copy
    that appears later is never observed and stays at opacity 0 for good. */
 export default function BriefHero({ reveal = true }: { reveal?: boolean }) {
@@ -38,7 +38,7 @@ export default function BriefHero({ reveal = true }: { reveal?: boolean }) {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium leading-[1.5] shadow-sm"
           >
             <span className="text-accent-strong">
-              <Icon name="doc" className="size-4" />
+              <Icon name="rocket" className="size-4" />
             </span>
             <span className="text-muted-foreground">{BRIEF_HERO.eyebrow}</span>
           </div>

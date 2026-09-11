@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 /* ==========================================================================
-   /content-lab/frame — /content, bare, for /content-lab's 390px phone frame.
+   /contact-lab/frame — /contact, bare, for /contact-lab's 390px phone frame.
    ==========================================================================
    Loaded in an <iframe> so the page is judged at a real phone width with
    the phone's own breakpoints — `lg:` genuinely off, the drawer's fixed bar

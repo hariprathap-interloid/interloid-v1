@@ -7,11 +7,11 @@ import BriefHero from "../BriefHero";
 import LetterComposer, { type MobileMode, type Side } from "../LetterComposer";
 
 /* ==========================================================================
-   The /content-lab switcher — the chosen layout (questions + live preview),
+   The /contact-lab switcher — the chosen layout (questions + live preview),
    with its three open decisions as controls.
    ==========================================================================
      View       the desktop page, or the REAL page in a 390px phone frame —
-                an <iframe> of /content-lab/frame, so what is judged is the
+                an <iframe> of /contact-lab/frame, so what is judged is the
                 page at phone width with the phone's own breakpoints, not a
                 squeezed desktop
      Side       questions on the left or the right (desktop)
@@ -56,13 +56,13 @@ export default function ContentLab({
   const [view, setView] = useState<"desktop" | "phone">("desktop");
   const [side, setSide] = useState<Side>("input-left");
   const [mobile, setMobile] = useState<MobileMode>("drawer");
-  /* Opens on the first option — the page lists the choice live on /content first. */
+  /* Opens on the first option — the page lists the choice live on /contact first. */
   const [anim, setAnim] = useState<AnimKind>(anims[0].v);
 
   const a = anims.find((o) => o.v === anim) ?? anims[0];
   const m = mobiles.find((o) => o.v === mobile) ?? mobiles[0];
   const animOptions = anims.map((o) => ({ v: o.v, name: o.name }));
-  const src = `/content-lab/frame?mobile=${mobile}&anim=${anim}`;
+  const src = `/contact-lab/frame?mobile=${mobile}&anim=${anim}`;
 
   return (
     <div>

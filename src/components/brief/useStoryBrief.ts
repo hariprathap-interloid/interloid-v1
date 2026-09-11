@@ -8,7 +8,7 @@ import {
   useSyncExternalStore,
   type FormEvent,
 } from "react";
-import { sendStory, type BriefState } from "@/app/content/actions";
+import { sendStory, type BriefState } from "@/app/contact/actions";
 import {
   BRIEF_REACH,
   BRIEF_SEND,
@@ -23,7 +23,7 @@ import {
    useStoryBrief — the brain of the "tell us your story" letter.
    ==========================================================================
    Everything that is not layout: the answers, the draft, which version, the
-   send, and what is still missing. Split out 2026-09-11 so /content-lab can
+   send, and what is still missing. Split out 2026-09-11 so /contact-lab can
    try four layouts against ONE behaviour — a layout experiment is only fair
    if the only thing that differs is the layout.
 

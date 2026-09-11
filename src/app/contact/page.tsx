@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 /* ==========================================================================
-   /content — "Tell us your story". Added 2026-09-11.
+   /contact — "Tell us your story". Added 2026-09-11.
    ==========================================================================
    The project enquiry. Every "Let's talk" and "Book a free 30-min consult"
    button on the site leads here.
@@ -20,17 +20,17 @@ export const metadata: Metadata = {
      BriefHero        the promise and the three facts (the first layout's
                       hero, restored at the user's request)
      LetterComposer   questions on one side, the letter writing itself on
-                      the other (chosen in /content-lab)
+                      the other (chosen in /contact-lab)
 
      content/brief.ts          the words and the field list
      brief/useStoryBrief.ts    draft, versions, validation, send
-     app/content/actions.ts    the send
+     app/contact/actions.ts    the send
 
-   DECIDED 2026-09-11 in /content-lab: the story on the LEFT, the DRAWER on
+   DECIDED 2026-09-11 in /contact-lab: the story on the LEFT, the DRAWER on
    phones, and the Interloid mark gathering above the thank-you only once the
    story is sent ("mark-send") — nothing animates while typing, because the
    live letter already does. Every other option (side, tabs, the team,
-   blueprint and envelope animations) stays in /content-lab, parked for the
+   blueprint and envelope animations) stays in /contact-lab, parked for the
    phase-2 review of variants; nothing on this page loads them.
 
    No CtaAnchor slab: this page IS the conversion, and a second "book a call"

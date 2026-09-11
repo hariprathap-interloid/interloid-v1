@@ -36,6 +36,10 @@ const LINKS = [
   { href: "/#work", label: "Work" },
   { href: "/about", label: "About us" },
   { href: "/careers", label: "Careers" },
+  /* The story enquiry, added on request 2026-09-11 — the same page "Let's
+     talk" opens, named as the menu names it. Seven links now: re-measured
+     at `lg:` (1024px) with the rest of this change; see the banner. */
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 /* THEME AS EXTERNAL STATE.
@@ -170,7 +174,10 @@ export default function Nav() {
   }, [open]);
 
   const linkClass = (href: string) =>
-    `nav-link rounded-full px-4 py-2 text-sm transition-all hover:bg-card hover:text-primary ${current === href
+    /* nowrap + px-3 below `xl:`: with the seventh link ("Contact",
+       2026-09-11) the labels at 1024px wrapped — "Why / us", "About / us" —
+       inside a pill that still measured clear of the CTA. */
+    `nav-link whitespace-nowrap rounded-full px-3 py-2 text-sm transition-all hover:bg-card hover:text-primary xl:px-4 ${current === href
       ? "bg-card text-primary font-semibold shadow-sm"
       : "font-medium text-muted-foreground"
     }`;
@@ -286,13 +293,13 @@ export default function Nav() {
                 </svg>
               </button>
 
-              {/* /content — the "tell us your story" enquiry — since
+              {/* /contact — the "tell us your story" enquiry — since
                   2026-09-11. It was "/#contact", home's closing slab, whose own
-                  button now leads to /content too; linking straight there
+                  button now leads to /contact too; linking straight there
                   saves every page a scroll-and-click. */}
               <a
-                href="/content"
-                className="hidden rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 lg:inline-flex"
+                href="/contact"
+                className="hidden whitespace-nowrap rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 lg:inline-flex"
               >
                 Let&apos;s talk
               </a>
@@ -367,7 +374,7 @@ export default function Nav() {
             </a>
           ))}
           <a
-            href="/content"
+            href="/contact"
             onClick={() => setOpen(false)}
             className="mt-4 inline-flex h-12 items-center justify-center rounded-full bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg shadow-primary/25"
           >

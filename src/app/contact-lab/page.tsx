@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 };
 
 /* ==========================================================================
-   /content-lab — the open decisions for /content, as live controls.
+   /contact-lab — the open decisions for /contact, as live controls.
    ==========================================================================
    Round one (2026-09-11) compared four layouts and the live preview won.
-   Round two settled its three dials, and /content now ships them: the story
+   Round two settled its three dials, and /contact now ships them: the story
    on the LEFT, the DRAWER on phones, and the mark on the thank-you only
    ("mark-send"). The controls open on that choice.
 
@@ -24,19 +24,19 @@ export const metadata: Metadata = {
    design and the team / blueprint / envelope animations stay here on
    purpose. Do not delete them as unused.
 
-   CHANGING THE CHOICE: /content renders <LetterComposer side mobile anim />;
+   CHANGING THE CHOICE: /contact renders <LetterComposer side mobile anim />;
    each control here is one of those props.
 
    No <Reveal />: the composer mounts after load when the view changes, and
    Reveal only observes what is on the page at mount (see BriefHero).
    Not linked, noindex. */
 
-/* First entry is what the lab opens on — the choice live on /content. */
+/* First entry is what the lab opens on — the choice live on /contact. */
 const ANIMS: LabOption<AnimKind>[] = [
   {
     v: "mark-send",
     name: "Logo on send · chosen",
-    best: "Live on /content. Nothing animates while the story is written, since the letter filling in is the movement. After Send, your logo gathers from particles above the thank-you, so the last thing a client sees is Interloid.",
+    best: "Live on /contact. Nothing animates while the story is written, since the letter filling in is the movement. After Send, your logo gathers from particles above the thank-you, so the last thing a client sees is Interloid.",
     cost: "three.js plus 128 KB of point data, but loaded only after sending, so writing the story stays as light as with no animation.",
   },
   {
@@ -102,7 +102,7 @@ export default function ContentLabPage() {
             The live letter, and every variant of it.
           </h1>
           <p className="mt-5 max-w-3xl text-[17px] leading-[1.7] text-muted-strong">
-            Live on /content: the story written as sentences on the <b>left</b>, the finished letter on
+            Live on /contact: the story written as sentences on the <b>left</b>, the finished letter on
             the right, the <b>drawer</b> on phones, and the <b>logo on send</b>. The controls open on that
             choice; every other option stays here for the phase-2 review. Switch <b>View</b> to see the
             real page inside a phone.

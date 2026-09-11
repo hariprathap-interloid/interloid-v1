@@ -23,7 +23,8 @@ const COMPANY_LINKS: { href: string; label: string; placeholder?: string }[] = [
   { href: "/#process", label: "How we work" },
   { href: "/#work", label: "Selected work" },
   { href: "/careers", label: "Careers" },
-  { href: "/#contact", label: "Contact" },
+  /* /contact, the enquiry page, since 2026-09-11 (was "/#contact"). */
+  { href: "/contact", label: "Contact" },
 ];
 
 export default function Footer() {

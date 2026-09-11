@@ -7,7 +7,7 @@ import TeamField from "./TeamField";
 /* ==========================================================================
    Stage — the panel above the live letter where a progress animation runs.
    ==========================================================================
-   Five candidates are compared in /content-lab. Three live in this panel and
+   Five candidates are compared in /contact-lab. Three live in this panel and
    report progress while the story is written; `envelope` is a moment on
    send instead (EnvelopeSend) and `none` is none.
 
@@ -26,15 +26,22 @@ import TeamField from "./TeamField";
    headcount claim in disguise (about.ts's TEAM note), and nobody has
    confirmed one. */
 
-/* "mark-send" — CHOSEN for /content, 2026-09-11: no panel while typing (the
+/* "mark-send" — CHOSEN for /contact, 2026-09-11: no panel while typing (the
    live letter is already the moving part), and the mark gathers above the
    thank-you once the story is sent. The other kinds are kept, unrendered on
-   /content, for the phase-2 variant review in /content-lab. */
-export type AnimKind = "none" | "mark" | "mark-send" | "team" | "blueprint" | "envelope";
+   /contact, for the phase-2 variant review in /contact-lab. */
+export type AnimKind =
+  | "none"
+  | "mark"
+  | "mark-send"
+  | "team"
+  | "blueprint"
+  | "envelope";
 
 type StageKind = "mark" | "team" | "blueprint";
 /** A panel beside the letter WHILE the story is being written. */
-export const hasStage = (k: AnimKind): k is StageKind => k === "mark" || k === "team" || k === "blueprint";
+export const hasStage = (k: AnimKind): k is StageKind =>
+  k === "mark" || k === "team" || k === "blueprint";
 /** The panel above the thank-you once sent: a typing stage's own finish, or
     the mark alone for "mark-send", which appears only then. */
 export const finaleOf = (k: AnimKind): StageKind | null =>
@@ -76,10 +83,16 @@ export default function Stage({
       className={
         fill
           ? `m-0 flex h-full flex-col bg-ink ${className}`
-          : `m-0 overflow-hidden rounded-[2rem] bg-ink ${className}`
+          : `m-0 overflow-hidden rounded-[1rem] bg-ink ${className}`
       }
     >
-      <div className={fill ? "relative min-h-72 flex-1 lg:min-h-[26rem]" : "relative h-48 sm:h-56"}>
+      <div
+        className={
+          fill
+            ? "relative min-h-72 flex-1 lg:min-h-[26rem]"
+            : "relative h-48 sm:h-56"
+        }
+      >
         {kind === "mark" ? (
           <MarkField progress={progress} done={done} />
         ) : kind === "team" ? (
@@ -88,12 +101,18 @@ export default function Stage({
           <BlueprintField progress={progress} done={done} />
         )}
       </div>
-      <figcaption className="border-t border-white/10 px-5 py-3.5" aria-live="polite">
+      <figcaption
+        className="border-t border-white/10 px-5 py-3.5"
+        aria-live="polite"
+      >
         <span className="flex items-baseline justify-between gap-3 text-[13px] text-ink-foreground">
           <span>{done ? DONE[kind] : WORKING[kind]}</span>
           <span className="shrink-0 tabular-nums">{pct}%</span>
         </span>
-        <span className="mt-2 block h-1 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+        <span
+          className="mt-2 block h-1 overflow-hidden rounded-full bg-white/10"
+          aria-hidden="true"
+        >
           <span
             className="block h-full rounded-full bg-gradient-to-r from-brand-light to-accent transition-[width] duration-700 ease-out"
             style={{ width: `${pct}%` }}
