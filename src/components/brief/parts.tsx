@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import Icon from "@/components/Icon";
 import {
   BRIEF_DONE,
   BRIEF_SEND,
+  BRIEF_UI,
   BRIEF_VERSIONS,
   type Blank,
   type Field,
@@ -222,23 +224,33 @@ export function Suggestions({ f, value, set }: { f: Blank; value: string; set: S
           </button>
         );
       })}
-      <span className="text-xs text-muted-foreground">or type your own</span>
+      <span className="text-xs text-muted-foreground">{BRIEF_UI.suggestionsOr}</span>
     </div>
   );
 }
 
-/** "How much time do you have?" — the short version or the full story. */
+/** "We value your time" — the quick note or the full story.
+
+    Stacked, not side by side: the promise on top in the story's own voice,
+    a one-line hint under it, then two equal buttons that each say what
+    they are AND how long they take ("Quick note · 30 sec"). Side by side,
+    a sentence-length heading and two pills fought for one row in the
+    narrower story column. */
 export function VersionToggle({ brief, className = "" }: { brief: Brief; className?: string }) {
   const { version, set } = brief;
   return (
-    <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${className}`}>
-      <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-strong">
-        {BRIEF_SEND.question}
-      </span>
+    <div className={`flex flex-col gap-3 ${className}`}>
+      <div>
+        <p className="font-display text-[17px] font-semibold text-foreground">{BRIEF_SEND.question}</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">{BRIEF_SEND.questionHint}</p>
+      </div>
+      {/* Name over time, on purpose: "Quick note · 30 sec" on one line is
+          wider than half a 390px phone and broke as "30 / sec". Two lines
+          fit at every width and read as a deliberate segmented control. */}
       <div
         role="group"
         aria-label={BRIEF_SEND.question}
-        className="inline-flex self-start rounded-full border border-border bg-secondary p-1 sm:self-auto"
+        className="grid grid-cols-2 gap-1 rounded-2xl border border-border bg-secondary p-1"
       >
         {(["quick", "full"] as const).map((k) => {
           const v = BRIEF_VERSIONS[k];
@@ -249,15 +261,12 @@ export function VersionToggle({ brief, className = "" }: { brief: Brief; classNa
               type="button"
               aria-pressed={on}
               onClick={() => set("version", k)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex flex-col items-center rounded-xl px-3 py-2 leading-tight transition-colors ${
                 on ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-primary"
               }`}
             >
-              {v.time}
-              {/* The long suffix only where the questions column is wide
-                  enough to keep each option on ONE line — at `md:` it
-                  wrapped both into two-line pills beside a two-line label. */}
-              <span className="hidden 2xl:inline"> · {v.label.toLowerCase()}</span>
+              <span className="text-sm font-semibold">{v.label}</span>
+              <span className="mt-0.5 text-xs font-normal text-muted-foreground">{v.time}</span>
             </button>
           );
         })}
@@ -328,42 +337,83 @@ export function SendFoot({
   );
 }
 
-/** What replaces the letter once it is sent. */
-export function ThankYou({ brief, className = "" }: { brief: Brief; className?: string }) {
+/** What replaces the letter once it is sent.
+
+    With a `stage` (the logo gathering), the two are ONE CARD — the dark logo
+    side ~40%, the words ~60%, and on a phone the logo on top — so the mark
+    reads as the signature on this message, not a banner over it, and the
+    whole thing fits one laptop screen. They were two stacked sections until
+    2026-09-11: the panel alone was ~450px, which pushed "It's with us…" to
+    mid-screen and the next steps below the fold on a laptop.
+
+    Without a stage (the envelope and no-animation variants) it is the plain
+    card, steps in three columns. `className` carries the card surface. */
+export function ThankYou({
+  brief,
+  className = "",
+  stage,
+}: {
+  brief: Brief;
+  className?: string;
+  stage?: ReactNode;
+}) {
   const { state, formId } = brief;
   if (state.status !== "sent") return null;
-  return (
-    <div id={`${formId}-done`} className={`scroll-mt-32 self-start ${className}`}>
+  const beside = !!stage;
+
+  const words = (
+    <>
       <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium">
         <span className="size-1.5 rounded-full bg-accent" aria-hidden="true" />
         <span className="text-muted-foreground">{BRIEF_DONE.eyebrow}</span>
       </div>
       <h2 className="font-display text-4xl font-medium leading-[1.1] tracking-[-0.025em] text-foreground md:text-5xl">
-        {BRIEF_DONE.head}{" "}
-        <span className="bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
-          {state.firstName ? `${state.firstName}.` : "thank you."}
-        </span>
-      </h2>
-      <p className="mt-5 text-lg text-muted-foreground">{BRIEF_DONE.lead}</p>
-
-      <ol className="mt-10 grid gap-6 sm:grid-cols-3">
-        {BRIEF_DONE.steps.map((s, i) => (
-          <li key={s.title} className="border-t-2 border-brand pt-4">
-            <span className="flex items-center gap-2 font-display text-sm font-semibold text-brand">
-              <Icon name={s.k} className="size-4" />0{i + 1}
+        {state.firstName ? (
+          <>
+            {BRIEF_DONE.head}{" "}
+            <span className="bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
+              {state.firstName}.
             </span>
-            <h3 className="mt-2 font-display text-lg font-semibold text-foreground">{s.title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {i === 1 && state.contact ? `At ${state.contact}. ${s.body}` : s.body}
-            </p>
-          </li>
-        ))}
+          </>
+        ) : (
+          BRIEF_DONE.headNoName
+        )}
+      </h2>
+      <p className="mt-4 text-lg text-muted-foreground">{BRIEF_DONE.lead}</p>
+
+      {/* Beside the logo the steps are a short list — three columns in the
+          narrower words side wrapped every body to four lines. */}
+      <ol className={beside ? "mt-7 grid gap-4" : "mt-10 grid gap-6 sm:grid-cols-3"}>
+        {BRIEF_DONE.steps.map((s, i) => {
+          const body = s.body.replace("{contact}", state.contact || BRIEF_DONE.contactFallback);
+          return beside ? (
+            <li key={s.title} className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-3">
+              <span className="grid size-9 place-items-center rounded-xl bg-brand/10 text-brand ring-1 ring-brand/15">
+                <Icon name={s.k} className="size-4" />
+              </span>
+              <span>
+                <strong className="block font-display text-[17px] font-semibold text-foreground">{s.title}</strong>
+                <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">{body}</span>
+              </span>
+            </li>
+          ) : (
+            <li key={s.title} className="border-t-2 border-brand pt-4">
+              <span className="flex items-center gap-2 font-display text-sm font-semibold text-brand">
+                <Icon name={s.k} className="size-4" />0{i + 1}
+              </span>
+              <h3 className="mt-2 font-display text-lg font-semibold text-foreground">{s.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
+            </li>
+          );
+        })}
       </ol>
 
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-sm text-muted-foreground">
+      <div
+        className={`${beside ? "mt-8" : "mt-10"} flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-sm text-muted-foreground`}
+      >
         {state.ref !== "—" && (
           <span>
-            Your reference <strong className="font-mono text-foreground">{state.ref}</strong>
+            {BRIEF_DONE.refLabel} <strong className="font-mono text-foreground">{state.ref}</strong>
           </span>
         )}
         <Link href="/" className="inline-flex items-center gap-2 font-medium text-primary hover:text-brand-light">
@@ -371,6 +421,29 @@ export function ThankYou({ brief, className = "" }: { brief: Brief; className?: 
           <Icon name="arrow" className="size-4" />
         </Link>
       </div>
+    </>
+  );
+
+  /* No scroll-margin here: <html> already has `scroll-padding-top: 7rem`
+     for the fixed nav (globals.css), and a `scroll-mt-32` on top of it
+     parked the card 240px down — measured on every viewport — which put the
+     bottom of this card off a 720px laptop. The page-wide 7rem is enough. */
+  if (!beside) {
+    return (
+      <div id={`${formId}-done`} className={`self-start ${className}`}>
+        {words}
+      </div>
+    );
+  }
+  return (
+    <div
+      id={`${formId}-done`}
+      className={`grid self-start overflow-hidden lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] ${className}`}
+    >
+      <div className="min-w-0">{stage}</div>
+      {/* p-10, not lg:p-12: the extra 16px was what the card overran a
+          1280×720 screen by once it sat at the right scroll position. */}
+      <div className="min-w-0 p-7 sm:p-10">{words}</div>
     </div>
   );
 }

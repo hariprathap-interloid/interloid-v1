@@ -1,42 +1,49 @@
 /* ==========================================================================
-   /content — "Tell us your story". Added 2026-09-11, SHORTENED 2026-09-11.
+   /content — "Tell us your story". Added 2026-09-11.
    ==========================================================================
-   The project enquiry, written as a letter with blanks rather than as a form.
-   The server action in `app/content/actions.ts` saves the answers AND the
-   finished letter as plain text, so whoever reads it reads a letter.
+   Every word of the project-enquiry page lives here: the hero, the story
+   the visitor writes, the letter it becomes, the send, and the thank-you.
+   The components (brief/*) hold no copy of their own — BRIEF_UI carries the
+   small interface labels they used to hard-code.
+
+   ── THE VOICE (rewritten 2026-09-11, at the user's request) ─────────────
+   "More informative, attractive, easy to read and client friendly" — e.g.
+   "We value your time" instead of "How much time do you have?". So:
+     · short sentences, plain words, no jargon
+     · talk TO the client ("you", "your idea"), and let them talk in the
+       first person on their buttons ("Send my story")
+     · every line either reassures or says what happens next
+   A good part of the audience reads English as a second language; idioms
+   are avoided on purpose.
 
    ── TWO VERSIONS, ONE SET OF ANSWERS ─────────────────────────────────────
-   After the first build the user asked for less: fewer details, and a small
-   version for a client in a rush. So there are two letters —
      quick   three blanks: who, what you need, how to reach you
      full    four short chapters, about nine blanks
-   Both use the SAME field names, so switching versions keeps everything the
-   visitor has already typed. The action reads `version` to know which
-   letter's fields to accept.
+   Both use the SAME field names, so switching keeps everything already
+   typed. The action reads `version` to know which letter's fields to accept.
 
    ── NOTHING IS A FORCED CHOICE ───────────────────────────────────────────
-   The first build had pick-one pills; the user found typing "restricted" at
-   those points. Every blank is now typed, and `suggestions` only offer a
-   one-tap way to fill it. A visitor whose answer is not on the list simply
-   writes it. The action therefore accepts free text for every field.
+   Every blank is typed; `suggestions` only offer a one-tap way to fill it.
 
    ── REQUIRED ─────────────────────────────────────────────────────────────
    Only three things, in either version: a name, what they need, and ONE way
-   to reach them (email OR phone — see BRIEF_REACH). Everything else is there
-   to help us arrive at the call prepared, never to gate the send.
+   to reach them (email OR phone — see BRIEF_REACH).
 
    ── CLAIMS ───────────────────────────────────────────────────────────────
    Everything promised here is on site.ts's allowed list: the free 30-minute
-   consult, the written scope and price within 48 hours, and "no account
-   manager" (about.ts, unflagged). The $25k–$90k suggestion is the verified
-   FAQ range. Nothing promises a reply time — there is no confirmed one.
+   consult, the written scope and price within 48 hours, a fixed price or
+   transparent hourly rate, and "no account manager" (about.ts, unflagged).
+   The $25k–$90k suggestion is the verified FAQ range. Deliberately NOT said,
+   because they are unconfirmed: a reply time, "no sales team" (about.ts P1)
+   and "we only use your details to reply" (there is no privacy policy yet —
+   Footer P0).
    ========================================================================== */
 
 type Base = {
   /** The FormData key, shared by both versions. Also the draft key. */
   name: string;
   /** How the field is named in a sentence — "your name". Used for the
-      accessible label and in the "we still need…" message. */
+      accessible label, the empty slot in the letter, and "we still need…". */
   label: string;
   required?: boolean;
 };
@@ -96,37 +103,37 @@ export const BRIEF_REACH = {
 
 /* ── HERO ──────────────────────────────────────────────────────────────── */
 export const BRIEF_HERO = {
-  eyebrow: "Start a project",
+  eyebrow: "Start your project",
   head: "Skip the form.",
-  accent: "Tell us the story.",
-  lead: "No dropdowns, no “industry vertical”. Three blanks if you’re in a rush, the full story if you have a few minutes — tap a suggestion or type anything you like.",
+  accent: "Tell us your story.",
+  lead: "Write to us the way you’d explain it to a friend. Short on time? Three quick blanks are enough. Have a few minutes? Tell us the whole story — and watch it become a letter as you type.",
 } as const;
 
 /* The way round the letter, beside it. Same address and number as the
    footer and /about — connect@, not the hello@ some mailto links used. */
 export const BRIEF_DIRECT = {
-  title: "Rather just talk?",
-  body: "Write or call — you reach the same engineers either way.",
+  title: "Prefer to talk?",
+  body: "Email or call — you’ll reach the same engineers either way.",
   email: "connect@interloid.com",
   phone: "+91 9042032424",
   tel: "+919042032424",
-  hours: "India-based · US & UK overlap hours",
+  hours: "Based in India · our hours overlap with the US & UK",
 } as const;
 
 export const BRIEF_FACTS = [
   {
     k: "clock",
-    label: "30 seconds, or 3 minutes",
-    body: "The short version if you’re in a rush, the full story if you have a coffee.",
+    label: "Quick or detailed — your choice",
+    body: "30 seconds for the essentials, or about 3 minutes for the full picture.",
   },
   {
     k: "user-check",
-    label: "Read by an engineer",
-    body: "The person who would do the work reads it — there is no account manager in between.",
+    label: "Read by a real engineer",
+    body: "The person who would build it reads every word — no account manager in between.",
   },
   {
     k: "receipt",
-    label: "Then a price, in writing",
+    label: "A clear next step",
     body: "A free 30-minute call, then a written scope and price within 48 hours.",
   },
 ] as const;
@@ -135,19 +142,19 @@ export const BRIEF_FACTS = [
 export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
   quick: {
     key: "quick",
-    label: "The short version",
-    time: "30 seconds",
+    label: "Quick note",
+    time: "30 sec",
     chapters: [
       {
         key: "quick",
         n: "",
-        title: "In a rush? Three blanks.",
-        voice: "That is all we need to get in touch. We will ask the rest on a free 30-minute call.",
+        title: "Short on time? Just three blanks.",
+        voice: "That’s all we need to get started. We’ll cover the rest together on a free 30-minute call.",
         lines: [
           HELLO,
           [
-            "We need help with ",
-            blank("want", "what you need", "a new app, a rebuild, more engineers…", { required: true }),
+            "I’d love some help with ",
+            blank("want", "what you need", "a new app, a rebuild, extra engineers…", { required: true }),
             ".",
           ],
           REACH,
@@ -157,21 +164,21 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
   },
   full: {
     key: "full",
-    label: "The full story",
-    time: "about 3 minutes",
+    label: "Full story",
+    time: "3 min",
     chapters: [
       {
         key: "you",
         n: "I",
-        title: "Who you are",
-        voice: "An introduction first — you will hear back from a named engineer, not a ticket number.",
+        title: "About you",
+        voice: "Just the basics, so we know who we’re talking to. You’ll hear back from a real, named engineer — never a ticket number.",
         lines: [HELLO],
       },
       {
         key: "need",
         n: "II",
-        title: "What you need",
-        voice: "Plain words are perfect. Tap a suggestion, or type your own.",
+        title: "Your idea",
+        voice: "No technical words needed. Describe it the way you’d explain it to a friend — tap a suggestion or write your own.",
         lines: [
           [
             "We’re looking to ",
@@ -191,7 +198,7 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
               name: "want",
               label: "what you need",
               required: true,
-              hint: "What you want to exist, who it is for, and what is in the way right now.",
+              hint: "What would you like to build, who is it for, and what’s holding you back today?",
             },
           ],
         ],
@@ -199,18 +206,18 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
       {
         key: "now",
         n: "III",
-        title: "Where things stand",
-        voice: "Rough answers are fine. They only help us arrive at the call prepared.",
+        title: "Where you are today",
+        voice: "Rough answers are perfectly fine. They simply help us come to the call prepared, so none of your time is wasted.",
         lines: [
           [
             "So far we have ",
-            blank("stage", "where things stand", "an idea, a spec, a live product…", {
-              suggestions: ["just an idea", "a design or spec", "an early version", "a live product"],
+            blank("stage", "where things stand", "an idea, a plan, a live product…", {
+              suggestions: ["just an idea", "a design or plan", "an early version", "a live product"],
             }),
             ".",
           ],
           [
-            "We’d like something real ",
+            "We’d like something ready ",
             blank("when", "when you need it", "within 3 months, this year…", {
               suggestions: ["within 3 months", "in 3–6 months", "later this year", "no fixed date"],
             }),
@@ -228,8 +235,8 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
       {
         key: "reach",
         n: "IV",
-        title: "How to reach you",
-        voice: "Whichever you check first. One is enough.",
+        title: "Staying in touch",
+        voice: "Leave whichever you check most — one is enough.",
         lines: [REACH],
       },
     ],
@@ -238,40 +245,63 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
 
 /* ── SENDING ───────────────────────────────────────────────────────────── */
 export const BRIEF_SEND = {
-  question: "How much time do you have?",
+  question: "We value your time",
+  questionHint: "Choose how much you’d like to share.",
   signoff: "Thanks —",
-  cta: "Send our story",
-  ctaQuick: "Send it",
-  pending: "Sending…",
-  meta: ["No obligation", "No sales pressure", "Written price in 48 hours"],
-  failed: "Something went wrong on our side and it did not send. Your words are safe in this browser — please try again, or email connect@interloid.com.",
+  cta: "Send my story",
+  ctaQuick: "Send my note",
+  pending: "Sending your story…",
+  meta: ["Free, no obligation", "No sales pressure", "Price in writing within 48 hours"],
+  failed: "Sorry — something went wrong on our side and your story didn’t send. Your words are safe in this browser, so please try again, or email us at connect@interloid.com.",
 } as const;
 
 export const BRIEF_DONE = {
   eyebrow: "Story received",
-  head: "It’s with us,",
-  lead: "We have every word. Here is what happens next.",
+  head: "Thank you,",
+  /** When no first name came through (the honeypot path). */
+  headNoName: "Thank you!",
+  lead: "Your story is safely with us. Here’s exactly what happens next.",
   steps: [
     {
       k: "user-check",
-      title: "An engineer reads it",
-      body: "Not an account manager — the person who would actually do the work.",
+      title: "A real engineer reads it",
+      body: "The person who would build your project reads every word — no account manager in between.",
     },
     {
       k: "phone",
-      title: "We get in touch",
-      body: "To set up a free 30-minute call. If this doesn’t need us, or needs someone else, you hear that on the call.",
+      title: "We reach out to you",
+      /** `{contact}` becomes the email or phone they gave. */
+      body: "We’ll contact you at {contact} to set up a free 30-minute call. If we’re not the right fit, we’ll tell you honestly.",
     },
     {
       k: "receipt",
-      title: "A written scope and price",
-      body: "Within 48 hours of that call, in writing, so you can compare it against anyone else.",
+      title: "Your plan and price, in writing",
+      body: "Within 48 hours of the call you’ll get a clear scope with a fixed price or a transparent hourly rate — easy to compare with anyone else.",
     },
   ],
-  back: "Back to the home page",
+  contactFallback: "the details you gave us",
+  refLabel: "Your reference number",
+  back: "Back to home",
 } as const;
 
-/** Every field in a letter, in reading order. */
+/* ── THE SMALL INTERFACE LABELS ────────────────────────────────────────
+   Moved out of LetterComposer and parts.tsx 2026-09-11 with the rewrite —
+   they are copy, and CLAUDE.md §2 keeps copy in src/content/. */
+export const BRIEF_UI = {
+  letterTo: "To the Interloid team",
+  answered: (n: number, total: number) => `${n} of ${total} answered`,
+  /** The phone bar that opens the letter (drawer design). */
+  preview: "Preview your letter",
+  previewAction: "View",
+  sheetTitle: "Your letter so far",
+  sheetClose: "Close",
+  /** The tabs design (kept for the phase-2 review). */
+  writeTab: "Write",
+  letterTab: "Your letter",
+  suggestionsOr: "or write your own",
+} as const;
+
+/* Every field in a letter, in reading order. */
 export const fieldsOf = (chapters: readonly BriefChapter[]): Field[] =>
   chapters.flatMap((c) => c.lines.flat().filter((s): s is Field => typeof s !== "string"));
 
@@ -293,7 +323,7 @@ function list(items: string[]) {
     : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 export const missingMessage = (labels: string[]) =>
-  `Almost there — we still need ${list(labels)}.`;
+  `Almost there! We just need ${list(labels)}.`;
 
 /** The finished letter as plain text, for whoever reads the submission.
     An empty optional blank is dropped together with the short connector
@@ -312,7 +342,7 @@ export function tellStory(version: BriefVersion, values: Record<string, string>)
 }
 
 /** One line of the letter as plain text — shared by tellStory and by any
-    view that shows an answered line back (the /content-lab conversation). */
+    view that shows an answered line back. */
 export function lineText(line: readonly Segment[], values: Record<string, string>): string {
   const out: string[] = [];
   line.forEach((s, i) => {

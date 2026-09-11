@@ -79,7 +79,9 @@ const SIZE_SCATTER = 0.085;
 
 /* THE MARK IS AN EXACT GRID, GENERATED FROM THE ARTWORK.
 
-   logo-points.json is built from interloid-logo.svg as a perfect lattice: the
+   logo-points.json is built from interloid-logo.svg by
+   scripts/build-logo-points.mjs (`npm run logo:points`; `:check` to verify) as a
+   perfect lattice: the
    artwork is divided into `grid` x `grid` cells, and every cell it covers by at
    least half gets one point at that cell's exact centre, coloured by the ink
    inside it. Each point also carries its integer cell (gx, gy).

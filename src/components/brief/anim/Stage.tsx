@@ -26,10 +26,19 @@ import TeamField from "./TeamField";
    headcount claim in disguise (about.ts's TEAM note), and nobody has
    confirmed one. */
 
-export type AnimKind = "none" | "mark" | "team" | "blueprint" | "envelope";
+/* "mark-send" — CHOSEN for /content, 2026-09-11: no panel while typing (the
+   live letter is already the moving part), and the mark gathers above the
+   thank-you once the story is sent. The other kinds are kept, unrendered on
+   /content, for the phase-2 variant review in /content-lab. */
+export type AnimKind = "none" | "mark" | "mark-send" | "team" | "blueprint" | "envelope";
 
 type StageKind = "mark" | "team" | "blueprint";
+/** A panel beside the letter WHILE the story is being written. */
 export const hasStage = (k: AnimKind): k is StageKind => k === "mark" || k === "team" || k === "blueprint";
+/** The panel above the thank-you once sent: a typing stage's own finish, or
+    the mark alone for "mark-send", which appears only then. */
+export const finaleOf = (k: AnimKind): StageKind | null =>
+  k === "mark-send" ? "mark" : hasStage(k) ? k : null;
 
 const WORKING: Record<StageKind, string> = {
   mark: "The mark comes together as your story does",
@@ -37,7 +46,7 @@ const WORKING: Record<StageKind, string> = {
   blueprint: "Your project, sketched",
 };
 const DONE: Record<StageKind, string> = {
-  mark: "Whole — your story is with us.",
+  mark: "Delivered safely to the Interloid team.",
   team: "Connected — your story is with the engineers.",
   blueprint: "Sketched — next comes a written price.",
 };
@@ -46,18 +55,31 @@ export default function Stage({
   kind,
   progress,
   done,
+  fill = false,
   className = "",
 }: {
   kind: AnimKind;
   progress: number;
   done: boolean;
+  /** The thank-you's logo side: fills its half of the combined card (no
+      corners of its own — the card clips it) instead of being a separate
+      panel. Never shorter than 18rem: at the typing panel's 224px the mark
+      drew ~2px per lattice row and aliased into a moiré of bright blobs,
+      and HeroScatter treats ~4.3px as the finest spacing worth drawing. */
+  fill?: boolean;
   className?: string;
 }) {
   if (!hasStage(kind)) return null;
   const pct = Math.round((done ? 1 : Math.max(0, Math.min(1, progress))) * 100);
   return (
-    <figure className={`m-0 overflow-hidden rounded-[2rem] bg-ink ${className}`}>
-      <div className="relative h-48 sm:h-56">
+    <figure
+      className={
+        fill
+          ? `m-0 flex h-full flex-col bg-ink ${className}`
+          : `m-0 overflow-hidden rounded-[2rem] bg-ink ${className}`
+      }
+    >
+      <div className={fill ? "relative min-h-72 flex-1 lg:min-h-[26rem]" : "relative h-48 sm:h-56"}>
         {kind === "mark" ? (
           <MarkField progress={progress} done={done} />
         ) : kind === "team" ? (

@@ -14,18 +14,31 @@ export const metadata: Metadata = {
    /content-lab — the open decisions for /content, as live controls.
    ==========================================================================
    Round one (2026-09-11) compared four layouts and the live preview won.
-   This round keeps that layout and asks the three questions still open:
-   which side the questions go on, how the preview reaches a phone, and which
-   animation (if any) goes with it.
+   Round two settled its three dials, and /content now ships them: the story
+   on the LEFT, the DRAWER on phones, and the mark on the thank-you only
+   ("mark-send"). The controls open on that choice.
 
-   CHOOSING: /content renders <LetterComposer />; each answer here is one prop
-   on it — side, mobile, anim.
+   KEPT FOR PHASE 2, NOT DEAD CODE. The user plans a preview of every variant
+   — the service ecosystem designs and these content-form samples — for a
+   senior review once development is done. So the other sides, the tabs
+   design and the team / blueprint / envelope animations stay here on
+   purpose. Do not delete them as unused.
+
+   CHANGING THE CHOICE: /content renders <LetterComposer side mobile anim />;
+   each control here is one of those props.
 
    No <Reveal />: the composer mounts after load when the view changes, and
    Reveal only observes what is on the page at mount (see BriefHero).
    Not linked, noindex. */
 
+/* First entry is what the lab opens on — the choice live on /content. */
 const ANIMS: LabOption<AnimKind>[] = [
+  {
+    v: "mark-send",
+    name: "Logo on send · chosen",
+    best: "Live on /content. Nothing animates while the story is written, since the letter filling in is the movement. After Send, your logo gathers from particles above the thank-you, so the last thing a client sees is Interloid.",
+    cost: "three.js plus 128 KB of point data, but loaded only after sending, so writing the story stays as light as with no animation.",
+  },
   {
     v: "none",
     name: "None",
@@ -86,13 +99,13 @@ export default function ContentLabPage() {
             Internal — not linked, not indexed
           </p>
           <h1 className="mt-3 max-w-4xl font-display text-[clamp(2.2rem,4vw,3.2rem)] font-bold leading-[1.08] tracking-[-0.03em] text-foreground">
-            The live letter. Three details to decide.
+            The live letter, and every variant of it.
           </h1>
           <p className="mt-5 max-w-3xl text-[17px] leading-[1.7] text-muted-strong">
-            The layout is chosen: your story written as sentences with blanks on one side, the finished
-            letter on the other, filling in as you type. What is left is which side the story sits on,
-            how the letter reaches a phone, and which animation (if any) goes with it. Switch{" "}
-            <b>View</b> to see the real page inside a phone.
+            Live on /content: the story written as sentences on the <b>left</b>, the finished letter on
+            the right, the <b>drawer</b> on phones, and the <b>logo on send</b>. The controls open on that
+            choice; every other option stays here for the phase-2 review. Switch <b>View</b> to see the
+            real page inside a phone.
             What you type carries across everything, and sends here are checked but never saved.
           </p>
         </header>

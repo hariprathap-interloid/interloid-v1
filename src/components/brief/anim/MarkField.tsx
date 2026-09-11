@@ -48,8 +48,11 @@ function webglOK() {
    points — the variation is what makes a wedge land as a flock, not a slab. */
 const SPEED = 3.2;
 const STAGGER = 0.9;
-/* Half-size of the mark in world units, against a camera at z = 7. */
-const MARK = 1.55;
+/* Half-size of the mark in world units, against a camera at z = 7 — the
+   mark fills ~70% of the panel's height. It was 1.55 (~64%); on the
+   thank-you that left the 72-row lattice too few pixels per row to read as
+   a dotted logo rather than moiré. */
+const MARK = 1.85;
 
 export default function MarkField({ progress, done }: { progress: number; done: boolean }) {
   const stageRef = useRef<HTMLDivElement>(null);

@@ -26,10 +26,12 @@ export const metadata: Metadata = {
      brief/useStoryBrief.ts    draft, versions, validation, send
      app/content/actions.ts    the send
 
-   STILL OPEN, and decided on /content-lab: which side the questions sit on,
-   the phone design (drawer · tabs · echo), and the animation (none · mark ·
-   team · blueprint · envelope). Each is one prop below; the defaults are
-   questions-left, drawer, no animation.
+   DECIDED 2026-09-11 in /content-lab: the story on the LEFT, the DRAWER on
+   phones, and the Interloid mark gathering above the thank-you only once the
+   story is sent ("mark-send") — nothing animates while typing, because the
+   live letter already does. Every other option (side, tabs, the team,
+   blueprint and envelope animations) stays in /content-lab, parked for the
+   phase-2 review of variants; nothing on this page loads them.
 
    No CtaAnchor slab: this page IS the conversion, and a second "book a call"
    button under the letter would compete with its own send button. */
@@ -46,7 +48,7 @@ export default function Content() {
       <Nav />
       <main id="main">
         <BriefHero />
-        <LetterComposer />
+        <LetterComposer side="input-left" mobile="drawer" anim="mark-send" />
       </main>
       <Footer />
     </>

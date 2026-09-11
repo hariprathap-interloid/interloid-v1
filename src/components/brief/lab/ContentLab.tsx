@@ -56,7 +56,8 @@ export default function ContentLab({
   const [view, setView] = useState<"desktop" | "phone">("desktop");
   const [side, setSide] = useState<Side>("input-left");
   const [mobile, setMobile] = useState<MobileMode>("drawer");
-  const [anim, setAnim] = useState<AnimKind>("none");
+  /* Opens on the first option — the page lists the choice live on /content first. */
+  const [anim, setAnim] = useState<AnimKind>(anims[0].v);
 
   const a = anims.find((o) => o.v === anim) ?? anims[0];
   const m = mobiles.find((o) => o.v === mobile) ?? mobiles[0];

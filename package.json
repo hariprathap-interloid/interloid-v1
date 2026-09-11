@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "verify": "node .verify.mjs",
-    "perf": "node .perf.mjs"
+    "perf": "node .perf.mjs",
+    "logo:points": "node scripts/build-logo-points.mjs",
+    "logo:points:check": "node scripts/build-logo-points.mjs --check"
   },
   "dependencies": {
     "next": "16.3.4",

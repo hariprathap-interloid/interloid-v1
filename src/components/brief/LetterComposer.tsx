@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore, type FocusEvent } from "react";
 import Icon from "@/components/Icon";
-import { BRIEF_SEND } from "@/content/brief";
+import { BRIEF_SEND, BRIEF_UI } from "@/content/brief";
 import EnvelopeSend from "./anim/EnvelopeSend";
-import Stage, { hasStage, type AnimKind } from "./anim/Stage";
+import Stage, { finaleOf, hasStage, type AnimKind } from "./anim/Stage";
 import { CARD, Chapters, Honeypot, PARA_MD, SendFoot, ThankYou, VersionToggle } from "./parts";
 import { useStoryBrief, type Brief } from "./useStoryBrief";
 
@@ -62,57 +62,94 @@ const getWideServer = () => true;
 
 /* ── the finished letter ──────────────────────────────────────────────── */
 
+/* How tall the letter may be beside the story at `lg:` — the screen, less
+   the pinned nav above it and a margin below. With an animation panel over
+   it (lab variants) the panel's height comes off too. Whole strings. */
+const FIT = {
+  none: "",
+  screen: "lg:max-h-[calc(100dvh-8rem)]",
+  "screen-stage": "lg:max-h-[calc(100dvh-24rem)]",
+} as const;
+
 /** The letter, typeset from the answers. An empty blank shows its own label
     in a dashed slot, so the reader sees the shape of the story before any of
-    it is written. */
-function Paper({ brief }: { brief: Brief }) {
+    it is written.
+
+    FITTED TO THE SCREEN beside the story (`fit`): the header ("To Interloid
+    · 3 of 9 written") stays put and the sentences scroll inside the card —
+    so on a 720px laptop the letter is always on screen instead of scrolling
+    away and leaving half the page empty (measured 2026-09-11 at 1280×720,
+    1366×768 and 1024×768). `active` tints the sentence being written, and
+    `bodyId` lets the composer scroll THIS box — never the page — to it. */
+function Paper({
+  brief,
+  active,
+  fit = "none",
+  bodyId,
+}: {
+  brief: Brief;
+  active?: string;
+  fit?: keyof typeof FIT;
+  bodyId?: string;
+}) {
   const { values, version, progress, who, company } = brief;
   const pct = progress.total ? Math.round((progress.filled / progress.total) * 100) : 0;
   return (
-    <div className={`${CARD} overflow-hidden`}>
-      <div className="h-1 bg-secondary" aria-hidden="true">
+    <div className={`${CARD} flex flex-col overflow-hidden ${FIT[fit]}`}>
+      <div className="h-1 shrink-0 bg-secondary" aria-hidden="true">
         <div
           className="h-full bg-gradient-to-r from-brand to-accent transition-[width] duration-500 ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <div className="p-6 sm:p-10">
+      <div className="shrink-0 px-6 pt-6 sm:px-10 sm:pt-8">
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-5 text-sm text-muted-foreground">
-          <span>
-            To <strong className="font-semibold text-foreground">Interloid</strong>
-          </span>
+          <span className="font-semibold text-foreground">{BRIEF_UI.letterTo}</span>
           <span className="tabular-nums" aria-live="polite">
-            {progress.filled} of {progress.total} written
+            {BRIEF_UI.answered(progress.filled, progress.total)}
           </span>
         </div>
-        <div className="mt-6 space-y-3">
+      </div>
+      <div
+        id={bodyId}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6 [scrollbar-width:thin] sm:px-10 sm:pb-8"
+      >
+        <div className="mt-5 space-y-2">
           {version.chapters.map((c) =>
-            c.lines.map((line, li) => (
-              <p key={`${c.key}-${li}`} className={PARA_MD}>
-                {line.map((s, si) => {
-                  if (typeof s === "string") return <span key={si}>{s}</span>;
-                  const v = values[s.name]?.trim();
-                  if (v) {
+            c.lines.map((line, li) => {
+              const names = line.flatMap((s) => (typeof s === "string" ? [] : [s.name]));
+              const on = !!active && names.includes(active);
+              return (
+                <p
+                  key={`${c.key}-${li}`}
+                  data-fields={names.join(" ")}
+                  className={`${PARA_MD} -mx-3 rounded-xl px-3 py-0.5 transition-colors duration-300 ${on ? "bg-brand/[0.07]" : ""}`}
+                >
+                  {line.map((s, si) => {
+                    if (typeof s === "string") return <span key={si}>{s}</span>;
+                    const v = values[s.name]?.trim();
+                    if (v) {
+                      return (
+                        <span key={s.name} className={s.kind === "long" ? "mt-1 block text-brand" : "text-brand"}>
+                          {v}
+                        </span>
+                      );
+                    }
                     return (
-                      <span key={s.name} className={s.kind === "long" ? "mt-1 block text-brand" : "text-brand"}>
-                        {v}
+                      <span
+                        key={s.name}
+                        className={`${s.kind === "long" ? "mt-1 block w-fit" : "mx-0.5"} border-b-2 border-dashed border-border px-1 text-faint`}
+                      >
+                        {s.label}
                       </span>
                     );
-                  }
-                  return (
-                    <span
-                      key={s.name}
-                      className={`${s.kind === "long" ? "mt-1 block w-fit" : "mx-0.5"} border-b-2 border-dashed border-border px-1 text-faint`}
-                    >
-                      {s.label}
-                    </span>
-                  );
-                })}
-              </p>
-            )),
+                  })}
+                </p>
+              );
+            }),
           )}
         </div>
-        <p className={`${PARA_MD} mt-8`}>
+        <p className={`${PARA_MD} mt-6`}>
           {BRIEF_SEND.signoff} <span className={who ? "text-brand" : "text-faint"}>{who || "your name"}</span>
           {company && <span className="text-brand">, {company}</span>}
         </p>
@@ -139,6 +176,8 @@ export default function LetterComposer({
   const wide = useSyncExternalStore(subscribeWide, getWide, getWideServer);
   const [tab, setTab] = useState<"write" | "letter">("write");
   const [sheet, setSheet] = useState(false);
+  /** The blank being written — its sentence is tinted in the letter. */
+  const [active, setActive] = useState<string>();
   const sheetRef = useRef<HTMLDialogElement>(null);
 
   const { progress, state } = brief;
@@ -147,12 +186,20 @@ export default function LetterComposer({
 
   /* ── sent: the thank-you, with the chosen animation's finish ────────── */
   if (state.status === "sent") {
-    const thanks = <ThankYou brief={brief} className={`${CARD} p-8 sm:p-12`} />;
+    /* One card: the logo side and the words side together (ThankYou's
+       `stage`). The Stage mounts fresh here, so the mark starts scattered
+       and gathers into the logo as the thank-you arrives — the moment
+       "mark-send" exists for. No animation or the envelope: the plain card. */
+    const finale = finaleOf(anim);
+    const thanks = finale ? (
+      <ThankYou brief={brief} className={CARD} stage={<Stage kind={finale} progress={1} done fill />} />
+    ) : (
+      <ThankYou brief={brief} className={`${CARD} p-8 sm:p-12`} />
+    );
     return (
       <section className="bg-background py-16 lg:py-24">
         <div className="shell">
-          <div className="mx-auto grid max-w-5xl gap-6">
-            {hasStage(anim) && <Stage kind={anim} progress={1} done />}
+          <div className="mx-auto max-w-5xl">
             {anim === "envelope" ? <EnvelopeSend name={brief.who}>{thanks}</EnvelopeSend> : thanks}
           </div>
         </div>
@@ -168,11 +215,31 @@ export default function LetterComposer({
     setSheet(true);
     sheetRef.current?.showModal();
   };
+  /* The letter follows the story: focusing a blank tints its sentence and
+     scrolls the LETTER'S OWN BOX to it — a third of the way down, so the
+     lines before it stay in view. Deliberately not scrollIntoView, which
+     would also move the page under the visitor's cursor while they type. */
+  const letterId = `${brief.formId}-letter`;
+  const follow = (e: FocusEvent<HTMLDivElement>) => {
+    const name = e.target.getAttribute("name");
+    if (!name) return;
+    setActive(name);
+    const box = document.getElementById(letterId);
+    const line = box?.querySelector<HTMLElement>(`[data-fields~="${name}"]`);
+    if (!box || !line || box.scrollHeight <= box.clientHeight) return;
+    const d = line.getBoundingClientRect().top - box.getBoundingClientRect().top;
+    box.scrollBy({
+      top: d - box.clientHeight / 3,
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+  };
 
   /* Placement — whole strings on every arm. Two equal halves: blanks set in
      running sentences need the width that plain boxes did not. */
+  /* No scroll-margin: <html> already has `scroll-padding-top: 7rem` for the
+     fixed nav, and a margin here doubled it (see ThankYou). */
   const GRID =
-    "shell grid scroll-mt-24 grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-x-16";
+    "shell grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-x-16";
   const COL_STORY = left ? "lg:col-start-1" : "lg:col-start-2";
   const COL_PREVIEW = left ? "lg:col-start-2" : "lg:col-start-1";
   const HIDE_WRITE = mobile === "tabs" && tab === "letter" ? "hidden lg:block" : "";
@@ -203,7 +270,7 @@ export default function LetterComposer({
                     : "rounded-full py-2.5 text-sm font-medium text-muted-foreground"
                 }
               >
-                Write
+                {BRIEF_UI.writeTab}
               </button>
               <button
                 type="button"
@@ -216,14 +283,18 @@ export default function LetterComposer({
                     : "rounded-full py-2.5 text-sm font-medium tabular-nums text-muted-foreground"
                 }
               >
-                Your letter · {progress.filled}/{progress.total}
+                {BRIEF_UI.letterTab} · {progress.filled}/{progress.total}
               </button>
             </div>
           </div>
         )}
 
         {/* THE STORY — sentences with blanks, written in place. */}
-        <div className={`${HIDE_WRITE} ${COL_STORY} min-w-0 lg:row-start-1`}>
+        <div
+          onFocusCapture={follow}
+          onBlurCapture={() => setActive(undefined)}
+          className={`${HIDE_WRITE} ${COL_STORY} min-w-0 lg:row-start-1`}
+        >
           <div className={CARD}>
             <VersionToggle brief={brief} className="border-b border-border px-6 py-5 sm:px-8" />
             <div className="px-6 sm:px-8">
@@ -232,15 +303,18 @@ export default function LetterComposer({
           </div>
         </div>
 
-        {/* THE LETTER — sticky only on screens tall enough to hold it (a
-            pinned column taller than the viewport hides its own bottom). */}
+        {/* THE LETTER — pinned under the nav at every `lg:` height, and
+            FITTED to the screen (Paper's `fit`), so it never outgrows the
+            viewport. It used to pin only on screens ≥ 56rem tall — on a
+            720–768px laptop it scrolled away and left the right half of the
+            page empty while the story was being written. */}
         <aside
           aria-label="Your letter, as it reads"
           className={`${HIDE_PREVIEW} ${COL_PREVIEW} min-w-0 lg:row-span-2 lg:row-start-1`}
         >
-          <div className="grid gap-5 lg:top-28 [@media(min-height:56rem)]:lg:sticky">
+          <div className="grid gap-5 lg:sticky lg:top-24">
             {columnStage && <Stage kind={anim} progress={p} done={false} />}
-            <Paper brief={brief} />
+            <Paper brief={brief} active={active} fit={columnStage ? "screen-stage" : "screen"} bodyId={letterId} />
             {mobile === "tabs" && (
               <button
                 type="button"
@@ -274,7 +348,7 @@ export default function LetterComposer({
                 <Icon name="doc" className="size-5" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-[15px] font-semibold text-foreground">Your letter</span>
+                <span className="block text-[15px] font-semibold text-foreground">{BRIEF_UI.preview}</span>
                 <span className="mt-1 block h-1 overflow-hidden rounded-full bg-secondary" aria-hidden="true">
                   <span
                     className="block h-full rounded-full bg-gradient-to-r from-brand to-accent transition-[width] duration-500"
@@ -282,10 +356,10 @@ export default function LetterComposer({
                   />
                 </span>
                 <span className="mt-1 block text-xs tabular-nums text-muted-foreground">
-                  {progress.filled} of {progress.total} written
+                  {BRIEF_UI.answered(progress.filled, progress.total)}
                 </span>
               </span>
-              <span className="shrink-0 text-sm font-semibold text-primary">Read ↑</span>
+              <span className="shrink-0 text-sm font-semibold text-primary">{BRIEF_UI.previewAction} ↑</span>
             </button>
           </div>
 
@@ -299,13 +373,13 @@ export default function LetterComposer({
             className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[88vh] w-full max-w-full overflow-y-auto rounded-t-[2rem] border-0 bg-background p-0 text-muted-foreground backdrop:bg-ink/60 backdrop:backdrop-blur-sm lg:hidden"
           >
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/95 px-5 py-4 backdrop-blur">
-              <span className="font-display text-lg font-semibold text-foreground">Your letter</span>
+              <span className="font-display text-lg font-semibold text-foreground">{BRIEF_UI.sheetTitle}</span>
               <button
                 type="button"
                 onClick={() => sheetRef.current?.close()}
                 className="rounded-full bg-secondary px-4 py-2 text-sm font-semibold text-primary"
               >
-                Done
+                {BRIEF_UI.sheetClose}
               </button>
             </div>
             <div className="grid gap-5 p-4">

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
    no Reveal (BriefHero renders with reveal off). Not linked, noindex. */
 
 const MOBILES = ["drawer", "tabs"] as const satisfies readonly MobileMode[];
-const ANIMS = ["none", "mark", "team", "blueprint", "envelope"] as const satisfies readonly AnimKind[];
+const ANIMS = ["none", "mark", "mark-send", "team", "blueprint", "envelope"] as const satisfies readonly AnimKind[];
 
 function pick<T extends string>(v: string | string[] | undefined, list: readonly T[], fallback: T): T {
   return typeof v === "string" && (list as readonly string[]).includes(v) ? (v as T) : fallback;
