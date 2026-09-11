@@ -77,28 +77,26 @@ const SPREAD = 0.3;
    size is a FRACTION of SCALE, which holds the same grain at every width. */
 const SIZE_SCATTER = 0.085;
 
-/* THE MARK IS A LATTICE, NOT A SAMPLE.
+/* THE MARK IS AN EXACT GRID, GENERATED FROM THE ARTWORK.
 
-   The field and the mark need different POINT COUNTS. 3810 points across a
-   611px desktop mark is a legible dotted logo; the same 3810 across a 133px
-   phone mark is ~2px apart, so the squares merge into one solid silhouette.
+   logo-points.json is built from interloid-logo.svg as a perfect lattice: the
+   artwork is divided into `grid` x `grid` cells, and every cell it covers by at
+   least half gets one point at that cell's exact centre, coloured by the ink
+   inside it. Each point also carries its integer cell (gx, gy).
 
-   The first attempt at fixing that kept a random SUBSET of the mark's points.
-   That failed badly, and the reason is worth keeping: a random sample of a
-   shape clumps and leaves holes, so at low counts it reads as speckled noise
-   rather than as a logo. Evenly spaced dots are what make a halftone legible.
+   Two earlier versions of that file were each wrong in a way that showed on
+   screen: a JITTERED sampling (nearest-neighbour spacing wandering .023-.029)
+   whose squares would never sit in true rows however it was re-quantised; and
+   a fringe of ~4% of points lying just OUTSIDE the silhouette, which read as
+   stray squares off the rim. Generating the grid from the artwork removes both
+   by construction rather than by filtering.
 
-   So the mark is QUANTISED to a grid at the target spacing — one point per
-   occupied cell, snapped to that cell's centre. The count then falls out of
-   the geometry, and the result is a regular lattice at every size. Surplus
-   particles do not vanish (the field still needs them); they FADE OUT as the
-   mark forms, which is what the per-particle alpha attribute is for. */
+   The field and the mark still need different POINT COUNTS: ~3900 points is a
+   legible dotted logo across a 611px desktop mark, but only ~2px apart on a
+   phone. So small marks keep every k-th row and column — an exact sub-grid,
+   never a sample — and the surplus FADES OUT as the mark forms, which is what
+   the per-particle alpha attribute is for. */
 const MARK_SPACING_PX = 4.3; /* finest centre-to-centre gap worth drawing */
-/* The step of the lattice the source points ALREADY sit on, in unit space.
-   MEASURED from logo-points.json, not guessed: nearest-neighbour distance
-   across its 3810 points is p25 .023, median .028, p95 .0294. Everything about
-   the mark's grain follows from this number. */
-const SOURCE_STEP = 0.0285;
 /* Square size as a fraction of the spacing, so its SQUARE is the ink coverage.
    0.88 leaves a hairline between neighbours: the grid still reads as squares,
    but the mark's edges and counters stay crisp rather than gappy. */
@@ -109,6 +107,11 @@ const MARK_DOT_RATIO = 0.88;
    and left ~9px to the badge at 320px wide. */
 const NAV_PX = 70;
 const MARK_MARGIN_PX = 16;
+
+/* Clear space between the end of the hero copy and the mark, on wide screens.
+   Must exceed the scrim's fade-out past --copy-end (3rem in globals.css), or
+   the mark's left edge sits under the tail of the veil. */
+const COPY_GAP_PX = 56;
 
 function webglOK() {
   try {
@@ -143,7 +146,14 @@ export default function HeroScatter() {
 
       /* The mark is optional: if the points cannot be fetched the field still
          renders and simply never gathers, rather than losing the hero. */
-      let logo: { count: number; pos: number[]; col?: number[] } | null = null;
+      let logo: {
+        count: number;
+        pos: number[];
+        col?: number[];
+        grid?: number;
+        gx?: number[];
+        gy?: number[];
+      } | null = null;
       try {
         logo = await (await fetch("/logo-points.json")).json();
       } catch (e) {
@@ -364,6 +374,13 @@ export default function HeroScatter() {
          vividness, where additive blending makes it glow. */
       const markRamp = { a: new THREE.Color(), b: new THREE.Color() };
       const hsl = { h: 0, s: 0, l: 0 };
+      const WHITE = new THREE.Color(1, 1, 1);
+      const AZURE_H = 0.55; /* hue the dark palette is pulled toward */
+      /* 0.45 (with a 0.30 floor) left the blue half at 0.69 of the cyan half's
+         luminance; 0.6 with the 0.36 floor below reaches 0.83 while chroma
+         stays 0.86 — simulated over the baked palette before choosing. 0.7
+         balances about as well but squeezes the blue end to azure. */
+      const AZURE_MIX = 0.6;
       const baked = logo?.col;
 
       /* ONE PALETTE FOR BOTH STATES.
@@ -416,8 +433,22 @@ export default function HeroScatter() {
              So each point keeps the hue it sampled (that is what carries the
              logo's blue-to-cyan run) while saturation gets a floor and
              lightness a band. Nothing can wash out, nothing can blow out. */
-          const lMin = isLight ? 0.3 : 0.42;
-          const lMax = isLight ? 0.58 : 0.7;
+          /* Normalised by PERCEIVED LUMINANCE, not by HSL lightness.
+
+             Lightness is the wrong yardstick here because blue carries only
+             7% of luma against cyan's 78%: at a fixed HSL lightness the cyan
+             end is bright and the blue end is nearly black. On the dark hero
+             that made half the mark disappear — the cyan side read fine while
+             the blue side sank into the background. The same flaw washed the
+             cyan out on light.
+
+             So each point keeps its hue and gets pushed to a luminance that
+             actually reads against THIS theme's background: capped on light
+             (bg luminance ~0.88), floored on dark (~0.005). Lifting is done by
+             mixing toward white rather than by scaling, because scaling a blue
+             just clips its one strong channel and shifts the hue. */
+          const lumMax = isLight ? 0.42 : 1;
+          const lumMin = isLight ? 0 : 0.36;
           for (let i = 0; i < N; i++) {
             const q = homeIdx[i] * 3;
             tmp.setRGB(
@@ -427,12 +458,20 @@ export default function HeroScatter() {
               THREE.SRGBColorSpace,
             );
             tmp.getHSL(hsl, THREE.SRGBColorSpace);
-            tmp.setHSL(
-              hsl.h,
-              Math.max(hsl.s, 0.72),
-              clamp(hsl.l, lMin, lMax),
-              THREE.SRGBColorSpace,
-            );
+            /* On DARK, compress the hue range toward azure. Deep indigo simply
+               cannot carry light — it is 7% of luma — so on a near-black ground
+               the blue half sank while the cyan half shone. Lifting it by
+               mixing toward white instead turns it pale lavender and loses the
+               logo. Moving the hue a little toward cyan keeps it saturated and
+               unmistakably blue while giving it something to shine with. The
+               lerp is uniform, so the gradient's direction and order survive;
+               the whole run just starts brighter. */
+            const h = isLight ? hsl.h : hsl.h + (AZURE_H - hsl.h) * AZURE_MIX;
+            tmp.setHSL(h, Math.max(hsl.s, 0.72), hsl.l, THREE.SRGBColorSpace);
+            /* tmp is linear here, which is the space luma is defined in. */
+            const lum = 0.2126 * tmp.r + 0.7152 * tmp.g + 0.0722 * tmp.b;
+            if (lum > lumMax) tmp.multiplyScalar(lumMax / lum);
+            else if (lum < lumMin) tmp.lerp(WHITE, (lumMin - lum) / (1 - lum));
             writeColour(i);
           }
           return;
@@ -462,7 +501,7 @@ export default function HeroScatter() {
            right for a sparse field but leaves the dense mark looking washed
            out against the pale ground. Cross-faded with k alongside size. */
         opScatter = isLight ? 0.78 : 0.62;
-        opLogo = isLight ? 1 : 0.8;
+        opLogo = isLight ? 1 : 0.95;
         paintPalette(); /* both palettes are theme-dependent */
         col.set(colScatter);
         aCol.needsUpdate = true;
@@ -541,56 +580,66 @@ export default function HeroScatter() {
       const pxToWorld = (px: number, h: number) =>
         (px * 2 * camera.position.z) / h;
 
-      /* Quantise the mark onto a lattice sized for the current mark, keep one
-         particle per occupied cell, and snap it to that cell's centre.
+      /* The source is an exact grid, so choosing what to draw is choosing
+         every k-th row and column. k = 1 draws every point (desktop); on small
+         marks k grows until neighbours sit MARK_SPACING_PX apart. Because k is
+         an INTEGER multiple of the source cell, the survivors still fall in
+         perfect rows — the one thing thinning by distance could never promise,
+         and why the phone mark used to look faintly jittered.
 
-         This is what makes a low-count mark legible. Sampling the mark's points
-         at random leaves clumps and holes and reads as noise; an even lattice
-         reads as a halftone of the shape. The cell nearest-wins so the chosen
-         point best represents its cell.
-
-         Runs on resize only, and leaves the angle PAIRING untouched — snapping
-         moves a home by at most half a cell, far too little to make travel
-         paths cross. */
+         Runs on resize only. The angle PAIRING is untouched: homes never move,
+         only which of them are drawn. */
+      const GRID = logo?.grid ?? 72;
+      const gridX = logo?.gx;
+      const gridY = logo?.gy;
+      const onSubGrid = (g: number, k: number, off: number) =>
+        (((g - off) % k) + k) % k === 0;
       const buildLattice = (h: number) => {
         if (!hasLogo) return;
         const markWidthPx = 2 * SCALE * (h / FRAME.h);
-        /* The source points ALREADY sit on a lattice of their own, so the only
-           question is whether the mark is big enough to draw all of them. */
-        const stepPx = (SOURCE_STEP / 2) * markWidthPx;
-
-        if (stepPx >= MARK_SPACING_PX) {
-          /* Big enough — draw every point exactly where the artwork puts it.
-             Re-quantising here is what wrecked the mark: it is already a
-             lattice, so a second grid only fights it, and snapping points to
-             cell centres dragged them into the counters and blurred the
-             negative space the logo is built from. */
-          member.fill(1);
-          markCount = N;
-          sizeLogo = pxToWorld(stepPx * MARK_DOT_RATIO, h);
-        } else {
-          /* Too small to show every point as a separate square, so THIN them:
-             one per coarser cell, nearest the centre. Note this only SELECTS —
-             the survivors keep their own positions, never a snapped one, so
-             the shape and its counters survive intact. */
-          const cell = (MARK_SPACING_PX / markWidthPx) * 2;
-          const best = new Map<number, { p: number; d2: number }>();
-          for (let i = 0; i < N; i++) {
-            const kx = Math.round(homeXu[i] / cell);
-            const ky = Math.round(homeYu[i] / cell);
-            const dx = homeXu[i] - kx * cell;
-            const dy = homeYu[i] - ky * cell;
-            const d2 = dx * dx + dy * dy;
-            const key = (kx + 4096) * 8192 + (ky + 4096);
-            const cur = best.get(key);
-            if (!cur || d2 < cur.d2) best.set(key, { p: i, d2 });
-          }
-          member.fill(0);
-          for (const v of best.values()) member[v.p] = 1;
-          markCount = best.size;
-          sizeLogo = pxToWorld(MARK_SPACING_PX * MARK_DOT_RATIO, h);
+        const stepPx = markWidthPx / GRID; /* one source cell, on screen */
+        const k = Math.max(1, Math.ceil(MARK_SPACING_PX / stepPx));
+        /* Centre the sub-grid on the mark so thinning trims evenly, instead of
+           always shaving the same edge. */
+        const off = Math.floor(GRID / 2) % k;
+        markCount = 0;
+        for (let i = 0; i < N; i++) {
+          const q = homeIdx[i];
+          const keep =
+            k === 1 || !gridX || !gridY
+              ? 1
+              : onSubGrid(gridX[q], k, off) && onSubGrid(gridY[q], k, off)
+                ? 1
+                : 0;
+          member[i] = keep;
+          markCount += keep;
         }
+        sizeLogo = pxToWorld(stepPx * k * MARK_DOT_RATIO, h);
         lastK = -1; /* size and fades depend on this, so re-derive next frame */
+      };
+
+      /* Where the hero's words actually END, in hero-local px. Measured from
+         the TEXT, not the boxes: the h1 and paragraphs are block boxes as wide
+         as their column, so their boxes run well past the last glyph. A Range
+         over each one's contents gives the tight extent of the rendered lines;
+         the badge and CTA row are shrink-wrapped, so their children's boxes are
+         already tight. */
+      const copyRange = document.createRange();
+      const copyEnd = (): number | null => {
+        const col = hero.querySelector("h1")?.parentElement;
+        if (!col) return null;
+        let right = 0;
+        for (const el of Array.from(col.children)) {
+          if (el.matches("h1, p")) {
+            copyRange.selectNodeContents(el);
+            right = Math.max(right, copyRange.getBoundingClientRect().right);
+          } else {
+            for (const c of Array.from(el.children)) {
+              right = Math.max(right, c.getBoundingClientRect().right);
+            }
+          }
+        }
+        return right > 0 ? right - hero.getBoundingClientRect().left : null;
       };
 
       const resize = () => {
@@ -608,8 +657,29 @@ export default function HeroScatter() {
         uni.uScale.value = h * 0.5 * Math.min(devicePixelRatio, 2);
 
         if (w >= 900) {
-          SCALE = FRAME.h * 0.34;
-          HOME_X = Math.min(FRAME.w * 0.26, FRAME.w / 2 - SCALE * 1.05);
+          /* WIDE: the mark takes the space to the RIGHT OF THE WORDS.
+
+             It used to be placed by fixed fractions of the frustum, tuned at
+             1440 and wrong everywhere else: at 1024 the lead ran 175px under
+             the mark (247px at 1024x768), and even 1280 overlapped by 35px. So
+             the copy's right edge is now read from the DOM — the same rule as
+             the narrow branch below (§5.21): what the mark must avoid is
+             measured, never assumed — and the mark is fitted into what is left.
+
+             The same number is published as --copy-end so the scrim's left ramp
+             ends exactly where the words do. Its old percentage stops landed on
+             the mark's left half at every width, veiling it in both themes. */
+          const pxPerWorld = h / FRAME.h;
+          const end = copyEnd() ?? w * 0.52;
+          hero.style.setProperty("--copy-end", `${Math.round(end)}px`);
+          const edge = parseFloat(getComputedStyle(hero).paddingRight) || 64;
+          const left = end + COPY_GAP_PX;
+          const right = w - edge;
+          /* 0.68 of the section height is the size the mark had at 1440; cap
+             there so very wide screens do not balloon it. */
+          const diameterPx = Math.max(0, Math.min(right - left, h * 0.68));
+          SCALE = diameterPx / 2 / pxPerWorld;
+          HOME_X = ((left + right) / 2 - w / 2) / pxPerWorld;
           HOME_Y = 0;
           buildLattice(h);
           return;
@@ -637,6 +707,11 @@ export default function HeroScatter() {
       };
       resize();
       window.addEventListener("resize", resize);
+      /* The copy's width depends on the webfont. Re-measure once it has swapped
+         in, or the mark and the scrim are placed off the fallback face. */
+      document.fonts.ready.then(() => {
+        if (!cancelled) resize();
+      });
 
       /* Linear 0..1 across the cycle: 0 scattered, 1 mark held. */
       const cyclePos = (t: number) => {
@@ -774,6 +849,7 @@ export default function HeroScatter() {
         io?.disconnect();
         themeObs.disconnect();
         window.removeEventListener("resize", resize);
+        hero.style.removeProperty("--copy-end");
         hero.removeEventListener("pointermove", onMove);
         hero.removeEventListener("pointerleave", onLeave);
         geo.dispose();

@@ -19,8 +19,12 @@ import Icon from "./Icon";
    neither the reference screenshot nor prototype 1 has it, and the user asked
    for the screenshot's content. It also carried `data-placeholder="confirm
    real address"`, so this is one fewer unverified claim on the page, not a
-   lost one. The button's mailto still points at that address — if the address
-   should be visible, put the paragraph back rather than trusting the href.
+   lost one.
+
+   The button's default `href` is /content (2026-09-11), the "tell us your
+   story" enquiry. It was `mailto:hello@interloid.com`, which opened a blank
+   email and disagreed with the connect@ address the footer publishes. Pages
+   that need a different destination still pass `href` (careers does).
 
    The 24 drifting particles use a seeded LCG so the layout is identical on
    every load and screenshot diffs stay meaningful. Because it is deterministic
@@ -58,7 +62,7 @@ export default function CtaAnchor({
   accent = "development partners?",
   lead = "Book 30 minutes. We’ll tell you honestly whether we’re the right fit — and if we’re not, who is.",
   cta = "Book a free 30-min consult",
-  href = "mailto:hello@interloid.com",
+  href = "/content",
   meta = ["No obligation", "No sales pressure", "Proposal in 48 hours"],
 }: {
   id?: string;

@@ -42,3 +42,6 @@ next-env.d.ts
 
 # verification output
 /shots
+
+# /content enquiries (see src/app/content/actions.ts)
+/content-submissions

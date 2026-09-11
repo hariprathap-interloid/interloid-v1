@@ -809,6 +809,14 @@ html.dark .hero-fallback {
 /* The scrim is what keeps the copy readable over the cloud. Light is the
    harder case — dark particles on a pale ground compete with dark text —
    so the light scrim is wider and more opaque, not the same ramp. */
+/* Where the hero's words end, in px from the section's left edge. HeroScatter
+   measures it from the rendered text and overwrites this inline on #home; the
+   default only stands in before that runs (or without WebGL, where there is no
+   field for the scrim to veil anyway). */
+#home {
+  --copy-end: 52%;
+}
+
 .scrim {
   position: absolute;
   inset: 0;
@@ -824,7 +832,12 @@ html.dark .hero-fallback {
         height, not a fraction of the section. Solid through 78px covers
         the pill (24–80px); the fade is spent by 170px, and the mark's
         own top edge is at ~144px, so it is grazed, not clipped.
-     2. The 90deg ramp that keeps the copy readable over the cloud. */
+     2. The 90deg ramp that keeps the copy readable over the cloud. Keyed to
+        --copy-end, the px where the words actually end. It used to run in %
+        of the section width, tuned at 1440 — at every other width those stops
+        landed on the mark's LEFT HALF and veiled it, in both themes. It now
+        fades out 3rem past the words, and the mark starts COPY_GAP_PX (56px)
+        past them, so the two can no longer overlap. */
   background:
     linear-gradient(
       180deg,
@@ -834,11 +847,12 @@ html.dark .hero-fallback {
     ),
     linear-gradient(
       90deg,
-      var(--hero-bg) 0%,
-      var(--hero-bg) 30%,
-      color-mix(in oklab, var(--hero-bg) 82%, transparent) 46%,
-      color-mix(in oklab, var(--hero-bg) 30%, transparent) 62%,
-      transparent 76%
+      var(--hero-bg) 0,
+      var(--hero-bg) calc(var(--copy-end) - 18rem),
+      color-mix(in oklab, var(--hero-bg) 82%, transparent)
+        calc(var(--copy-end) - 5rem),
+      color-mix(in oklab, var(--hero-bg) 40%, transparent) var(--copy-end),
+      transparent calc(var(--copy-end) + 3rem)
     );
 }
 html.dark .scrim {
@@ -851,10 +865,12 @@ html.dark .scrim {
     ),
     linear-gradient(
       90deg,
-      var(--hero-bg) 0%,
-      color-mix(in oklab, var(--hero-bg) 88%, transparent) 34%,
-      color-mix(in oklab, var(--hero-bg) 40%, transparent) 52%,
-      transparent 68%
+      var(--hero-bg) 0,
+      color-mix(in oklab, var(--hero-bg) 88%, transparent)
+        calc(var(--copy-end) - 14rem),
+      color-mix(in oklab, var(--hero-bg) 55%, transparent)
+        calc(var(--copy-end) - 3rem),
+      transparent calc(var(--copy-end) + 3rem)
     );
 }
 
@@ -878,27 +894,43 @@ html.dark .scrim {
        mark to resolve into anything legible. The floor only engages below
        ~722px tall, where the CTA is already far under the fold, so the
        calibrated 36vh is untouched everywhere it already works. */
-    padding-top: max(36vh, 260px);
+    --hero-band: max(36vh, 260px);
+    padding-top: var(--hero-band);
     padding-bottom: 5rem;
   }
-  /* Two layers. The second is the main downward ramp that clears the
-     copy; the first is a cap over the top ~13%, because the nav is
-     transparent at rest and the cloud ran straight through the wordmark
-     — badly in light, where both are dark on pale. */
-  .scrim {
+  /* Two layers. The second is the main downward ramp that clears the copy;
+     the first is a cap over the nav, which is transparent at rest and had the
+     cloud running straight through the wordmark — badly in light, where both
+     are dark on pale.
+
+     BOTH ARE KEYED IN PIXELS, not in percentages of the section. The section
+     is ~1146px tall on a 320x544 phone while the mark occupies 86-244px, so
+     the old percentage stops (a cap to 13% = 149px, and a ramp opening at
+     17% = 195px) veiled the mark's top AND bottom — it read as a washed-out,
+     half-opacity logo. The nav is ~70px whatever the section height, and the
+     copy starts exactly at --hero-band, so both stops belong in those terms.
+     The mark is laid out to end one margin above the band, so the ramp
+     starting there cannot touch it at any width. */
+  /* `html.dark .scrim` is listed too because the desktop dark rule above
+     out-ranks a bare `.scrim` (0,2,1 vs 0,1,0) even inside this media query.
+     Without it, phones in dark mode got the DESKTOP horizontal ramp, which
+     veiled the whole left half of the mark 88%->40% — more than the palette,
+     that is why the blue side of the mark read so dim on dark mobile. */
+  .scrim,
+  html.dark .scrim {
     background:
       linear-gradient(
         180deg,
-        var(--hero-bg) 0%,
-        color-mix(in oklab, var(--hero-bg) 72%, transparent) 6%,
-        transparent 13%
+        var(--hero-bg) 0,
+        color-mix(in oklab, var(--hero-bg) 72%, transparent) 34px,
+        transparent 72px
       ),
       linear-gradient(
         180deg,
-        transparent 0%,
-        color-mix(in oklab, var(--hero-bg) 40%, transparent) 17%,
-        color-mix(in oklab, var(--hero-bg) 92%, transparent) 27%,
-        var(--hero-bg) 34%
+        transparent var(--hero-band),
+        color-mix(in oklab, var(--hero-bg) 70%, transparent)
+          calc(var(--hero-band) + 34px),
+        var(--hero-bg) calc(var(--hero-band) + 80px)
       );
   }
 }

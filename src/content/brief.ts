@@ -1,0 +1,322 @@
+/* ==========================================================================
+   /content — "Tell us your story". Added 2026-09-11, SHORTENED 2026-09-11.
+   ==========================================================================
+   The project enquiry, written as a letter with blanks rather than as a form.
+   The server action in `app/content/actions.ts` saves the answers AND the
+   finished letter as plain text, so whoever reads it reads a letter.
+
+   ── TWO VERSIONS, ONE SET OF ANSWERS ─────────────────────────────────────
+   After the first build the user asked for less: fewer details, and a small
+   version for a client in a rush. So there are two letters —
+     quick   three blanks: who, what you need, how to reach you
+     full    four short chapters, about nine blanks
+   Both use the SAME field names, so switching versions keeps everything the
+   visitor has already typed. The action reads `version` to know which
+   letter's fields to accept.
+
+   ── NOTHING IS A FORCED CHOICE ───────────────────────────────────────────
+   The first build had pick-one pills; the user found typing "restricted" at
+   those points. Every blank is now typed, and `suggestions` only offer a
+   one-tap way to fill it. A visitor whose answer is not on the list simply
+   writes it. The action therefore accepts free text for every field.
+
+   ── REQUIRED ─────────────────────────────────────────────────────────────
+   Only three things, in either version: a name, what they need, and ONE way
+   to reach them (email OR phone — see BRIEF_REACH). Everything else is there
+   to help us arrive at the call prepared, never to gate the send.
+
+   ── CLAIMS ───────────────────────────────────────────────────────────────
+   Everything promised here is on site.ts's allowed list: the free 30-minute
+   consult, the written scope and price within 48 hours, and "no account
+   manager" (about.ts, unflagged). The $25k–$90k suggestion is the verified
+   FAQ range. Nothing promises a reply time — there is no confirmed one.
+   ========================================================================== */
+
+type Base = {
+  /** The FormData key, shared by both versions. Also the draft key. */
+  name: string;
+  /** How the field is named in a sentence — "your name". Used for the
+      accessible label and in the "we still need…" message. */
+  label: string;
+  required?: boolean;
+};
+
+/** A blank inside the sentence. `suggestions` appear under the sentence as
+    one-tap fills; the visitor can always type something else instead. */
+export type Blank = Base & {
+  kind: "blank";
+  hint: string;
+  type?: "text" | "email" | "tel";
+  autoComplete?: string;
+  suggestions?: readonly string[];
+};
+/** A longer answer, drawn as an open space under its sentence. */
+export type Long = Base & { kind: "long"; hint: string };
+
+export type Field = Blank | Long;
+export type Segment = string | Field;
+
+export type BriefChapter = {
+  key: string;
+  n: string;
+  title: string;
+  /** The line under the title that says why we ask. */
+  voice: string;
+  lines: readonly (readonly Segment[])[];
+};
+
+export type BriefVersion = {
+  key: "quick" | "full";
+  label: string;
+  time: string;
+  chapters: readonly BriefChapter[];
+};
+
+const blank = (
+  name: string,
+  label: string,
+  hint: string,
+  opts: Partial<Pick<Blank, "required" | "type" | "autoComplete" | "suggestions">> = {},
+): Blank => ({ kind: "blank", name, label, hint, ...opts });
+
+/* Shared by both letters, so the same answer carries across a switch. */
+const NAME = blank("name", "your name", "your name", { required: true, autoComplete: "name" });
+const COMPANY = blank("company", "your company", "your company", { autoComplete: "organization" });
+const EMAIL = blank("email", "your email", "you@company.com", { type: "email", autoComplete: "email" });
+const PHONE = blank("phone", "your phone number", "or a phone number", { type: "tel", autoComplete: "tel" });
+
+const HELLO: readonly Segment[] = ["Hi Interloid, I’m ", NAME, " from ", COMPANY, "."];
+const REACH: readonly Segment[] = ["You can reach me at ", EMAIL, " ", PHONE, "."];
+
+/** At least one of these must be filled, in either version. */
+export const BRIEF_REACH = {
+  fields: ["email", "phone"],
+  label: "an email or phone number to reach you",
+} as const;
+
+/* ── HERO ──────────────────────────────────────────────────────────────── */
+export const BRIEF_HERO = {
+  eyebrow: "Start a project",
+  head: "Skip the form.",
+  accent: "Tell us the story.",
+  lead: "No dropdowns, no “industry vertical”. Three blanks if you’re in a rush, the full story if you have a few minutes — tap a suggestion or type anything you like.",
+} as const;
+
+/* The way round the letter, beside it. Same address and number as the
+   footer and /about — connect@, not the hello@ some mailto links used. */
+export const BRIEF_DIRECT = {
+  title: "Rather just talk?",
+  body: "Write or call — you reach the same engineers either way.",
+  email: "connect@interloid.com",
+  phone: "+91 9042032424",
+  tel: "+919042032424",
+  hours: "India-based · US & UK overlap hours",
+} as const;
+
+export const BRIEF_FACTS = [
+  {
+    k: "clock",
+    label: "30 seconds, or 3 minutes",
+    body: "The short version if you’re in a rush, the full story if you have a coffee.",
+  },
+  {
+    k: "user-check",
+    label: "Read by an engineer",
+    body: "The person who would do the work reads it — there is no account manager in between.",
+  },
+  {
+    k: "receipt",
+    label: "Then a price, in writing",
+    body: "A free 30-minute call, then a written scope and price within 48 hours.",
+  },
+] as const;
+
+/* ── THE TWO LETTERS ───────────────────────────────────────────────────── */
+export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
+  quick: {
+    key: "quick",
+    label: "The short version",
+    time: "30 seconds",
+    chapters: [
+      {
+        key: "quick",
+        n: "",
+        title: "In a rush? Three blanks.",
+        voice: "That is all we need to get in touch. We will ask the rest on a free 30-minute call.",
+        lines: [
+          HELLO,
+          [
+            "We need help with ",
+            blank("want", "what you need", "a new app, a rebuild, more engineers…", { required: true }),
+            ".",
+          ],
+          REACH,
+        ],
+      },
+    ],
+  },
+  full: {
+    key: "full",
+    label: "The full story",
+    time: "about 3 minutes",
+    chapters: [
+      {
+        key: "you",
+        n: "I",
+        title: "Who you are",
+        voice: "An introduction first — you will hear back from a named engineer, not a ticket number.",
+        lines: [HELLO],
+      },
+      {
+        key: "need",
+        n: "II",
+        title: "What you need",
+        voice: "Plain words are perfect. Tap a suggestion, or type your own.",
+        lines: [
+          [
+            "We’re looking to ",
+            blank("mode", "what you’re looking to do", "build, fix, or grow the team…", {
+              suggestions: [
+                "build something new",
+                "fix or rebuild something we have",
+                "add senior engineers to our team",
+              ],
+            }),
+            ".",
+          ],
+          [
+            "In a sentence or two,",
+            {
+              kind: "long",
+              name: "want",
+              label: "what you need",
+              required: true,
+              hint: "What you want to exist, who it is for, and what is in the way right now.",
+            },
+          ],
+        ],
+      },
+      {
+        key: "now",
+        n: "III",
+        title: "Where things stand",
+        voice: "Rough answers are fine. They only help us arrive at the call prepared.",
+        lines: [
+          [
+            "So far we have ",
+            blank("stage", "where things stand", "an idea, a spec, a live product…", {
+              suggestions: ["just an idea", "a design or spec", "an early version", "a live product"],
+            }),
+            ".",
+          ],
+          [
+            "We’d like something real ",
+            blank("when", "when you need it", "within 3 months, this year…", {
+              suggestions: ["within 3 months", "in 3–6 months", "later this year", "no fixed date"],
+            }),
+            ".",
+          ],
+          [
+            "We’ve set aside roughly ",
+            blank("budget", "your budget", "a rough number, or “not sure yet”", {
+              suggestions: ["under $25k", "$25k–$90k", "more than $90k", "not sure yet"],
+            }),
+            ".",
+          ],
+        ],
+      },
+      {
+        key: "reach",
+        n: "IV",
+        title: "How to reach you",
+        voice: "Whichever you check first. One is enough.",
+        lines: [REACH],
+      },
+    ],
+  },
+};
+
+/* ── SENDING ───────────────────────────────────────────────────────────── */
+export const BRIEF_SEND = {
+  question: "How much time do you have?",
+  signoff: "Thanks —",
+  cta: "Send our story",
+  ctaQuick: "Send it",
+  pending: "Sending…",
+  meta: ["No obligation", "No sales pressure", "Written price in 48 hours"],
+  failed: "Something went wrong on our side and it did not send. Your words are safe in this browser — please try again, or email connect@interloid.com.",
+} as const;
+
+export const BRIEF_DONE = {
+  eyebrow: "Story received",
+  head: "It’s with us,",
+  lead: "We have every word. Here is what happens next.",
+  steps: [
+    {
+      k: "user-check",
+      title: "An engineer reads it",
+      body: "Not an account manager — the person who would actually do the work.",
+    },
+    {
+      k: "phone",
+      title: "We get in touch",
+      body: "To set up a free 30-minute call. If this doesn’t need us, or needs someone else, you hear that on the call.",
+    },
+    {
+      k: "receipt",
+      title: "A written scope and price",
+      body: "Within 48 hours of that call, in writing, so you can compare it against anyone else.",
+    },
+  ],
+  back: "Back to the home page",
+} as const;
+
+/** Every field in a letter, in reading order. */
+export const fieldsOf = (chapters: readonly BriefChapter[]): Field[] =>
+  chapters.flatMap((c) => c.lines.flat().filter((s): s is Field => typeof s !== "string"));
+
+/* ── RULES SHARED BY THE LETTER AND THE ACTION ──────────────────────────
+   One definition, so the "we still need…" line the visitor sees and the
+   check the server applies can never disagree. */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[+\d][\d\s().-]{6,}$/;
+export const isEmail = (s = "") => EMAIL_RE.test(s.trim());
+export const isPhone = (s = "") => PHONE_RE.test(s.trim());
+/** At least one well-formed way to reach them. */
+export const isReachable = (v: Record<string, string | undefined>) =>
+  isEmail(v.email) || isPhone(v.phone);
+
+/** "a", "a and b", "a, b and c". */
+function list(items: string[]) {
+  return items.length < 2
+    ? items.join("")
+    : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+export const missingMessage = (labels: string[]) =>
+  `Almost there — we still need ${list(labels)}.`;
+
+/** The finished letter as plain text, for whoever reads the submission.
+    An empty optional blank is dropped together with the short connector
+    that introduced it (" from ", " "), so the letter reads
+    "Hi Interloid, I’m Asha." rather than "I’m Asha from …." */
+export function tellStory(version: BriefVersion, values: Record<string, string>): string {
+  return version.chapters
+    .map((c) => {
+      const lines = c.lines
+        .filter((line) => line.some((s) => typeof s !== "string" && values[s.name]))
+        .map((line) => {
+          const out: string[] = [];
+          line.forEach((s, i) => {
+            if (typeof s === "string") return void out.push(s);
+            const v = values[s.name];
+            if (v) return void out.push(s.kind === "long" ? ` ${v}` : v);
+            const prev = line[i - 1];
+            if (i > 1 && typeof prev === "string" && prev.trim().length <= 6) out.pop();
+          });
+          return out.join("").replace(/\s{2,}/g, " ").replace(/\s+([.,])/g, "$1").trim();
+        });
+      return lines.length ? `${c.title}\n${lines.join("\n")}` : "";
+    })
+    .filter(Boolean)
+    .join("\n\n");
+}

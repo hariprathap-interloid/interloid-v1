@@ -279,10 +279,12 @@ export default function Nav() {
                 </svg>
               </button>
 
-              {/* "/#contact", not "#contact": a bare fragment is a no-op on any
-                page without that section, i.e. everything except home. */}
+              {/* /content — the "tell us your story" enquiry — since
+                  2026-09-11. It was "/#contact", home's closing slab, whose own
+                  button now leads to /content too; linking straight there
+                  saves every page a scroll-and-click. */}
               <a
-                href="/#contact"
+                href="/content"
                 className="hidden rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 xl:inline-flex"
               >
                 Let&apos;s talk
@@ -358,7 +360,7 @@ export default function Nav() {
             </a>
           ))}
           <a
-            href="/#contact"
+            href="/content"
             onClick={() => setOpen(false)}
             className="mt-4 inline-flex h-12 items-center justify-center rounded-full bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg shadow-primary/25"
           >
