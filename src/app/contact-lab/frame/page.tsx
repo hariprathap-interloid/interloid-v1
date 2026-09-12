@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { AnimKind } from "@/components/brief/anim/Stage";
-import BriefHero from "@/components/brief/BriefHero";
+import BriefHero, { type FactsMode } from "@/components/brief/BriefHero";
 import LetterComposer, { type MobileMode } from "@/components/brief/LetterComposer";
 import Nav from "@/components/Nav";
 
@@ -26,6 +26,7 @@ export const metadata: Metadata = {
 
 const MOBILES = ["drawer", "tabs"] as const satisfies readonly MobileMode[];
 const ANIMS = ["none", "mark", "mark-send", "team", "blueprint", "envelope"] as const satisfies readonly AnimKind[];
+const FACTS = ["band", "list", "scroll"] as const satisfies readonly FactsMode[];
 
 function pick<T extends string>(v: string | string[] | undefined, list: readonly T[], fallback: T): T {
   return typeof v === "string" && (list as readonly string[]).includes(v) ? (v as T) : fallback;
@@ -39,12 +40,13 @@ export default async function Frame({
   const sp = await searchParams;
   const mobile = pick<MobileMode>(sp.mobile, MOBILES, "drawer");
   const anim = pick<AnimKind>(sp.anim, ANIMS, "none");
+  const facts = pick<FactsMode>(sp.facts, FACTS, "band");
 
   return (
     <>
       <Nav />
       <main id="main">
-        <BriefHero reveal={false} />
+        <BriefHero reveal={false} facts={facts} />
         <LetterComposer mobile={mobile} anim={anim} lab />
       </main>
     </>

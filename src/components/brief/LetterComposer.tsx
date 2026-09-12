@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore, type FocusEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type FocusEvent } from "react";
 import Icon from "@/components/Icon";
 import { BRIEF_SEND, BRIEF_UI } from "@/content/brief";
 import EnvelopeSend from "./anim/EnvelopeSend";
@@ -114,8 +114,8 @@ function Paper({
           style={{ width: `${pct}%` }}
         />
       </div>
-      <div className="shrink-0 px-6 pt-6 sm:px-10 sm:pt-8">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-5 text-sm text-muted-foreground">
+      <div className="shrink-0 px-6 pt-7 sm:px-10 sm:pt-10 2xl:px-12">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-6 text-[15px] text-muted-foreground">
           <span className="font-semibold text-foreground">
             {BRIEF_UI.letterTo}
           </span>
@@ -133,12 +133,12 @@ function Paper({
         id={bodyId}
         className={
           fit === "none"
-            ? "px-6  sm:px-10 sm:pb-8"
-            : "px-6  sm:px-10  lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-width:thin] "
+            ? "px-6 sm:px-10 sm:pb-8 2xl:px-12"
+            : "px-6 sm:px-10 2xl:px-12 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-width:thin]"
         }
       >
         <div>
-          <div className="mt-5 space-y-2">
+          <div className="mt-6 space-y-3">
             {version.chapters.map((c) =>
               c.lines.map((line, li) => {
                 const names = line.flatMap((s) =>
@@ -163,8 +163,8 @@ function Paper({
                             key={s.name}
                             className={
                               s.kind === "long"
-                                ? "mt-1 block text-brand"
-                                : "text-brand"
+                                ? "mt-1 block text-primary"
+                                : "text-primary"
                             }
                           >
                             {v}
@@ -174,7 +174,7 @@ function Paper({
                       return (
                         <span
                           key={s.name}
-                          className={`${s.kind === "long" ? "mt-1 block w-fit" : "mx-0.5"} border-b-2 border-dashed border-border px-1 text-faint`}
+                          className={`${s.kind === "long" ? "mt-1 block w-fit" : "mx-0.5"} border-b-2 border-dashed border-border px-1 text-hint`}
                         >
                           {s.label}
                         </span>
@@ -185,12 +185,14 @@ function Paper({
               }),
             )}
           </div>
-          <p className={`${PARA_MD} mt-6 [overflow-wrap:anywhere]`}>
+          <p className={`${PARA_MD} mt-8 [overflow-wrap:anywhere]`}>
             {BRIEF_SEND.signoff}{" "}
-            <span className={who ? "text-brand" : "text-faint"}>
+            {/* text-primary, not text-brand: the same blue in light, and the
+                brighter one in dark, where brand measured 4.1:1 on the card. */}
+            <span className={who ? "text-primary" : "text-hint"}>
               {who || "your name"}
             </span>
-            {company && <span className="text-brand">, {company}</span>}
+            {company && <span className="text-primary">, {company}</span>}
           </p>
         </div>
       </div>
@@ -219,6 +221,20 @@ export default function LetterComposer({
   /** The blank being written — its sentence is tinted in the letter. */
   const [active, setActive] = useState<string>();
   const sheetRef = useRef<HTMLDialogElement>(null);
+  /* The drawer bar waits for the story (2026-09-11): shown only while the
+     form is on screen — its top in the upper two-thirds — so on load it no
+     longer sits over the hero's facts, and it steps aside at the footer.
+     A callback ref, so a remounted form is observed afresh. */
+  const [formEl, setFormEl] = useState<HTMLFormElement | null>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    if (!formEl || mobile !== "drawer") return;
+    const io = new IntersectionObserver(([e]) => setNear(e.isIntersecting), {
+      rootMargin: "0px 0px -35% 0px",
+    });
+    io.observe(formEl);
+    return () => io.disconnect();
+  }, [formEl, mobile]);
 
   const { progress, state } = brief;
   const p = progress.total ? progress.filled / progress.total : 0;
@@ -291,8 +307,10 @@ export default function LetterComposer({
      running sentences need the width that plain boxes did not. */
   /* No scroll-margin: <html> already has `scroll-padding-top: 7rem` for the
      fixed nav, and a margin here doubled it (see ThankYou). */
+  /* Wider apart on wide screens (2xl: 96px) — at 64px the two halves read as
+     one cramped block in a 1600px shell. */
   const GRID =
-    "shell grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-x-16";
+    "shell grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-x-16 2xl:gap-x-24";
   const COL_STORY = left ? "lg:col-start-1" : "lg:col-start-2";
   const COL_PREVIEW = left ? "lg:col-start-2" : "lg:col-start-1";
   const HIDE_WRITE =
@@ -306,12 +324,13 @@ export default function LetterComposer({
     <section
       className={
         mobile === "drawer"
-          ? "bg-background pb-32 pt-12 lg:py-24"
-          : "bg-background py-12 lg:py-24"
+          ? "bg-background pb-32 pt-14 lg:py-28 2xl:py-32"
+          : "bg-background py-14 lg:py-28 2xl:py-32"
       }
     >
       <form
         id={brief.formId}
+        ref={setFormEl}
         noValidate
         onSubmit={brief.submit}
         className={GRID}
@@ -364,10 +383,12 @@ export default function LetterComposer({
           <div className={CARD}>
             <VersionToggle
               brief={brief}
-              className="border-b border-border px-6 py-5 sm:px-8"
+              className="border-b border-border px-6 py-6 sm:px-10 sm:py-8 2xl:px-12"
             />
-            <div className="px-6 sm:px-8">
-              <Chapters brief={brief} para={PARA_MD} />
+            {/* The story at its own, larger scale (PARA — see parts.tsx);
+                the letter beside it keeps PARA_MD, one step smaller. */}
+            <div className="px-6 sm:px-10 2xl:px-12">
+              <Chapters brief={brief} />
             </div>
           </div>
         </div>
@@ -412,7 +433,14 @@ export default function LetterComposer({
           with the element rather than being rebuilt. */}
       {mobile === "drawer" && (
         <>
-          <div className="fixed inset-x-3 bottom-3 z-40 lg:hidden">
+          <div
+            inert={!near}
+            className={`fixed inset-x-3 bottom-3 z-40 transition-[opacity,translate] duration-300 motion-reduce:transition-none lg:hidden ${
+              near
+                ? "translate-y-0 opacity-100"
+                : "pointer-events-none translate-y-6 opacity-0"
+            }`}
+          >
             <button
               type="button"
               onClick={openSheet}

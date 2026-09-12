@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import Icon from "@/components/Icon";
 import {
   BRIEF_DONE,
+  BRIEF_REACH,
   BRIEF_SEND,
   BRIEF_UI,
   BRIEF_VERSIONS,
@@ -29,10 +30,15 @@ import type { Brief, SetValue } from "./useStoryBrief";
    Reveal's `is-in` would be wiped by React's next write (see Faq's note).
    ========================================================================== */
 
+/* The /contact scale — raised 2026-09-11 ("the contact form is very small").
+   PARA is the STORY (the sentences you write into); PARA_MD is the LETTER,
+   one step smaller so the story leads and the letter follows. Each grows
+   once more on wide screens (2xl, ≥1536px), where 20px sentences in a
+   1600px shell read as fine print. */
 export const PARA =
-  "font-display text-xl leading-loose text-foreground md:text-[1.4rem]";
+  "font-display text-xl leading-loose text-foreground md:text-2xl 2xl:text-[1.75rem]";
 export const PARA_MD =
-  "font-display text-lg leading-loose text-foreground md:text-xl";
+  "font-display text-lg leading-loose text-foreground md:text-xl 2xl:text-2xl";
 
 /* The card. Lifted off a tinted ground by a long, soft shadow rather than
    the site's `shadow-sm` — on a tinted ground a 1px shadow reads as a
@@ -47,11 +53,14 @@ export function InlineBlank({
   value,
   set,
   invalid,
+  describedBy,
 }: {
   f: Blank;
   value: string;
   set: SetValue;
   invalid: boolean;
+  /** The id of this blank's error message, while it has one. */
+  describedBy?: string;
 }) {
   /* ── SIZED BY ITS OWN TEXT, AND WRAPPING (rebuilt 2026-09-11) ─────────
      The blank was an <input> sized with `size` — a count of AVERAGE
@@ -76,7 +85,7 @@ export function InlineBlank({
   const wraps = f.type !== "email" && f.type !== "tel";
   /* `blank-in-text`: its focus style lives in globals.css — see there for
      why a utility class cannot override the global ring. */
-  const skin = `blank-in-text absolute inset-0 size-full border-0 border-b-2 bg-transparent px-1 pb-0.5 font-display font-medium text-brand outline-none transition-colors placeholder:font-normal placeholder:text-faint focus:border-solid ${
+  const skin = `blank-in-text absolute inset-0 size-full border-0 border-b-2 bg-transparent px-1 pb-0.5 font-display font-medium text-primary outline-none transition-colors placeholder:font-normal placeholder:text-hint focus:border-solid ${
     invalid
       ? "border-rose-500"
       : "border-dashed border-brand/35 focus:border-brand"
@@ -88,6 +97,7 @@ export function InlineBlank({
     "aria-label": f.label,
     "aria-required": f.required || undefined,
     "aria-invalid": invalid || undefined,
+    "aria-describedby": describedBy,
     autoComplete: f.autoComplete ?? "off",
     maxLength: 300,
   };
@@ -135,11 +145,13 @@ export function OpenSpace({
   value,
   set,
   invalid,
+  describedBy,
 }: {
   f: Long;
   value: string;
   set: SetValue;
   invalid: boolean;
+  describedBy?: string;
 }) {
   return (
     <textarea
@@ -150,14 +162,56 @@ export function OpenSpace({
       aria-label={f.label}
       aria-required={f.required || undefined}
       aria-invalid={invalid || undefined}
+      aria-describedby={describedBy}
       rows={3}
       maxLength={4000}
-      className={`mt-4 block min-h-[6.5rem] w-full resize-y rounded-2xl border bg-secondary/60 p-4 font-display text-lg leading-relaxed text-brand outline-none transition-colors [field-sizing:content] placeholder:text-[15px] placeholder:leading-relaxed placeholder:text-faint focus:border-solid focus:bg-card ${
+      className={`mt-4 block min-h-[6.5rem] w-full resize-y rounded-2xl border bg-secondary/30 p-4 font-display text-lg leading-relaxed text-primary outline-none transition-colors field-sizing-content placeholder:text-[15px] placeholder:leading-relaxed placeholder:text-hint focus:border-solid focus:bg-card ${
         invalid
           ? "border-rose-500"
           : "border-dashed border-brand/30 focus:border-brand"
       }`}
     />
+  );
+}
+
+/* ── the `*` and the error icon (2026-09-11) ─────────────────────────────
+   Every blank we need to reply carries a small `*` (the key sits under the
+   version toggle). After a send that came back without it, the `*` turns
+   into an alert icon. Hovering the icon shows why — and so does focusing
+   any blank in that sentence, which is how a phone, with no hover, gets the
+   message (the send moves focus to the first missing blank for them). The
+   field is `aria-describedby` the message too, so a screen reader hears it.
+
+   The bubble is anchored to the whole LINE (the icon itself is not
+   positioned), left-aligned above the sentence: a bubble centred on the
+   icon ran off the card whenever the blank sat near either edge. */
+const REACH_NAMES: readonly string[] = BRIEF_REACH.fields;
+const isNeeded = (f: Field) => !!f.required || REACH_NAMES.includes(f.name);
+const errorOf = (f: Field) =>
+  f.error ?? (REACH_NAMES.includes(f.name) ? BRIEF_REACH.error : undefined);
+
+function Needed({ id, bad, error }: { id: string; bad: boolean; error?: string }) {
+  if (!bad) {
+    return (
+      <span
+        aria-hidden="true"
+        className="align-super text-[0.6em] font-bold leading-none text-accent-strong"
+      >
+        *
+      </span>
+    );
+  }
+  return (
+    <span className="group/err ml-0.5 inline-flex cursor-help align-[-0.1em] text-rose-500">
+      <Icon name="alert" className="size-[0.85em]" />
+      <span
+        id={id}
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-0 z-20 mb-1 w-max max-w-full translate-y-1 whitespace-normal rounded-lg bg-foreground px-3 py-2 font-sans text-sm font-medium leading-snug text-background opacity-0 shadow-lg transition duration-150 group-hover/err:translate-y-0 group-hover/err:opacity-100 group-focus-within/line:translate-y-0 group-focus-within/line:opacity-100 motion-reduce:transition-none"
+      >
+        {error}
+      </span>
+    </span>
   );
 }
 
@@ -174,10 +228,13 @@ export function Line({
   brief: Brief;
   para?: string;
 }) {
-  const { values, set, invalid } = brief;
+  const { values, set, invalid, formId } = brief;
   const below = line.filter((s): s is Field => typeof s !== "string");
+  /* A long answer opens under the sentence; its `*` ends the sentence. */
+  const longs = below.filter((s): s is Long => s.kind === "long" && isNeeded(s));
+  const errId = (f: Field) => `${formId}-${f.name}-err`;
   return (
-    <div>
+    <div className="group/line relative">
       <p className={para}>
         {line.map((s, si) => {
           /* Punctuation right after a blank is glued to it (nowrap), so a
@@ -193,18 +250,24 @@ export function Line({
           const next = line[si + 1];
           const glue =
             typeof next === "string" ? (next.match(/^[.,]/)?.[0] ?? "") : "";
+          const bad = invalid(s);
           return (
             <span key={s.name} className="whitespace-nowrap">
               <InlineBlank
                 f={s}
                 value={values[s.name] ?? ""}
                 set={set}
-                invalid={invalid(s)}
+                invalid={bad}
+                describedBy={bad ? errId(s) : undefined}
               />
+              {isNeeded(s) && <Needed id={errId(s)} bad={bad} error={errorOf(s)} />}
               {glue}
             </span>
           );
         })}
+        {longs.map((s) => (
+          <Needed key={s.name} id={errId(s)} bad={invalid(s)} error={errorOf(s)} />
+        ))}
       </p>
       {below.map((s) =>
         s.kind === "long" ? (
@@ -214,6 +277,7 @@ export function Line({
             value={values[s.name] ?? ""}
             set={set}
             invalid={invalid(s)}
+            describedBy={invalid(s) ? errId(s) : undefined}
           />
         ) : (
           <Suggestions
@@ -248,25 +312,25 @@ export function Chapters({
              that width. The number now rides above the title as a small
              label — what phones already showed — and the prose starts on the
              card's own edge. */
-          className="border-t border-border py-8 first:border-t-0"
+          className="border-t border-border py-10 first:border-t-0 2xl:py-12"
         >
-          <header className="mb-4">
+          <header className="mb-6">
             {c.n && (
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-strong">
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-accent-strong">
                 Chapter {c.n}
               </span>
             )}
             <h2
               id={`ch-${c.key}-h`}
-              className="mt-1 font-display text-xl font-semibold tracking-[-0.02em] text-foreground md:text-2xl"
+              className="mt-1.5 font-display text-2xl font-semibold tracking-[-0.02em] text-foreground md:text-[1.75rem] 2xl:text-[2rem]"
             >
               {c.title}
             </h2>
-            <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
+            <p className="mt-2 text-base leading-relaxed text-muted-foreground 2xl:text-[17px]">
               {c.voice}
             </p>
           </header>
-          <div className="space-y-5">
+          <div className="space-y-6">
             {c.lines.map((line, li) => (
               <Line key={li} line={line} brief={brief} para={para} />
             ))}
@@ -291,7 +355,7 @@ export function Suggestions({
   if (!f.suggestions) return null;
   return (
     <div
-      className="mt-3 flex flex-wrap items-center gap-2"
+      className="mt-4 flex flex-wrap items-center gap-2.5"
       aria-label={`Suggestions for ${f.label}`}
     >
       {f.suggestions.map((o) => {
@@ -302,7 +366,7 @@ export function Suggestions({
             type="button"
             aria-pressed={on}
             onClick={() => set(f.name, on ? "" : o)}
-            className={`rounded-full border px-3.5 py-1.5 text-sm font-medium leading-snug transition-colors ${
+            className={`rounded-full border px-4 py-2 text-[15px] font-medium leading-snug transition-colors ${
               on
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border bg-card text-muted-foreground hover:border-primary hover:text-primary"
@@ -312,7 +376,7 @@ export function Suggestions({
           </button>
         );
       })}
-      <span className="text-xs text-muted-foreground">
+      <span className="text-sm text-muted-foreground">
         {BRIEF_UI.suggestionsOr}
       </span>
     </div>
@@ -335,12 +399,12 @@ export function VersionToggle({
 }) {
   const { version, set } = brief;
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
+    <div className={`flex flex-col gap-4 ${className}`}>
       <div>
-        <p className="font-display text-[17px] font-semibold text-foreground">
+        <p className="font-display text-xl font-semibold text-foreground 2xl:text-[1.35rem]">
           {BRIEF_SEND.question}
         </p>
-        <p className="mt-0.5 text-sm text-muted-foreground">
+        <p className="mt-1 text-[15px] text-muted-foreground">
           {BRIEF_SEND.questionHint}
         </p>
       </div>
@@ -350,7 +414,7 @@ export function VersionToggle({
       <div
         role="group"
         aria-label={BRIEF_SEND.question}
-        className="grid grid-cols-2 gap-1 rounded-2xl border border-border bg-secondary p-1"
+        className="grid grid-cols-2 gap-1 rounded-2xl border border-border bg-secondary p-2"
       >
         {(["quick", "full"] as const).map((k) => {
           const v = BRIEF_VERSIONS[k];
@@ -361,20 +425,26 @@ export function VersionToggle({
               type="button"
               aria-pressed={on}
               onClick={() => set("version", k)}
-              className={`flex flex-col items-center rounded-xl px-3 py-2 leading-tight transition-colors ${
+              className={`flex flex-col items-center rounded-xl px-4 py-3 leading-tight transition-colors ${
                 on
                   ? "bg-card text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-primary"
               }`}
             >
-              <span className="text-sm font-semibold">{v.label}</span>
-              <span className="mt-0.5 text-xs font-normal text-muted-foreground">
+              <span className="text-base font-semibold">{v.label}</span>
+              <span className="mt-1 text-sm font-normal text-muted-foreground">
                 {v.time}
               </span>
             </button>
           );
         })}
       </div>
+      <p className="text-sm text-muted-foreground">
+        <span aria-hidden="true" className="font-bold text-accent-strong">
+          *
+        </span>{" "}
+        {BRIEF_UI.requiredNote}
+      </p>
     </div>
   );
 }
@@ -410,10 +480,10 @@ export function SendFoot({
       {signoff && (
         <p className={PARA}>
           {BRIEF_SEND.signoff}{" "}
-          <span className={who ? "text-brand" : "text-faint"}>
+          <span className={who ? "text-primary" : "text-hint"}>
             {who || "your name"}
           </span>
-          {company && <span className="text-brand">, {company}</span>}
+          {company && <span className="text-primary">, {company}</span>}
         </p>
       )}
 
@@ -432,7 +502,7 @@ export function SendFoot({
         <button
           type="submit"
           disabled={pending}
-          className="group inline-flex h-14 items-center gap-2 rounded-full bg-primary px-9 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95 disabled:cursor-wait disabled:opacity-70"
+          className="group inline-flex h-16 items-center gap-2 rounded-full bg-primary px-10 text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95 disabled:cursor-wait disabled:opacity-70"
         >
           {pending
             ? BRIEF_SEND.pending
@@ -445,7 +515,7 @@ export function SendFoot({
           {BRIEF_SEND.meta.map((m) => (
             <li
               key={m}
-              className="flex items-center gap-2 text-[13px] text-muted-foreground"
+              className="flex items-center gap-2 text-sm text-muted-foreground"
             >
               <span className="text-accent-strong" aria-hidden="true">
                 <Icon name="check" className="size-3.5" />
@@ -534,7 +604,7 @@ export function ThankYou({
             </li>
           ) : (
             <li key={s.title} className="border-t-2 border-brand pt-4">
-              <span className="flex items-center gap-2 font-display text-sm font-semibold text-brand">
+              <span className="flex items-center gap-2 font-display text-sm font-semibold text-primary">
                 <Icon name={s.k} className="size-4" />0{i + 1}
               </span>
               <h3 className="mt-2 font-display text-lg font-semibold text-foreground">

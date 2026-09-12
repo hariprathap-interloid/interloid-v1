@@ -168,6 +168,15 @@ export const ICONS = {
       <path d="m21 21-4.3-4.3" />
     </>
   ),
+  /* Lucide `circle-alert`. Added 2026-09-11 for a required blank still
+     missing after a send — see `Needed` in brief/parts.tsx. */
+  alert: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 8v4" />
+      <path d="M12 16h.01" />
+    </>
+  ),
   /* ── SERVICE MARKS ───────────────────────────────────────────────────
      Added 2026-09-08 for two of the six services whose marks said the wrong
      thing: `phone` is a telephone receiver ("call us") and `layers` is the

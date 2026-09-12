@@ -73,6 +73,14 @@
      10% alpha and the marquee all but disappeared. A border colour and a text
      colour are not the same thing — they need separate tokens. */
   --faint: oklch(0.9288 0.0126 255.51); /* #e2e8f0 */
+  /* "FILL ME IN": the hint inside a blank on /contact, and the empty slots in
+     its live letter. Added 2026-09-12 — the grey it replaces passed AA at
+     4.76:1 but the user could not read it comfortably ("not visible
+     properly"). Teal, not a darker grey: a darker grey at body weight reads
+     as a TYPED answer, while the brand's cyan family says "a slot". ~5.6:1
+     on card. In DARK it is the body grey instead: there --primary flips to
+     cyan, so the answers are already cyan and a teal hint would fight them. */
+  --hint: oklch(0.44 0.09 223);
   --hairline: oklch(0.9683 0.0069 247.9); /* #f1f5f9 */
   --input: oklch(0.9288 0.0126 255.51);
   --ring: oklch(0.4751 0.1249 253.47);
@@ -170,6 +178,7 @@
   --muted-strong: oklch(0.8686 0.0216 252.51); /* #cad5e2 slate-300 */
   --border: oklch(1 0 0 / 10%);
   --faint: oklch(0.34 0.03 260); /* opaque: alpha reads as nothing on ink */
+  --hint: oklch(0.7107 0.0351 256.79); /* the body grey — see light mode */
   --hairline: oklch(1 0 0 / 6%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.6481 0.1094 221.82);
@@ -229,6 +238,7 @@
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-faint: var(--faint);
+  --color-hint: var(--hint);
   --color-ink-muted: var(--ink-muted);
   --color-ink-cta: var(--ink-cta);
   --color-ink-cta-hover: var(--ink-cta-hover);

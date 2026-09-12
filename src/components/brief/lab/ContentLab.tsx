@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Choice } from "@/components/service/EcosystemSwitcher";
 import type { AnimKind } from "../anim/Stage";
-import BriefHero from "../BriefHero";
+import BriefHero, { type FactsMode } from "../BriefHero";
 import LetterComposer, { type MobileMode, type Side } from "../LetterComposer";
 
 /* ==========================================================================
@@ -58,11 +58,13 @@ export default function ContentLab({
   const [mobile, setMobile] = useState<MobileMode>("drawer");
   /* Opens on the first option — the page lists the choice live on /contact first. */
   const [anim, setAnim] = useState<AnimKind>(anims[0].v);
+  /* How the hero's three facts sit on a phone — see BriefHero. */
+  const [facts, setFacts] = useState<FactsMode>("band");
 
   const a = anims.find((o) => o.v === anim) ?? anims[0];
   const m = mobiles.find((o) => o.v === mobile) ?? mobiles[0];
   const animOptions = anims.map((o) => ({ v: o.v, name: o.name }));
-  const src = `/contact-lab/frame?mobile=${mobile}&anim=${anim}`;
+  const src = `/contact-lab/frame?mobile=${mobile}&anim=${anim}&facts=${facts}`;
 
   return (
     <div>
@@ -97,6 +99,17 @@ export default function ContentLab({
             onChange={setMobile}
             options={mobiles.map((o) => ({ v: o.v, name: o.name }))}
           />
+          <Choice
+            name="facts"
+            label="Phone hero"
+            value={facts}
+            onChange={setFacts}
+            options={[
+              { v: "band" as const, name: "Three cards · now" },
+              { v: "list" as const, name: "Sample A · short list" },
+              { v: "scroll" as const, name: "Sample B · swipe row" },
+            ]}
+          />
           <Choice name="anim" label="Animation" value={anim} onChange={setAnim} options={animOptions} />
         </div>
       </div>
@@ -108,7 +121,7 @@ export default function ContentLab({
 
       {view === "desktop" ? (
         <>
-          <BriefHero reveal={false} />
+          <BriefHero reveal={false} facts={facts} />
           <LetterComposer side={side} mobile={mobile} anim={anim} lab />
         </>
       ) : (

@@ -103,16 +103,20 @@ export default function Footer() {
               <br />
               Gobichettipalayam, Tamil Nadu 638453
             </address>
-            <p className="mt-3 text-sm text-ink-foreground/70">
-              <a href="tel:+919042032424" className="hover:text-white transition-colors">
+            {/* Stacked with padding, not <br>: two 20px lines touching failed
+                the tap-target check (Lighthouse, 2026-09-11) — a thumb aimed
+                at the number could hit the email. */}
+            <p className="mt-2 flex flex-col items-start text-sm text-ink-foreground/70">
+              <a href="tel:+919042032424" className="inline-block py-1.5 hover:text-white transition-colors">
                 +91 9042032424
               </a>
-              <br />
-              <a href="mailto:connect@interloid.com" className="hover:text-white transition-colors">
+              <a href="mailto:connect@interloid.com" className="inline-block py-1.5 hover:text-white transition-colors">
                 connect@interloid.com
               </a>
             </p>
-            <p className="mt-2 text-xs text-ink-foreground/50">
+            {/* /70, not /50: at 12px the fainter grey measured 3.9:1 on the
+                footer's ink (Lighthouse, 2026-09-11); /70 matches the lines above. */}
+            <p className="mt-2 text-xs text-ink-foreground/70">
               India-based · US &amp; UK overlap hours
             </p>
           </div>

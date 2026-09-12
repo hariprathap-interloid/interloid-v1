@@ -45,7 +45,11 @@ type Base = {
   /** How the field is named in a sentence — "your name". Used for the
       accessible label, the empty slot in the letter, and "we still need…". */
   label: string;
+  /** Needed to send — marked with a `*` beside the blank. */
   required?: boolean;
+  /** Why a required blank is still wrong after a send — shown when its
+      alert icon is hovered, or while the blank itself has focus. */
+  error?: string;
 };
 
 /** A blank inside the sentence. `suggestions` appear under the sentence as
@@ -83,11 +87,17 @@ const blank = (
   name: string,
   label: string,
   hint: string,
-  opts: Partial<Pick<Blank, "required" | "type" | "autoComplete" | "suggestions">> = {},
+  opts: Partial<Pick<Blank, "required" | "error" | "type" | "autoComplete" | "suggestions">> = {},
 ): Blank => ({ kind: "blank", name, label, hint, ...opts });
 
 /* Shared by both letters, so the same answer carries across a switch. */
-const NAME = blank("name", "your name", "your name", { required: true, autoComplete: "name" });
+const NAME = blank("name", "your name", "your name", {
+  required: true,
+  error: "Please add your name, so we know who we’re writing back to.",
+  autoComplete: "name",
+});
+/* One line for "what you need", shared by its quick blank and full space. */
+const WANT_ERROR = "Tell us a little about what you need — a few words is plenty.";
 const COMPANY = blank("company", "your company", "your company", { autoComplete: "organization" });
 const EMAIL = blank("email", "your email", "you@company.com", { type: "email", autoComplete: "email" });
 const PHONE = blank("phone", "your phone number", "or a phone number", { type: "tel", autoComplete: "tel" });
@@ -99,6 +109,8 @@ const REACH: readonly Segment[] = ["You can reach me at ", EMAIL, " ", PHONE, ".
 export const BRIEF_REACH = {
   fields: ["email", "phone"],
   label: "an email or phone number to reach you",
+  /** Shown on both blanks — either one fixes it. */
+  error: "Add a valid email or phone number — one is enough.",
 } as const;
 
 /* ── HERO ──────────────────────────────────────────────────────────────── */
@@ -125,16 +137,20 @@ export const BRIEF_FACTS = [
     k: "clock",
     label: "Quick or detailed — your choice",
     body: "30 seconds for the essentials, or about 3 minutes for the full picture.",
+    /* `short` — the one line a phone shows in BriefHero's "list" sample. */
+    short: "30 seconds or 3 minutes — your choice",
   },
   {
     k: "user-check",
     label: "Read by a real engineer",
     body: "The person who would build it reads every word — no account manager in between.",
+    short: "Read by the engineer who’d build it",
   },
   {
     k: "receipt",
     label: "A clear next step",
     body: "A free 30-minute call, then a written scope and price within 48 hours.",
+    short: "Free call, then a written price in 48 hours",
   },
 ] as const;
 
@@ -154,7 +170,10 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
           HELLO,
           [
             "I’d love some help with ",
-            blank("want", "what you need", "a new app, a rebuild, extra engineers…", { required: true }),
+            blank("want", "what you need", "a new app, a rebuild, extra engineers…", {
+              required: true,
+              error: WANT_ERROR,
+            }),
             ".",
           ],
           REACH,
@@ -198,6 +217,7 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
               name: "want",
               label: "what you need",
               required: true,
+              error: WANT_ERROR,
               hint: "What would you like to build, who is it for, and what’s holding you back today?",
             },
           ],
@@ -299,6 +319,8 @@ export const BRIEF_UI = {
   writeTab: "Write",
   letterTab: "Your letter",
   suggestionsOr: "or write your own",
+  /** The key to the `*` beside required blanks, under the version toggle. */
+  requiredNote: "marks what we need to reply — everything else is optional.",
 } as const;
 
 /* Every field in a letter, in reading order. */
