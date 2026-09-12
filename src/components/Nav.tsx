@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -20,6 +21,13 @@ import {
    links sit on one row at 1024 with 67px clear either side at rest and 42px
    once scrolled into the narrower PILL, so the 1024–1279 band was showing a
    hamburger on a header with room to spare. Re-measure if a link is added.
+
+   EVERY LINK IS `next/link` FROM 2026-09-12, logo included. They were plain
+   `<a>`, so each one was a full document reload — the nav lint names the
+   logo specifically (no-html-link-for-pages), but the cost was the same on
+   all of them. Link keeps the `onClick={() => setOpen(false)}` the mobile
+   rows need, and the scrollspy still reads `l.href` from LINKS rather than
+   from the DOM, so nothing below changed with it.
 
    Every link
    resolves: `/careers` shipped 2026-09-07 and `/about` 2026-09-08, so the
@@ -205,7 +213,7 @@ export default function Nav() {
             className={`relative mx-auto flex w-full items-center justify-between gap-6 border transition-all duration-300 ease-in-out ${scrolled ? PILL : REST
               }`}
           >
-            <a
+            <Link
               href="/"
               className="flex shrink-0 items-center gap-2.5 rounded-full"
               aria-label="Interloid home"
@@ -231,12 +239,12 @@ export default function Nav() {
               <span className="font-display text-lg font-bold tracking-tight text-foreground">
                 Interloid
               </span>
-            </a>
+            </Link>
 
             {/* §6.2 a pill inside a pill */}
             <div className="hidden items-center gap-1 rounded-full border border-white/40 bg-card/80 px-3 py-2 p-1 shadow-sm backdrop-blur-sm lg:flex">
               {LINKS.map((l) => (
-                <a
+                <Link
                   key={l.href}
                   href={l.href}
                   className={linkClass(l.href)}
@@ -246,7 +254,7 @@ export default function Nav() {
                     : {})}
                 >
                   {l.label}
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -297,12 +305,12 @@ export default function Nav() {
                   2026-09-11. It was "/#contact", home's closing slab, whose own
                   button now leads to /contact too; linking straight there
                   saves every page a scroll-and-click. */}
-              <a
+              <Link
                 href="/contact"
                 className="hidden whitespace-nowrap rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 lg:inline-flex"
               >
                 Let&apos;s talk
-              </a>
+              </Link>
 
               <button
                 ref={toggleRef}
@@ -361,7 +369,7 @@ export default function Nav() {
       >
         <nav aria-label="Mobile" className="flex flex-col">
           {LINKS.map((l) => (
-            <a
+            <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
@@ -371,15 +379,15 @@ export default function Nav() {
                 : {})}
             >
               {l.label}
-            </a>
+            </Link>
           ))}
-          <a
+          <Link
             href="/contact"
             onClick={() => setOpen(false)}
             className="mt-4 inline-flex h-12 items-center justify-center rounded-full bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg shadow-primary/25"
           >
             Book a free 30-min consult
-          </a>
+          </Link>
         </nav>
       </div>
     </>
