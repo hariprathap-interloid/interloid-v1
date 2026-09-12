@@ -109,7 +109,18 @@ export function ModeSwitch({
       <div
         role="tablist"
         aria-label="Engagement model"
-        className="inline-flex gap-1 rounded-full border border-border bg-card p-1.5 shadow-sm"
+        /* TWO PILLS IN A ROW NEED 414px, AND PHONES ARE NARROWER THAN THAT.
+           As a bare `inline-flex` the pills could not shrink below their
+           text, so at 320–413 both labels broke to two lines ("Build it
+           with / us"), the tabs grew 40px → 60px, and each icon detached
+           from the words it belongs to. Measured: the wrap clears at 414
+           exactly, so the row starts one step above that.
+
+           Below it the two pills stack full-width, which is also the better
+           tap target — and it echoes the hero's stacked cards at the same
+           width. `rounded-3xl` on the stacked box because `rounded-full` on
+           a two-row container bows its sides. */
+        className="grid w-full grid-cols-1 gap-1 rounded-3xl border border-border bg-card p-1.5 shadow-sm min-[420px]:inline-flex min-[420px]:w-auto min-[420px]:rounded-full"
         onKeyDown={onKeyDown}
       >
         {SERVICE_MODES.map((m, i) => {
@@ -124,7 +135,7 @@ export function ModeSwitch({
               aria-controls={panelId}
               tabIndex={on ? 0 : -1}
               onClick={() => setMode(m.key)}
-              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-[background-color,color,box-shadow] duration-200 ${
+              className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-[background-color,color,box-shadow] duration-200 ${
                 on
                   ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
                   : "text-muted-foreground hover:text-foreground"
@@ -145,7 +156,14 @@ export function ModeSwitch({
     <div
       role="tablist"
       aria-label="Which describes you"
-      className="grid gap-3 sm:grid-cols-2"
+      /* ONE COLUMN AGAIN ACROSS 1024–1279, for the reason ServiceHero.tsx's
+         figure row is stacked over the same band: at `lg` the hero splits
+         7/5 and this card drops from full width to 355px, so two columns
+         are ~155px each — both labels wrap ("Build it with / us") and each
+         hint becomes a six-line ragged column. The cards need ~200px to
+         read, which they have below `lg` at full width and again from `xl`,
+         where the column is 453px. */
+      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2"
       onKeyDown={onKeyDown}
     >
       {SERVICE_MODES.map((m, i) => {

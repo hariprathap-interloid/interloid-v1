@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import SmoothScrollGuard from "@/components/SmoothScrollGuard";
 
 /* Body face. Self-hosted by next/font — no <link>, no render-blocking request
    to fonts.googleapis.com, and no first-paint layout shift. */
@@ -83,6 +84,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           container, so the horizontal-overflow guard is unchanged and sticky
           works. Do not "restore" `overflow-x-hidden`. */}
       <body className="overflow-x-clip bg-background font-sans text-muted-foreground antialiased">
+        {/* Keeps `scroll-behavior: smooth` off the App Router's scroll, which
+            it was corrupting on every cross-page navigation — the component's
+            own banner has the measurements. It renders nothing. */}
+        <SmoothScrollGuard />
         {children}
       </body>
     </html>

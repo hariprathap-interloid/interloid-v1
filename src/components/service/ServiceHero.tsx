@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Icon from "../Icon";
 import { ModeSwitch, useServiceMode } from "./ModeContext";
 import { SERVICE_HERO } from "@/content/service";
@@ -94,25 +95,28 @@ export default function ServiceHero() {
               style={{ "--delay": "300ms" } as React.CSSProperties}
               className="mt-10 flex flex-wrap items-center gap-4"
             >
-              <a
-                href={`mailto:hello@interloid.com?subject=${encodeURIComponent(
-                  detail.key === "build"
-                    ? "New project — Interloid"
-                    : "Engineers for our team — Interloid",
-                )}`}
+              <Link
+                href={detail.ctaHref}
                 className="group inline-flex h-14 items-center gap-2 rounded-full bg-primary px-8 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
               >
                 {detail.cta}
                 <span className="transition-transform group-hover:translate-x-1">
                   <Icon name="arrow" className="size-5" />
                 </span>
-              </a>
+              </Link>
+              {/* Build → the mechanism; extend → the roster. `<a>` and not
+                  `<Link>`: one of the two is a bare `#hash` on this page, and
+                  routing that through the router is a no-op the browser
+                  handles better itself. */}
               <a
-                href="#capabilities"
+                href={detail.secondary.href}
                 className="inline-flex h-14 items-center gap-2 rounded-full border border-border bg-card px-8 text-[17px] font-semibold text-foreground shadow-sm transition-all hover:border-accent/40 hover:shadow-md active:scale-95"
               >
-                <Icon name="search" className="size-5 text-accent-strong" />
-                See how we work
+                <Icon
+                  name={detail.secondary.icon}
+                  className="size-5 text-accent-strong"
+                />
+                {detail.secondary.label}
               </a>
             </div>
           </div>
@@ -137,11 +141,31 @@ export default function ServiceHero() {
                   on is asking what this costs, and the shape of the answer
                   differs per mode — so it belongs with the choice, not four
                   sections later. Both figures are HANDOFF §7 claims. */}
-              <div className="mt-5 flex items-baseline justify-between gap-4 rounded-2xl bg-muted px-5 py-4">
+              {/* SIDE BY SIDE ONLY WHERE BOTH HALVES FIT ON ONE LINE, AND
+                  THAT IS TWO SEPARATE BANDS, NOT ONE THRESHOLD.
+
+                  The row needs 262px of content box (figure 93 + gap 16 +
+                  caption 153). What it gets is the CARD's width, and the card
+                  does not grow with the viewport monotonically — at `lg` the
+                  hero splits 7/5 and this column drops from full width to
+                  five twelfths:
+
+                    1023px → card 941 → 883 available   row fits
+                    1024px → card 355 → 257 available   5px SHORT, both
+                                                        halves wrapped, 96px
+                    1280px → card 453 → 355 available   row fits
+
+                  So it stacks twice: under 420px (phones, where the figure
+                  itself broke across two lines) and again across 1024–1279,
+                  where the split makes the card narrower than it was a pixel
+                  earlier. Between and above those it is a row. Tailwind
+                  orders `min-[420px]` by its value, so the four
+                  flex-direction rules resolve 420 → lg → xl in that order. */}
+              <div className="mt-5 flex flex-col gap-1 rounded-2xl bg-muted px-5 py-4 min-[420px]:flex-row min-[420px]:items-baseline min-[420px]:justify-between min-[420px]:gap-4 lg:flex-col lg:items-start lg:gap-1 xl:flex-row xl:items-baseline xl:justify-between xl:gap-4">
                 <span className="font-display text-2xl font-bold tracking-[-0.02em] text-foreground">
                   {detail.figure}
                 </span>
-                <span className="text-right text-[13px] leading-[1.5] text-muted-foreground">
+                <span className="text-[13px] leading-[1.5] text-muted-foreground min-[420px]:text-right lg:text-left xl:text-right">
                   {detail.caption}
                 </span>
               </div>

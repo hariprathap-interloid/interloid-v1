@@ -480,221 +480,352 @@ function Api() {
 /* ── 04 · CLOUD & DEVOPS ───────────────────────────────────────────────────
    The loop, with the rollback drawn as a first-class arc rather than an
    afterthought — the section's claim is that the client's own team can run
-   both directions of it. */
+   both directions of it.
+
+   ── REBUILT 2026-09-12. THREE THINGS WERE WRONG ──────────────────────────
+   1. TWO OF THE FOUR ARROWS POINTED BACKWARDS. The loop is Push → CI checks
+      → Deploy → Observe → Push, which is clockwise in this arrangement, and
+      the right and left arrows said so. The top one pointed at Push and the
+      bottom one pointed at Deploy, so the drawing contradicted both its own
+      sequence and its own aria-label. Read closely it described a loop that
+      ran two directions at once.
+   2. THE ROLLBACK ARC RAN THROUGH ITS OWN LABEL. The pill was filled
+      `fill-brand-light/10` — ten percent — so the curve stayed visible
+      straight across the words "rollback: one command". An edge label has to
+      be OPAQUE to interrupt its edge; that is the whole mechanism. It is
+      `fill-card` now, and the arc genuinely disappears behind it.
+   3. THE ARROWS WERE NOT ON THE RAIL. The rail was one rounded rect spanning
+      130–430 × 78–298; the arrowheads sat at y=90, y=320, x=124 and x=436 —
+      between 6 and 22px off it, and the bottom one floated clear of the
+      dashes with nothing to attach it to.
+
+   The rail is four straight segments now, one per hand-off, drawn between
+   the box edges rather than as a single rounded rect running behind them.
+   That is what makes (3) impossible to get wrong again: each arrowhead is
+   placed at the midpoint of the segment it belongs to, so it cannot drift
+   off a line it is defined against. The rounded rect also bowed its corners
+   up over the top boxes, which read as a stray arc rather than a connector.
+
+   Geometry: boxes 148×64 at (64|348) × (92|244), so the content is centred
+   on the 560×400 frame at (280, 200) rather than sitting high in it. */
 function Deploy() {
   const nodes = [
-    { x: 90, y: 96, micro: "ANY ENGINEER", label: "Push" },
-    { x: 330, y: 96, micro: "PLANNED", label: "CI checks" },
-    { x: 330, y: 258, micro: "YOUR ACCOUNT", label: "Deploy" },
-    { x: 90, y: 258, micro: "PAGES A HUMAN", label: "Observe" },
+    { x: 64, y: 92, micro: "ANY ENGINEER", label: "Push" },
+    { x: 348, y: 92, micro: "PLANNED", label: "CI checks" },
+    { x: 348, y: 244, micro: "YOUR ACCOUNT", label: "Deploy" },
+    { x: 64, y: 244, micro: "PAGES A HUMAN", label: "Observe" },
   ];
   return (
-    <Frame label="A four-step loop — push, CI checks, deploy into your own cloud account, observe — with a rollback arc labelled one documented command returning from deploy to the previous state.">
-      {/* the rail */}
-      <rect
-        x={130}
-        y={78}
-        width={300}
-        height={220}
-        rx={40}
+    <Frame label="A four-step loop running clockwise — push, CI checks, deploy into your own cloud account, observe, and back to push — with a rollback arc returning from deploy to the last checked state, labelled one command.">
+      {/* ---- the four hand-offs, clockwise --------------------------------
+          Each is a straight segment between two box edges, and each carries
+          its arrowhead at its own midpoint. Push→CI runs right along the
+          top, CI→Deploy down the right, Deploy→Observe left along the
+          bottom, Observe→Push up the left. */}
+      <g
         className="stroke-border"
         strokeWidth={1.5}
         strokeDasharray="6 7"
-      />
+      >
+        <path d="M212 124 H348" />
+        <path d="M422 156 V244" />
+        <path d="M348 276 H212" />
+        <path d="M138 244 V156" />
+      </g>
+      <g className="fill-brand-light">
+        {/* right, down, left, up — in the order the loop runs */}
+        <path d="M286 124 L274 118 L274 130 Z" />
+        <path d="M422 206 L416 194 L428 194 Z" />
+        <path d="M274 276 L286 270 L286 282 Z" />
+        <path d="M138 194 L132 206 L144 206 Z" />
+      </g>
 
       {nodes.map((n) => (
         <g key={n.label}>
           <rect
             x={n.x}
             y={n.y}
-            width={140}
-            height={62}
+            width={148}
+            height={64}
             rx={16}
             className="fill-card stroke-border"
             strokeWidth={1}
           />
-          <Micro x={n.x + 16} y={n.y + 24}>
+          <Micro x={n.x + 18} y={n.y + 26}>
             {n.micro}
           </Micro>
-          <Label x={n.x + 16} y={n.y + 46} strong>
+          <Label x={n.x + 18} y={n.y + 48} strong>
             {n.label}
           </Label>
         </g>
       ))}
 
-      {/* direction arrows on the rail */}
-      <path d="M272 90 l10 -6 v12 z" className="fill-brand-light" />
-      <path d="M436 196 l-6 -10 h12 z" className="fill-brand-light" />
-      <path d="M288 320 l-10 6 v-12 z" className="fill-brand-light" />
-      <path d="M124 196 l6 10 h-12 z" className="fill-brand-light" />
-
-      {/* rollback */}
+      {/* ---- rollback ------------------------------------------------------
+          Deploy back to the last checked state, bowing into the middle of
+          the loop where there is room for it. It is painted BEFORE the pill
+          so the pill covers its waist; the arrowhead is rotated onto the
+          curve's end tangent (112,-18 ≈ -9°) so it meets the CI box's left
+          edge pointing into it rather than pointing flatly up. */}
       <path
-        d="M330 289 C 250 240, 250 160, 330 138"
+        d="M348 258 C 236 240, 236 156, 348 138"
         className="stroke-brand-light"
         strokeWidth={1.5}
+        fill="none"
       />
-      <path d="M330 138 l-12 2 6 8 z" className="fill-brand-light" />
+      <path
+        d="M354 138 L342 132 L342 144 Z"
+        className="fill-brand-light"
+        transform="rotate(-9.1 348 138)"
+      />
       <rect
-        x={196}
-        y={186}
-        width={168}
-        height={38}
-        rx={12}
-        className="fill-brand-light/10 stroke-brand-light"
+        x={212}
+        y={171}
+        width={124}
+        height={54}
+        rx={14}
+        className="fill-card stroke-brand-light"
         strokeWidth={1}
       />
-      <Label x={280} y={210} anchor="middle">
-        rollback: one command
+      <Micro x={274} y={196} anchor="middle">
+        ONE COMMAND
+      </Micro>
+      <Label x={274} y={216} anchor="middle" strong>
+        rollback
       </Label>
     </Frame>
   );
 }
 
-/* ── 05 · AI INTEGRATION ───────────────────────────────────────────────────
+/* -- 05 . AI INTEGRATION ---------------------------------------------------
    The demo-versus-shipped distinction, drawn: the model call is the small
-   box in the middle, and everything around it — retrieval, guardrails,
-   evaluation, cost ceiling — is what makes it survive review. */
+   box in the middle, and everything around it - retrieval, guardrails,
+   evaluation, cost ceiling - is what makes it survive review.
+
+   -- REBUILT 2026-09-12. WHAT WAS WRONG -----------------------------------
+   1. TWO CAPTIONS AND TWO LINES OCCUPIED THE SAME BAND. "A PROMPT CHANGE VS
+      A REGRESSION" sat at y=306; the feedback line ran at y=288 and the
+      guardrail frame's bottom edge at y=304 - both struck straight through
+      the words. "GUARDRAILS BOTH ENDS" then sat below the frame at y=324,
+      detached from anything it named. Neither caption had clear space.
+   2. THE FEEDBACK EDGE ENDED IN MID-AIR. `M440 254 v34 H238 v-0` - note the
+      `v-0`, a no-op - stopped at x=238 inside the guardrail frame with no
+      arrowhead and no target. It pointed at nothing.
+   3. "GUARDRAILS BOTH ENDS" WAS A BOX AROUND EVERYTHING. A dashed rect
+      wrapping retrieval, the call and the cost ceiling does not say "both
+      ends" - it says "this region is guarded", which is a different and
+      vaguer claim, and it swept in the cost ceiling, which is not a
+      guardrail at all.
+
+   -- WHAT IT DRAWS NOW ----------------------------------------------------
+   The guardrails are TWO GATES ON THE SPINE, one before the call and one
+   after, because that is literally what "on both ends" means and it is the
+   sentence the capability's own copy makes. A dashed brace joins the two up
+   to a single caption, so the caption is attached to both of the things it
+   names instead of floating under a frame.
+
+   The feedback edge now leaves the harness, runs along the bottom and turns
+   up into The step with an arrowhead on it - the verdict reaching the person
+   who changes the prompt, which is what the harness is FOR. Its caption sits
+   in the clear band above that run, with nothing crossing it.
+
+   Content spans x 20-544, y 52-348, centred on the frame at (282, 200).
+   The harness micro is "EVAL HARNESS" and not "EVALUATION HARNESS": at 10px
+   with 0.14em tracking the longer string is ~133px against 120px of usable
+   box, so it overset. */
 function Retrieval() {
+  const metrics: [string, number][] = [
+    ["accuracy", 0.86],
+    ["refusals", 0.42],
+    ["latency", 0.68],
+  ];
   return (
-    <Frame label="A workflow step feeding a retrieval index and a model call wrapped in guardrails, with an evaluation harness scoring the output and a cost ceiling applied per call.">
-      {/* workflow in */}
+    <Frame label="A workflow step feeding a model call that is gated on both sides, with retrieval over your own data above it, an evaluation harness scoring every call and a cost ceiling per call to the right, and the harness verdict returning along the bottom to the workflow step.">
+      {/* ---- the spine, left to right ------------------------------------ */}
       <rect
-        x={28}
-        y={150}
-        width={112}
-        height={64}
+        x={20}
+        y={156}
+        width={96}
+        height={60}
         rx={16}
         className="fill-card stroke-border"
         strokeWidth={1}
       />
-      <Micro x={44} y={176}>
+      <Micro x={34} y={182}>
         WORKFLOW
       </Micro>
-      <Label x={44} y={198} strong>
+      <Label x={34} y={204} strong>
         The step
       </Label>
-      <path d="M140 182 h34" className="stroke-indigo-600" strokeWidth={1.5} />
 
-      {/* retrieval */}
-      <rect
-        x={174}
-        y={92}
-        width={128}
-        height={58}
-        rx={14}
-        className="fill-indigo-600/10 stroke-indigo-600"
-        strokeWidth={1}
-      />
-      <Micro x={190} y={116}>
-        YOUR DATA
-      </Micro>
-      <Label x={190} y={136}>
-        retrieval index
-      </Label>
-      <path
-        d="M238 150 v18"
-        className="stroke-indigo-600"
-        strokeWidth={1.5}
-        strokeDasharray="4 4"
-      />
+      <g className="stroke-indigo-600" strokeWidth={1.5} fill="none">
+        <path d="M116 186 H132" />
+        <path d="M158 186 H172" />
+        <path d="M322 186 H342" />
+        <path d="M368 186 H382" />
+      </g>
+      <g className="fill-indigo-600">
+        <path d="M178 186 L166 180 L166 192 Z" />
+        <path d="M388 186 L376 180 L376 192 Z" />
+      </g>
 
-      {/* the model call */}
+      {/* ---- the two gates ------------------------------------------------
+          A chip with two bars in it, before the call and after it. Drawn as
+          a pair so the brace below can name them together. */}
+      {[132, 342].map((gx) => (
+        <g key={gx}>
+          <rect
+            x={gx}
+            y={168}
+            width={26}
+            height={36}
+            rx={9}
+            className="fill-indigo-600/10 stroke-indigo-600"
+            strokeWidth={1}
+          />
+          {/* A CHEVRON, NOT TWO BARS. The first pass drew two vertical
+              strokes inside each chip, which is the universal pause glyph —
+              it read as "the call is halted here" rather than "the call
+              passes a check here". The chevron points along the flow, so a
+              gate reads as something traffic goes THROUGH. */}
+          <path
+            d={`M${gx + 10} 179 L${gx + 17} 186 L${gx + 10} 193`}
+            className="stroke-indigo-600"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+        </g>
+      ))}
+
+      {/* the model call - the only part of this that is a model */}
       <rect
-        x={174}
-        y={168}
-        width={128}
-        height={64}
-        rx={16}
+        x={178}
+        y={150}
+        width={144}
+        height={72}
+        rx={18}
         className="fill-card stroke-indigo-600"
         strokeWidth={1.5}
       />
-      <Micro x={190} y={192}>
-        GUARDED
+      <Micro x={196} y={180}>
+        THE MODEL
       </Micro>
-      <Label x={190} y={214} strong>
+      <Label x={196} y={204} strong>
         model call
       </Label>
 
-      {/* guardrails, drawn as the frame around it */}
-      <rect
-        x={162}
-        y={80}
-        width={152}
-        height={224}
-        rx={22}
+      {/* the brace: both gates up to one caption */}
+      <g
         className="stroke-indigo-600"
         strokeWidth={1}
-        strokeDasharray="5 6"
-      />
-      <Micro x={238} y={324} anchor="middle">
-        GUARDRAILS BOTH ENDS
+        strokeDasharray="4 4"
+        fill="none"
+      >
+        <path d="M145 204 V238" />
+        <path d="M355 204 V238" />
+        <path d="M145 238 H355" />
+      </g>
+      <Micro x={250} y={258} anchor="middle">
+        GUARDRAILS, BOTH ENDS
       </Micro>
 
-      {/* cost ceiling */}
+      {/* ---- retrieval, feeding the call from above ---------------------- */}
       <rect
-        x={174}
-        y={248}
-        width={128}
-        height={40}
-        rx={12}
-        className="fill-muted stroke-border"
+        x={178}
+        y={52}
+        width={144}
+        height={60}
+        rx={16}
+        className="fill-indigo-600/10 stroke-indigo-600"
         strokeWidth={1}
       />
-      <Label x={238} y={273} anchor="middle">
-        cost ceiling / call
+      <Micro x={196} y={78}>
+        YOUR DATA
+      </Micro>
+      <Label x={196} y={100}>
+        retrieval index
       </Label>
+      <path
+        d="M250 112 V144"
+        className="stroke-indigo-600"
+        strokeWidth={1.5}
+        strokeDasharray="4 4"
+        fill="none"
+      />
+      <path d="M250 150 L244 138 L256 138 Z" className="fill-indigo-600" />
 
-      <path d="M314 182 h34" className="stroke-indigo-600" strokeWidth={1.5} />
-
-      {/* evaluation harness */}
+      {/* ---- the harness -------------------------------------------------- */}
       <rect
-        x={348}
-        y={110}
-        width={184}
-        height={144}
+        x={388}
+        y={126}
+        width={156}
+        height={122}
         rx={18}
         className="fill-card stroke-border"
         strokeWidth={1}
       />
-      <Micro x={368} y={138}>
-        EVALUATION HARNESS
+      <Micro x={406} y={152}>
+        EVAL HARNESS
       </Micro>
-      {[
-        ["accuracy", 0.86],
-        ["refusals", 0.42],
-        ["latency", 0.68],
-      ].map(([name, v], i) => (
-        <g key={name as string}>
-          <Label x={368} y={168 + i * 30}>
-            {name as string}
+      {metrics.map(([name, v], i) => (
+        <g key={name}>
+          <Label x={406} y={176 + i * 28}>
+            {name}
           </Label>
           <rect
-            x={438}
-            y={158 + i * 30}
-            width={74}
+            x={466}
+            y={166 + i * 28}
+            width={66}
             height={6}
             rx={3}
             className="fill-muted"
           />
           <rect
-            x={438}
-            y={158 + i * 30}
-            width={74 * (v as number)}
+            x={466}
+            y={166 + i * 28}
+            width={66 * v}
             height={6}
             rx={3}
             className="fill-indigo-600"
           />
         </g>
       ))}
-      {/* the measured verdict feeding back */}
+
+      {/* the ceiling, under the harness: what one call is allowed to cost */}
       <path
-        d="M440 254 v34 H238 v-0"
+        d="M492 248 V272"
+        className="stroke-border"
+        strokeWidth={1.5}
+        strokeDasharray="4 4"
+        fill="none"
+      />
+      <rect
+        x={440}
+        y={272}
+        width={104}
+        height={52}
+        rx={14}
+        className="fill-muted stroke-border"
+        strokeWidth={1}
+      />
+      <Micro x={456} y={296}>
+        PER CALL
+      </Micro>
+      <Label x={456} y={316}>
+        cost ceiling
+      </Label>
+
+      {/* ---- the verdict, back to the person who changes the prompt ------- */}
+      <path
+        d="M414 248 V348 H72 V222"
         className="stroke-indigo-600"
         strokeWidth={1.5}
         strokeDasharray="5 5"
+        fill="none"
       />
-      <Micro x={340} y={306} anchor="middle">
+      <path d="M72 216 L66 228 L78 228 Z" className="fill-indigo-600" />
+      <Micro x={243} y={338} anchor="middle">
         A PROMPT CHANGE VS A REGRESSION
       </Micro>
     </Frame>

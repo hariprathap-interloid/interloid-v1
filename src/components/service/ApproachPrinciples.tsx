@@ -53,7 +53,12 @@ export default function ApproachPrinciples() {
           The way of working
         </SectionHeading>
 
-        <ol className="grid gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-y-0">
+        {/* `gap-x-7` matches the `pl-7` on every bordered item, so the
+            hairline sits 28px from the text on BOTH sides. Without it the
+            preceding column's text ran flush into the next column's rule
+            (measured at 1024: 7px of clearance on the left, 28px on the
+            right) while the following column kept its full inset. */}
+        <ol className="grid gap-x-7 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-y-0">
           {SERVICE_PRINCIPLES.map((p, i) => (
             <li
               key={p.n}
@@ -62,14 +67,36 @@ export default function ApproachPrinciples() {
               /* The hairline is a LEFT border with padding, not a divide-x on
                  the parent: at 2 and 3 columns the wrap points differ, and
                  divide-x would draw a line down the left edge of the first
-                 item in every row. `first:border-l-0` handles the one case
-                 where the border would sit at the very start of the row. */
+                 item in every row.
+
+                 WHICH ITEM STARTS A ROW CHANGES AT EVERY BREAKPOINT, and an
+                 item that starts a row must carry neither the rule nor the
+                 inset. With five items:
+
+                   cols   row-starts   bordered
+                   1      1,2,3,4,5    –
+                   2      1,3,5        2,4
+                   3      1,4          2,3,5
+                   5      1            2,3,4,5
+
+                 Only `first:` was handled at `sm`, so at 640–1023px items 3
+                 and 5 drew a stray rule down the section's left edge and sat
+                 28px out of line with item 1 (measured: item 1 at x=31,
+                 items 3 and 5 at x=31 with pl=28px and a 1px border).
+
+                 The classes below are written as CHANGE POINTS — each child
+                 index appears at most ONCE per breakpoint — so no two rules
+                 in the same media query ever set border-left-width on the
+                 same element. That matters because Tailwind cannot order
+                 `border-l` against `border-l-0` within one variant bucket:
+                 they are the same utility, and a conflict would resolve
+                 arbitrarily. Item 1 is never bordered and so appears nowhere. */
               /* `flex flex-col` + `mt-auto` on the mode line below: the five
                  bodies are different lengths, and without it each column's
                  divider and mode note sit at its own height — five ragged
                  rules across the section. Pinning them to the bottom is what
                  makes this read as a table rather than five loose columns. */
-              className="relative flex flex-col border-border pl-0 sm:border-l sm:pl-7 sm:first:border-l-0 sm:first:pl-0 lg:[&:nth-child(4)]:border-l-0 lg:[&:nth-child(4)]:pl-0 xl:[&:nth-child(4)]:border-l xl:[&:nth-child(4)]:pl-7"
+              className="relative flex flex-col border-border pl-0 sm:nth-2:border-l sm:nth-2:pl-7 sm:nth-4:border-l sm:nth-4:pl-7 lg:nth-3:border-l lg:nth-3:pl-7 lg:nth-4:border-l-0 lg:nth-4:pl-0 lg:nth-5:border-l lg:nth-5:pl-7 xl:nth-4:border-l xl:nth-4:pl-7"
             >
               {/* The ghost numeral (DS §8.9) — decoration, so hidden from AT;
                   the <ol> already conveys the sequence. */}

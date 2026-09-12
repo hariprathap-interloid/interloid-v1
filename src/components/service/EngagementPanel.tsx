@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Icon from "../Icon";
 import SectionHeading from "../SectionHeading";
 import { ModeSwitch, useServiceMode } from "./ModeContext";
@@ -129,19 +130,31 @@ export default function EngagementPanel() {
                   </p>
                 </div>
 
-                <a
-                  href={`mailto:hello@interloid.com?subject=${encodeURIComponent(
-                    mode === "build"
-                      ? "New project — Interloid"
-                      : "Engineers for our team — Interloid",
-                  )}`}
-                  className="group mt-auto inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
-                >
-                  {detail.cta}
-                  <span className="transition-transform group-hover:translate-x-1">
-                    <Icon name="arrow" className="size-5" />
-                  </span>
-                </a>
+                <div className="mt-auto flex flex-col gap-3">
+                  <Link
+                    href={detail.ctaHref}
+                    className="group inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
+                  >
+                    {detail.cta}
+                    <span className="transition-transform group-hover:translate-x-1">
+                      <Icon name="arrow" className="size-5" />
+                    </span>
+                  </Link>
+                  {/* The same second door as the hero, repeated here because
+                      this is where an extend-mode reader finishes the terms
+                      and asks "so who actually turns up?". */}
+                  <a
+                    href={detail.secondary.href}
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-full text-[15px] font-semibold text-primary transition-colors hover:text-accent-strong"
+                  >
+                    <Icon
+                      name={detail.secondary.icon}
+                      className="size-4 text-accent-strong"
+                    />
+                    {detail.secondary.label}
+                    <Icon name="arrow" className="size-4" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>

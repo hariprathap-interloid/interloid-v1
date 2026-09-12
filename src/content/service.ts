@@ -99,6 +99,13 @@ export type ModeDetail = {
   heroAccent: string;
   heroLead: string;
   cta: string;
+  /** Where the primary CTA goes. A real route, never a `mailto:` - see the
+      note on SERVICE_MODES below. */
+  ctaHref: string;
+  /** The second button beside it. Build wants the argument; extend wants the
+      people, because "who exactly do we get?" is that buyer's first
+      objection and the roster answers it in one click. */
+  secondary: { label: string; href: string; icon: string };
   title: string;
   who: string;
   terms: readonly string[];
@@ -113,7 +120,22 @@ export const SERVICE_HERO = {
   lead: "Two ways to work with us, one standard of engineering. Tell us which you are and the rest of this page answers you.",
 } as const;
 
-/* ── MODES ─────────────────────────────────────────────────────────────────
+/* ── MODES ────────────────────────────────────────────────────────────
+   THE CTA IS A ROUTE, NOT A `mailto:`. Both modes opened a pre-addressed
+   email until 2026-09-12, which fails silently on any machine with no mail
+   client configured - the commonest case on a work laptop and on every
+   webmail-only user - and it was the only CTA on the page not pointing at
+   /contact. The contact form is the measurable path; the address is still on
+   the contact page for anyone who prefers it.
+
+   `secondary` differs per mode ON PURPOSE. Build mode sends you to the
+   mechanism (#capabilities); extend mode sends you to /about#team, the
+   "Meet the Builders" roster, because someone buying senior capacity wants
+   to see who they are getting before they ask. Only the label, href and icon
+   NAME change between modes - never a className, and never whether the
+   element renders - so the [data-reveal] nodes around them survive the swap
+   (ModeContext.tsx's banner explains why that rule exists).
+─────
    The two figures were the $25k–$90k range and "Monthly". The range came out
    on request; what replaced it is the verified timeline, which answers the
    same question a visitor is really asking at that point ("how long before
@@ -128,6 +150,8 @@ export const SERVICE_MODES = [
     heroLead:
       "From custom web applications to mobile apps, cloud infrastructure and AI integration — we provide the complete technology services a growing business needs, built in your own accounts and yours from the first commit.",
     cta: "Start a project",
+    ctaHref: "/contact",
+    secondary: { label: "See how we work", href: "#capabilities", icon: "search" },
     title: "We build it. You own it, throughout.",
     who: "Best when the work is a defined slice — a first version, a rebuild, a platform your team has no capacity to start.",
     terms: [
@@ -149,6 +173,12 @@ export const SERVICE_MODES = [
     heroLead:
       "Add experienced senior engineers without hiring costs, long-term overhead or months of onboarding. Ours join your repo, your board and your standups — named in the proposal, and out again with 30 days' notice.",
     cta: "Add engineers to our team",
+    ctaHref: "/contact",
+    secondary: {
+      label: "Meet the engineers",
+      href: "/about#team",
+      icon: "users",
+    },
     title: "Our seniors, inside your process.",
     who: "Best when the roadmap is yours, the context is yours, and what is missing is experienced hands who need no ramp-up.",
     terms: [
