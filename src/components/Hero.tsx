@@ -52,7 +52,7 @@ export default function Hero() {
             visible step — measured 501px at 1180 dropping to 418px at 1280. At
             1440 the mark is already near its height cap either side, so the
             switch barely moves it. */}
-        <div className="max-w-3xl min-[900px]:max-w-[30rem] min-[1440px]:max-w-3xl 2xl:max-w-[48rem]">
+        <div className="max-w-3xl min-[900px]:max-w-136 min-[1440px]:max-w-3xl 2xl:max-w-3xl">
           <div
             data-reveal
             className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-4 py-2 shadow-sm"
