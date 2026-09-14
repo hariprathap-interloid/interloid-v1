@@ -204,17 +204,17 @@ export default function EcosystemSwitcher({
             {design.name}
           </h2>
           <p className="max-w-3xl text-[15px] leading-[1.7] text-muted-strong">
-            <span className="font-semibold text-foreground">Good at — </span>
+            <span className="font-semibold text-foreground">Good at: </span>
             {design.best}
           </p>
           <p className="max-w-3xl text-[15px] leading-[1.7] text-muted-foreground">
-            <span className="font-semibold text-foreground">Costs — </span>
+            <span className="font-semibold text-foreground">Costs: </span>
             {design.cost}
           </p>
           {design.caveat && (
             <p className="mt-1 max-w-3xl rounded-xl border border-border bg-secondary px-4 py-3 text-[14px] leading-[1.7] text-muted-strong">
               <span className="font-semibold text-foreground">
-                Known defect —{" "}
+                Known defect: {" "}
               </span>
               {design.caveat}
             </p>

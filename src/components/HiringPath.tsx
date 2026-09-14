@@ -157,7 +157,7 @@ export default function HiringPath() {
                     className="flex items-start gap-2.5 text-[15px] leading-[1.6] text-ink-foreground"
                   >
                     <span className="mt-1 shrink-0 text-spark" aria-hidden="true">
-                      <Icon name="check" className="size-4" />
+                      <Icon name="check-circle" className="size-4" />
                     </span>
                     {n}
                   </li>

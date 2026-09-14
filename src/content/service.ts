@@ -29,8 +29,8 @@
    ⚠ CLAIMS — READ BEFORE PUBLISHING. This is the important part.
    HANDOFF §7 allows exactly these as fact: free 30-min consult · 48-hr
    written proposal · weekly working demo · 30 days post-launch support ·
-   30-day notice · 100% code/IP ownership · 8–12 weeks to a first version
-   (14–20 larger) · engineers with 8–12 years each · no juniors substituted
+   30-day notice · 100% code/IP ownership · 2-15 weeks to a first version
+   (14–20 larger) · engineers with 2-15 years each · no juniors substituted
    after signing · named in the proposal · work in the client's own accounts.
 
    The live bullets go far beyond that list — "save 40% on development
@@ -45,9 +45,9 @@
    TWO of them also CONTRADICT claims the site already makes, and those were
    reconciled rather than flagged, because publishing both numbers would make
    the site argue with itself:
-     · live "Go live in 30-60 days" vs the verified "8–12 weeks to a focused
+     · live "Go live in 30-60 days" vs the verified "2-15 weeks to a focused
        first version" → the verified figure is used.
-     · live "Senior engineers (10+ years exp.)" vs the verified "8–12 years
+     · live "Senior engineers (10+ years exp.)" vs the verified "2-15 years
        each" → the verified figure is used.
 
    NO PRICE. The $25k–$90k range was removed from this page on request
@@ -99,6 +99,8 @@ export type ModeDetail = {
   heroAccent: string;
   heroLead: string;
   cta: string;
+  /** `cta` below `sm`, where the full label wrapped inside the pill. */
+  ctaShort: string;
   /** Where the primary CTA goes. A real route, never a `mailto:` - see the
       note on SERVICE_MODES below. */
   ctaHref: string;
@@ -148,20 +150,21 @@ export const SERVICE_MODES = [
     hint: "An idea, a requirement or a stalled roadmap, and no team free to ship it",
     heroAccent: "build the thing you can't staff.",
     heroLead:
-      "From custom web applications to mobile apps, cloud infrastructure and AI integration — we provide the complete technology services a growing business needs, built in your own accounts and yours from the first commit.",
+      "From custom web applications to mobile apps, cloud infrastructure and AI integration, we provide the complete technology services a growing business needs, built in your own accounts and yours from the first commit.",
     cta: "Start a project",
+    ctaShort: "Start a project",
     ctaHref: "/contact",
     secondary: { label: "See how we work", href: "#capabilities", icon: "search" },
     title: "We build it. You own it, throughout.",
-    who: "Best when the work is a defined slice — a first version, a rebuild, a platform your team has no capacity to start.",
+    who: "Best when the work is a defined slice: a first version, a rebuild, a platform your team has no capacity to start.",
     terms: [
       "A fixed price or a transparent hourly rate, in writing within 48 hours of the first call.",
-      "A focused first version in 8–12 weeks; larger platforms run 14–20.",
-      "A working demo every week from week one — software you can click, not a status report.",
+      "A focused first version in 2-15 weeks; larger platforms run 14–20.",
+      "A working demo every week from week one: software you can click, not a status report.",
       "Your GitHub organisation and your cloud accounts from the first commit. There is no handover ceremony because nothing of yours is ever in our hands.",
       "30 days of post-launch support included; a retainer after that is an option, never a dependency.",
     ],
-    figure: "8–12 wks",
+    figure: "2-15 wks",
     caption: "to a focused first version",
   },
   {
@@ -171,8 +174,9 @@ export const SERVICE_MODES = [
     hint: "A team and a roadmap already running, short on senior capacity",
     heroAccent: "join the team you already have.",
     heroLead:
-      "Add experienced senior engineers without hiring costs, long-term overhead or months of onboarding. Ours join your repo, your board and your standups — named in the proposal, and out again with 30 days' notice.",
+      "Add experienced senior engineers without hiring costs, long-term overhead or months of onboarding. Ours join your repo, your board and your standups, named in the proposal, and out again with 30 days' notice.",
     cta: "Add engineers to our team",
+    ctaShort: "Add engineers",
     ctaHref: "/contact",
     secondary: {
       label: "Meet the engineers",
@@ -182,8 +186,8 @@ export const SERVICE_MODES = [
     title: "Our seniors, inside your process.",
     who: "Best when the roadmap is yours, the context is yours, and what is missing is experienced hands who need no ramp-up.",
     terms: [
-      "Engineers with 8–12 years each, named in the proposal before you commit.",
-      "No juniors substituted after signing — the people you meet are the people you get.",
+      "Engineers with 2-15 years each, named in the proposal before you commit.",
+      "No juniors substituted after signing: the people you meet are the people you get.",
       "Your repo, your board, your review process and your rituals. Not a parallel track that reports in.",
       "Deliberate overlap with US and UK business hours: async by default, one scheduled live window every working day.",
       "30-day notice either way, so the moment you have hired, we step out cleanly.",
@@ -200,7 +204,7 @@ export const SERVICE_MODES = [
 export const SERVICE_PROBLEMS = [
   {
     q: "We keep planning features we never ship.",
-    a: "Planning is not the bottleneck — the absence of a shipped slice is. We take one defined piece of the roadmap to production, then the next. You see a working demo every week, so momentum is visible instead of asserted.",
+    a: "Planning is not the bottleneck; the absence of a shipped slice is. We take one defined piece of the roadmap to production, then the next. You see a working demo every week, so momentum is visible instead of asserted.",
     to: "web",
   },
   {
@@ -210,12 +214,12 @@ export const SERVICE_PROBLEMS = [
   },
   {
     q: "Our backend can't take another year of growth.",
-    a: "Rewrites are usually the expensive answer to a cheap question. We find the seams where the domain actually splits, make the hot paths boring and measurable, and scale what the traffic is really hitting — not what the architecture diagram suggests.",
+    a: "Rewrites are usually the expensive answer to a cheap question. We find the seams where the domain actually splits, make the hot paths boring and measurable, and scale what the traffic is really hitting, not what the architecture diagram suggests.",
     to: "backend",
   },
   {
     q: "Our AI demo impressed everyone and shipped to nobody.",
-    a: "Demos die in review because nobody can prove they work. We build the other way round — start from the workflow, add retrieval and guardrails, and wrap it in an evaluation harness so “does it work?” has a measured answer and a cost per use.",
+    a: "Demos die in review because nobody can prove they work. We build the other way round: start from the workflow, add retrieval and guardrails, and wrap it in an evaluation harness so “does it work?” has a measured answer and a cost per use.",
     to: "ai",
   },
   {
@@ -239,16 +243,16 @@ export const CAPABILITIES: readonly Capability[] = [
     figure: "slice",
     head: "Production-ready web apps,",
     accent: "without the six-month timeline.",
-    body: "We build fast, scalable platforms that drive growth — without the bloated code or the six-month timeline. One thin slice goes all the way to real users first, because that is the only version of “on track” a stakeholder can verify.",
+    body: "We build fast, scalable platforms that drive growth, without the bloated code or the six-month timeline. One thin slice goes all the way to real users first, because that is the only version of “on track” a stakeholder can verify.",
     outcomes: [
       {
-        text: "A focused first version in 8–12 weeks, not quarters — with a working demo every week from week one.",
+        text: "A focused first version in 2-15 weeks, not quarters, with a working demo every week from week one.",
       },
       {
         text: "SEO-optimised from day one, and an architecture that scales to millions of users.",
         ph: "confirm the scale claim, or soften it",
       },
-      { text: "You own 100% of the code — zero vendor lock-in." },
+      { text: "You own 100% of the code, with zero vendor lock-in." },
     ],
     stackNote:
       "The modern web stack that powers billion-dollar companies. React and Next.js deliver the user experience; TypeScript catches the bugs before production does.",
@@ -289,14 +293,14 @@ export const CAPABILITIES: readonly Capability[] = [
     figure: "stores",
     head: "One codebase,",
     accent: "both app stores.",
-    body: "Reach iOS and Android users from a single, maintainable codebase. One team, two platforms — so the development budget buys features rather than a second implementation of the same screens.",
+    body: "Reach iOS and Android users from a single, maintainable codebase. One team, two platforms, so the development budget buys features rather than a second implementation of the same screens.",
     outcomes: [
       {
-        text: "One team, two platforms — roughly 40% less development cost than two native builds.",
+        text: "One team, two platforms: roughly 40% less development cost than two native builds.",
         ph: "confirm the 40% figure or remove it",
       },
       {
-        text: "App-store ready in weeks, not quarters — including signing, review and the release train.",
+        text: "App-store ready in weeks, not quarters, including signing, review and the release train.",
         ph: "confirm a typical store-submission timeline",
       },
       {
@@ -304,7 +308,7 @@ export const CAPABILITIES: readonly Capability[] = [
       },
     ],
     stackNote:
-      "Build once, deploy everywhere. React Native and Flutter ship to both stores at the same time — with native modules wherever the bridge is the wrong answer.",
+      "Build once, deploy everywhere. React Native and Flutter ship to both stores at the same time, with native modules wherever the bridge is the wrong answer.",
     stack: [
       {
         group: "Cross-platform",
@@ -336,15 +340,15 @@ export const CAPABILITIES: readonly Capability[] = [
     figure: "api",
     head: "Infrastructure that grows",
     accent: "without the rewrite.",
-    body: "Backends built to scale from day one — from launch to millions of requests a day — without the expensive rewrite in year two. Typed, versioned APIs your other vendors can build against, and data models that still make sense when the product changes.",
+    body: "Backends built to scale from day one, from launch to millions of requests a day, without the expensive rewrite in year two. Typed, versioned APIs your other vendors can build against, and data models that still make sense when the product changes.",
     outcomes: [
       {
         text: "Scales without rewriting the core systems as you grow.",
-        ph: "confirm — evidence needed, or reword as an approach",
+        ph: "confirm: evidence needed, or reword as an approach",
       },
       {
         text: "Audit-ready security practices, with the compliance work planned rather than retrofitted.",
-        ph: "P0: the live site claims SOC 2 / HIPAA compliance — verify or remove",
+        ph: "P0: the live site claims SOC 2 / HIPAA compliance: verify or remove",
       },
       {
         text: "Clean architecture your own team can maintain or extend after we leave.",
@@ -395,7 +399,7 @@ export const CAPABILITIES: readonly Capability[] = [
     figure: "deploy",
     head: "A deploy your own team",
     accent: "can run without us.",
-    body: "Provisioned as code in your own cloud accounts, reviewed like application code and planned in CI. The measure of the work is not that it runs — it is that your engineers can deploy, roll back and debug it on a Friday afternoon with us switched off.",
+    body: "Provisioned as code in your own cloud accounts, reviewed like application code and planned in CI. The measure of the work is not that it runs; it is that your engineers can deploy, roll back and debug it on a Friday afternoon with us switched off.",
     outcomes: [
       {
         text: "Deploy on every push with zero downtime, and a rollback that is one documented command.",
@@ -403,7 +407,7 @@ export const CAPABILITIES: readonly Capability[] = [
       },
       {
         text: "Automated backups and a rehearsed recovery, with an uptime target agreed up front.",
-        ph: "P0: the live site publishes a 99.99% uptime SLA — verify or remove",
+        ph: "P0: the live site publishes a 99.99% uptime SLA: verify or remove",
       },
       {
         text: "Materially less operations overhead through automation, and runbooks a tired person can follow.",
@@ -454,8 +458,8 @@ export const CAPABILITIES: readonly Capability[] = [
     body: "Model-backed features wired into a real workflow, with retrieval over your own data, guardrails on both ends, and an evaluation harness that can tell a prompt change from a regression. We will also tell you when a problem does not need a model.",
     outcomes: [
       {
-        text: "Repetitive work automated where the workflow is well understood — routing, triage, extraction.",
-        ph: "confirm — the live site claims a 60% reduction in support tickets",
+        text: "Repetitive work automated where the workflow is well understood: routing, triage, extraction.",
+        ph: "confirm: the live site claims a 60% reduction in support tickets",
       },
       {
         text: "Documents processed in seconds rather than hours, with the failure cases designed for.",
@@ -466,7 +470,7 @@ export const CAPABILITIES: readonly Capability[] = [
       },
     ],
     stackNote:
-      "AI integrations that work in production, not just in a demo — with evaluation, guardrails and a cost model around every model call.",
+      "AI integrations that work in production, not just in a demo, with evaluation, guardrails and a cost model around every model call.",
     stack: [
       {
         group: "LLM frameworks",
@@ -506,10 +510,10 @@ export const CAPABILITIES: readonly Capability[] = [
     figure: "merge",
     head: "Senior hands,",
     accent: "inside your process.",
-    body: "Add experienced senior engineers without hiring costs, long-term overhead or months of onboarding. They work in your repository and your rituals rather than alongside them — named in the proposal, the same people throughout.",
+    body: "Add experienced senior engineers without hiring costs, long-term overhead or months of onboarding. They work in your repository and your rituals rather than alongside them, named in the proposal, the same people throughout.",
     outcomes: [
       {
-        text: "Engineers with 8–12 years each — no juniors substituted after signing.",
+        text: "Engineers with 2-15 years each, with no juniors substituted after signing.",
       },
       {
         text: "Scale the team up or down in weeks, with 30 days' notice either way.",
@@ -549,7 +553,7 @@ export const CAPABILITIES: readonly Capability[] = [
    claim about judgement rather than about a metric. */
 export const STACK_HEADING = {
   eyebrow: "Proven technology stacks",
-  head: "We don't chase trends —",
+  head: "We don't chase trends,",
   accent: "we build on what works.",
   lead: "Every stack below is one we run in production today. Pick a service to see what it is actually built on, and why.",
 } as const;
@@ -563,14 +567,14 @@ export const SERVICE_PRINCIPLES = [
     icon: "search",
     title: "Start from the decision, not the technology",
     body: "The first call establishes what has to become true for this to have been worth doing. If the honest answer is a spreadsheet, a config change or a different vendor, you hear that instead of a proposal.",
-    build: "You get scope shaped around that outcome — and a written no if it does not need us.",
+    build: "You get scope shaped around that outcome, and a written no if it does not need us.",
     extend: "Your team keeps the roadmap; our engineers arrive already knowing what it is for.",
   },
   {
     n: "02",
     icon: "rocket",
     title: "One thin slice, all the way to production",
-    body: "The first milestone crosses every layer the product will ever have — interface, service, data, deploy — rather than finishing one layer at a time. Integration risk arrives in week two, when it is cheap.",
+    body: "The first milestone crosses every layer the product will ever have (interface, service, data, deploy) rather than finishing one layer at a time. Integration risk arrives in week two, when it is cheap.",
     build: "Something real is in production long before the build is finished.",
     extend: "Our first pull request goes into your repo in the first week, not the first month.",
   },
@@ -578,7 +582,7 @@ export const SERVICE_PRINCIPLES = [
     n: "03",
     icon: "shield",
     title: "Boring architecture, tested at the seams",
-    body: "We reach for Postgres before a new service and delete a component before adding one. Tests concentrate where systems actually break — the boundaries — so the suite stays worth running.",
+    body: "We reach for Postgres before a new service and delete a component before adding one. Tests concentrate where systems actually break (the boundaries) so the suite stays worth running.",
     build: "A stack your team can staff for, not one only we can maintain.",
     extend: "Reviews that raise the floor of the codebase your team already owns.",
   },
@@ -586,7 +590,7 @@ export const SERVICE_PRINCIPLES = [
     n: "04",
     icon: "monitor-play",
     title: "The demo is the status report",
-    body: "Every week you get software you can click and a short written note. A bad week shows up in that week's demo, with options attached — never in a month-end surprise.",
+    body: "Every week you get software you can click and a short written note. A bad week shows up in that week's demo, with options attached, never in a month-end surprise.",
     build: "Weekly demos from week one, for the length of the engagement.",
     extend: "Our engineers present their own work in your ceremonies, in your words.",
   },
@@ -614,8 +618,8 @@ export const SERVICE_TERMS = [
   { figure: "100%", caption: "code and IP yours, from the first commit" },
   { figure: "48 hrs", caption: "from first call to a written scope and price" },
   { figure: "Weekly", caption: "working demo, for the whole engagement" },
-  { figure: "8–12 yrs", caption: "experience per engineer, no juniors swapped in" },
-  { figure: "30 days", caption: "notice either way — and post-launch support included" },
+  { figure: "2-15 yrs", caption: "experience per engineer, no juniors swapped in" },
+  { figure: "30 days", caption: "notice either way, and post-launch support included" },
 ] as const satisfies readonly { figure: string; caption: string }[];
 
 /* ── HOW TO START ──────────────────────────────────────────────────────── */

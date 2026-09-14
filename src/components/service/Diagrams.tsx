@@ -38,16 +38,36 @@
    the same claim, so nothing is only available as a picture.
    ========================================================================== */
 
+/* EVERY DIAGRAM CARRIES ITS OWN viewBox, AND THAT IS WORTH THE PROP.
+   All six shared `0 0 560 400` until 2026-09-12, which meant each one was
+   scaled to fit a box that was mostly empty margin. Measured with getBBox:
+
+     web      fills 85% x 85% of the box      deploy   fills 77% x 54%
+     stores   fills 89% x 74%                 retrieval fills 94% x 74%
+     api      fills 90% x 73%                 merge    fills 87% x 56%
+
+   `deploy` and `merge` were spending nearly HALF their vertical space on
+   nothing, so the drawing rendered at roughly three quarters of the size the
+   panel could actually afford it. The boxes below are each diagram's real
+   content bounds plus 5%, normalised to ONE aspect (8:5) so the drawings all
+   land at a consistent size and the sticky panel never resizes between
+   capabilities — a panel that jumps as you scroll reads as broken.
+
+   Re-measure with getBBox and recompute if you move anything: a box tighter
+   than its content CROPS, because the stage is a fixed aspect and this is
+   `preserveAspectRatio: meet`. */
 function Frame({
   label,
+  box,
   children,
 }: {
   label: string;
+  box: string;
   children: React.ReactNode;
 }) {
   return (
     <svg
-      viewBox="0 0 560 400"
+      viewBox={box}
       role="img"
       aria-label={label}
       className="h-full w-full"
@@ -131,7 +151,7 @@ function Slice() {
   const gridBottom = rowY(3) + ROW_H;
 
   return (
-    <Frame label="A grid of four product layers — interface, service, data and deploy — by four delivery slices. The first slice is filled and in production, crossing all four layers; slices two, three and four are drawn empty behind it, waiting.">
+    <Frame label="A grid of four product layers (interface, service, data and deploy) by four delivery slices. The first slice is filled and in production, crossing all four layers; slices two, three and four are drawn empty behind it, waiting." box="7 25 573 358">
       {/* lane names, and a hairline per layer so the rows read as layers */}
       {lanes.map((l, i) => (
         <g key={l}>
@@ -225,7 +245,7 @@ function Slice() {
    part every client forgets exists until it rejects them. */
 function Stores() {
   return (
-    <Frame label="A single shared codebase feeding one release pipeline, which branches at the end into iOS and Android store submissions, each passing a review gate. Native modules attach to the shared trunk where the bridge is the wrong answer.">
+    <Frame label="A single shared codebase feeding one release pipeline, which branches at the end into iOS and Android store submissions, each passing a review gate. Native modules attach to the shared trunk where the bridge is the wrong answer." box="20 46 525 328">
       {/* shared codebase */}
       <rect
         x={32}
@@ -353,7 +373,7 @@ function Stores() {
    contract, never on the store behind it. */
 function Api() {
   return (
-    <Frame label="Web, mobile and third-party clients all calling one typed, versioned API contract, which fronts a primary database, a cache and background jobs, with traces and alerts on the side.">
+    <Frame label="Web, mobile and third-party clients all calling one typed, versioned API contract, which fronts a primary database, a cache and background jobs, with traces and alerts on the side." box="15 35 529 331">
       {/* clients */}
       {[
         { y: 66, label: "Web app" },
@@ -516,7 +536,7 @@ function Deploy() {
     { x: 64, y: 244, micro: "PAGES A HUMAN", label: "Observe" },
   ];
   return (
-    <Frame label="A four-step loop running clockwise — push, CI checks, deploy into your own cloud account, observe, and back to push — with a rollback arc returning from deploy to the last checked state, labelled one command.">
+    <Frame label="A four-step loop running clockwise: push, CI checks, deploy into your own cloud account, observe, and back to push, with a rollback arc returning from deploy to the last checked state, labelled one command." box="53 58 454 284">
       {/* ---- the four hand-offs, clockwise --------------------------------
           Each is a straight segment between two box edges, and each carries
           its arrowhead at its own midpoint. Push→CI runs right along the
@@ -639,7 +659,7 @@ function Retrieval() {
     ["latency", 0.68],
   ];
   return (
-    <Frame label="A workflow step feeding a model call that is gated on both sides, with retrieval over your own data above it, an evaluation harness scoring every call and a cost ceiling per call to the right, and the harness verdict returning along the bottom to the workflow step.">
+    <Frame label="A workflow step feeding a model call that is gated on both sides, with retrieval over your own data above it, an evaluation harness scoring every call and a cost ceiling per call to the right, and the harness verdict returning along the bottom to the workflow step." box="7 28 550 344">
       {/* ---- the spine, left to right ------------------------------------ */}
       <rect
         x={20}
@@ -839,7 +859,7 @@ function Retrieval() {
    objection everyone has and nobody asks about on the first call. */
 function Merge() {
   return (
-    <Frame label="Two lanes of engineers, yours and ours, converging into a single repository and review process, with a marked exit thirty days after notice.">
+    <Frame label="Two lanes of engineers, yours and ours, converging into a single repository and review process, with a marked exit thirty days after notice." box="28 37 512 320">
       <Micro x={40} y={96}>
         YOUR ENGINEERS
       </Micro>

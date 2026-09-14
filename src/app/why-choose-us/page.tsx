@@ -12,7 +12,7 @@ import WhyHero from "@/components/WhyHero";
 import { WHY_QUOTE } from "@/content/site";
 
 export const metadata: Metadata = {
-  title: "Why Interloid — the commitments we put in writing",
+  title: "Why Interloid: the commitments we put in writing",
   description:
     "The terms Interloid puts in the engagement agreement: 100% code ownership, fixed price or transparent hourly, senior engineers only, a working demo every week, and 30 days of post-launch support.",
 };

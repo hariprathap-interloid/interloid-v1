@@ -97,7 +97,7 @@ const NAME = blank("name", "your name", "your name", {
   autoComplete: "name",
 });
 /* One line for "what you need", shared by its quick blank and full space. */
-const WANT_ERROR = "Tell us a little about what you need — a few words is plenty.";
+const WANT_ERROR = "Tell us a little about what you need. A few words is plenty.";
 const COMPANY = blank("company", "your company", "your company", { autoComplete: "organization" });
 const EMAIL = blank("email", "your email", "you@company.com", { type: "email", autoComplete: "email" });
 const PHONE = blank("phone", "your phone number", "or a phone number", { type: "tel", autoComplete: "tel" });
@@ -110,7 +110,7 @@ export const BRIEF_REACH = {
   fields: ["email", "phone"],
   label: "an email or phone number to reach you",
   /** Shown on both blanks — either one fixes it. */
-  error: "Add a valid email or phone number — one is enough.",
+  error: "Add a valid email or phone number. One is enough.",
 } as const;
 
 /* ── HERO ──────────────────────────────────────────────────────────────── */
@@ -118,14 +118,14 @@ export const BRIEF_HERO = {
   eyebrow: "Start your project",
   head: "Skip the form.",
   accent: "Tell us your story.",
-  lead: "Write to us the way you’d explain it to a friend. Short on time? Three quick blanks are enough. Have a few minutes? Tell us the whole story — and watch it become a letter as you type.",
+  lead: "Write to us the way you’d explain it to a friend. Short on time? Three quick blanks are enough. Have a few minutes? Tell us the whole story, and watch it become a letter as you type.",
 } as const;
 
 /* The way round the letter, beside it. Same address and number as the
    footer and /about — connect@, not the hello@ some mailto links used. */
 export const BRIEF_DIRECT = {
   title: "Prefer to talk?",
-  body: "Email or call — you’ll reach the same engineers either way.",
+  body: "Email or call. You’ll reach the same engineers either way.",
   email: "connect@interloid.com",
   phone: "+91 9042032424",
   tel: "+919042032424",
@@ -135,15 +135,15 @@ export const BRIEF_DIRECT = {
 export const BRIEF_FACTS = [
   {
     k: "clock",
-    label: "Quick or detailed — your choice",
+    label: "Quick or detailed, your choice",
     body: "30 seconds for the essentials, or about 3 minutes for the full picture.",
     /* `short` — the one line a phone shows in BriefHero's "list" sample. */
-    short: "30 seconds or 3 minutes — your choice",
+    short: "30 seconds or 3 minutes, your choice",
   },
   {
     k: "user-check",
     label: "Read by a real engineer",
-    body: "The person who would build it reads every word — no account manager in between.",
+    body: "The person who would build it reads every word, with no account manager in between.",
     short: "Read by the engineer who’d build it",
   },
   {
@@ -190,14 +190,14 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
         key: "you",
         n: "I",
         title: "About you",
-        voice: "Just the basics, so we know who we’re talking to. You’ll hear back from a real, named engineer — never a ticket number.",
+        voice: "Just the basics, so we know who we’re talking to. You’ll hear back from a real, named engineer, never a ticket number.",
         lines: [HELLO],
       },
       {
         key: "need",
         n: "II",
         title: "Your idea",
-        voice: "No technical words needed. Describe it the way you’d explain it to a friend — tap a suggestion or write your own.",
+        voice: "No technical words needed. Describe it the way you’d explain it to a friend. Tap a suggestion or write your own.",
         lines: [
           [
             "We’re looking to ",
@@ -256,7 +256,7 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
         key: "reach",
         n: "IV",
         title: "Staying in touch",
-        voice: "Leave whichever you check most — one is enough.",
+        voice: "Leave whichever you check most. One is enough.",
         lines: [REACH],
       },
     ],
@@ -267,12 +267,12 @@ export const BRIEF_VERSIONS: Record<"quick" | "full", BriefVersion> = {
 export const BRIEF_SEND = {
   question: "We value your time",
   questionHint: "Choose how much you’d like to share.",
-  signoff: "Thanks —",
+  signoff: "Thanks,",
   cta: "Send my story",
   ctaQuick: "Send my note",
   pending: "Sending your story…",
   meta: ["Free, no obligation", "No sales pressure", "Price in writing within 48 hours"],
-  failed: "Sorry — something went wrong on our side and your story didn’t send. Your words are safe in this browser, so please try again, or email us at connect@interloid.com.",
+  failed: "Sorry, something went wrong on our side and your story didn’t send. Your words are safe in this browser, so please try again, or email us at connect@interloid.com.",
 } as const;
 
 export const BRIEF_DONE = {
@@ -285,7 +285,7 @@ export const BRIEF_DONE = {
     {
       k: "user-check",
       title: "A real engineer reads it",
-      body: "The person who would build your project reads every word — no account manager in between.",
+      body: "The person who would build your project reads every word, with no account manager in between.",
     },
     {
       k: "phone",
@@ -296,7 +296,7 @@ export const BRIEF_DONE = {
     {
       k: "receipt",
       title: "Your plan and price, in writing",
-      body: "Within 48 hours of the call you’ll get a clear scope with a fixed price or a transparent hourly rate — easy to compare with anyone else.",
+      body: "Within 48 hours of the call you’ll get a clear scope with a fixed price or a transparent hourly rate, easy to compare with anyone else.",
     },
   ],
   contactFallback: "the details you gave us",
@@ -320,7 +320,7 @@ export const BRIEF_UI = {
   letterTab: "Your letter",
   suggestionsOr: "or write your own",
   /** The key to the `*` beside required blanks, under the version toggle. */
-  requiredNote: "marks what we need to reply — everything else is optional.",
+  requiredNote: "marks what we need to reply; everything else is optional.",
 } as const;
 
 /* Every field in a letter, in reading order. */

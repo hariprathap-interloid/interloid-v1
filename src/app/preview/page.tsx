@@ -5,7 +5,7 @@ import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 
 export const metadata: Metadata = {
-  title: "Ecosystem layouts — preview | Interloid",
+  title: "Ecosystem layouts: preview | Interloid",
   /* Internal comparison page. `noindex` because it is a decision aid, not a
      page anyone should arrive at from a search result — and because it shows
      the same content three times, which is exactly what a search engine
@@ -56,7 +56,7 @@ export default function Preview() {
         {[
           {
             v: "branch" as const,
-            title: "B · Branch tree  —  SHIPPING ON /services",
+            title: "B · Branch tree: SHIPPING ON /services",
             note: "The wheel picks, a card explains. The only layout that shows every technology NAME without a hover, and the only one whose nodes never move under your cursor. Unanimous pick of the design, frontend and accessibility reviews.",
           },
           {
@@ -67,7 +67,7 @@ export default function Preview() {
           {
             v: "bloom" as const,
             title: "A · Radial bloom",
-            note: "Closest to the reference. The wheel never moves; the neighbours recede and the open branch borrows their angle. Level 3 sits on an outer arc with no edges — the thing the constellation variant fixes.",
+            note: "Closest to the reference. The wheel never moves; the neighbours recede and the open branch borrows their angle. Level 3 sits on an outer arc with no edges, the thing the constellation variant fixes.",
           },
           {
             v: "tree" as const,
@@ -77,7 +77,7 @@ export default function Preview() {
           {
             v: "columns" as const,
             title: "H · Flow columns",
-            note: "The deliberately non-circular answer. Four columns — core, services, groups, technologies — joined by bezier links, with a readable name on every single node.",
+            note: "The deliberately non-circular answer. Four columns (core, services, groups, technologies) joined by bezier links, with a readable name on every single node.",
           },
           {
             v: "shells" as const,

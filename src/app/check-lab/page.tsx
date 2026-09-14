@@ -4,7 +4,7 @@ import CheckVariants from "@/components/lab/CheckVariants";
 import Nav from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "Check-mark variants — pick one | Interloid",
+  title: "Check-mark variants: pick one | Interloid",
   robots: { index: false, follow: false },
 };
 
@@ -41,7 +41,7 @@ export default function CheckLab() {
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-[1.6] text-muted-foreground">
             The plain check is used in eleven components. Pick the mark that
-            still reads as <em>verified</em> at that density — in a dense list,
+            still reads as <em>verified</em> at that density, in a dense list,
             in prose, and on the dark slab, where the palette is different.
           </p>
         </div>

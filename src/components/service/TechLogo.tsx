@@ -9,14 +9,28 @@ import type { Tech } from "@/content/service";
    Lucide glyphs from Icon.tsx and the technologies themselves take their own
    published marks.
 
-   ── WHY A WHITE PLATE IN BOTH THEMES ─────────────────────────────────────
-   Same reasoning as Roles.tsx's chips: these are fixed brand hexes, and
-   several of them (Node's green, Express's black, GitHub's black) fall below
-   readable contrast on the dark card. A mark that changes colour with the
-   page theme is no longer the mark. A constant light plate keeps every logo
-   looking like itself in either theme, and it is why the file list picks the
-   `-dark` variant of the two-tone marks (`expressjs-dark`, `github-dark`) —
-   dark ink on a light plate, always.
+   ── THEME-ADAPTIVE PLATE (changed 2026-09-14, on request) ────────────────
+   This was a white plate in BOTH themes, on the argument that a mark which
+   changes colour with the theme is no longer the mark. In dark that put a
+   field of bright white squares on the /services diagram, and the user asked
+   for the plates to follow the theme. The plate is now `--logo-plate`:
+   white in light, slate in dark — a step above --card, so a plate still
+   lifts off the ground it sits on.
+
+   Brand colours are NOT recoloured, with one exception: marks drawn in
+   near-black ink, which would vanish on a dark plate. Those are listed in
+   INK_MARKS and get a `.dark`-only filter from globals.css. `logo-mono`
+   flattens a single-colour mark to white (the published on-dark treatment
+   for Express, GitHub, OpenAI, CircleCI); `logo-invert` swaps black and
+   white on a mark made of only those two (Next.js's disc and N). A
+   multi-colour mark is never filtered — inverting it would shift its brand
+   hues, which really would no longer be the mark. When one of those has
+   dark ink (AWS's wordmark), it swaps to the brand's on-dark FILE via
+   ON_DARK instead.
+
+   Checked branch by branch on the dark diagram, 2026-09-14. Rails (#c00),
+   Java and Flutter read dimmer than on white but still as themselves, and
+   are deliberately left alone.
 
    ── WHEN THERE IS NO MARK ────────────────────────────────────────────────
    Nine of the ~50 technologies on this page have no icon in the set
@@ -48,6 +62,46 @@ function monogram(name: string) {
   return letters.toUpperCase();
 }
 
+/* Marks whose ink is near-black and would disappear on the dark plate.
+   Measured from the SVGs' own fills, not guessed from the brand: express
+   has no fill at all (default black), github #161614, circleci #000, openai
+   #193718, nextjs #000 + #fff only. Add a file here only after checking that
+   it is single-colour (`logo-mono`) or strictly black-and-white
+   (`logo-invert`); see the banner for why nothing else is filtered. */
+const INK_MARKS: Record<string, "logo-mono" | "logo-invert"> = {
+  "expressjs-dark.svg": "logo-mono",
+  "github-dark.svg": "logo-mono",
+  "circleci.svg": "logo-mono",
+  "openai.svg": "logo-mono",
+  /* #00546b only. Measured on the dark diagram: the dolphin all but
+     vanished. White is MySQL's own on-dark treatment. */
+  "mysql.svg": "logo-mono",
+  "nextjs.svg": "logo-invert",
+};
+
+/* Multi-colour marks with dark ink cannot be filtered (see the banner), so
+   they swap to the brand's published on-dark FILE instead. Both <img>s
+   render; globals.css shows exactly one per theme (`logo-light-src` /
+   `logo-dark-src`). aws-on-dark.svg is aws.svg with the #252f3e wordmark set
+   to white and the orange smile untouched — AWS's own dark-background logo. */
+const ON_DARK: Record<string, string> = {
+  "aws.svg": "aws-on-dark.svg",
+};
+
+function MarkImg({ file, className }: { file: string; className: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/tech/${file}`}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      decoding="async"
+      className={className}
+    />
+  );
+}
+
 export default function TechLogo({
   tech,
   size = "md",
@@ -70,13 +124,11 @@ export default function TechLogo({
   const img =
     size === "sm" ? "size-5" : size === "lg" ? "size-7" : "size-6";
 
-  /* bg-white in BOTH themes, and a ring rather than a border, for the reason
-     in the banner: these are fixed brand hexes and several go unreadable on
-     the dark card. The shadow is what lifts the node off a connector passing
-     beneath it. */
+  /* The themed plate from the banner, and a ring rather than a border. The
+     shadow is what lifts the node off a connector passing beneath it. */
   return (
     <span
-      className={`grid ${box} shrink-0 place-items-center bg-white shadow-sm ring-1 ring-border ${
+      className={`grid ${box} shrink-0 place-items-center bg-logo-plate shadow-sm ring-1 ring-border ${
         shape === "circle" ? "rounded-full" : "rounded-xl"
       }`}
       /* The name is on the wrapper, so a monogram and a logo announce the
@@ -86,19 +138,27 @@ export default function TechLogo({
       title={tech.name}
     >
       {tech.file ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={`/tech/${tech.file}`}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-          className={`${img} object-contain`}
-        />
+        ON_DARK[tech.file] ? (
+          <>
+            <MarkImg
+              file={tech.file}
+              className={`${img} object-contain logo-light-src`}
+            />
+            <MarkImg
+              file={ON_DARK[tech.file]}
+              className={`${img} object-contain logo-dark-src`}
+            />
+          </>
+        ) : (
+          <MarkImg
+            file={tech.file}
+            className={`${img} object-contain ${INK_MARKS[tech.file] ?? ""}`}
+          />
+        )
       ) : (
         <span
           aria-hidden="true"
-          className={`font-display font-bold tracking-tight text-slate-500 ${
+          className={`font-display font-bold tracking-tight text-muted-foreground ${
             size === "lg" ? "text-[13px]" : "text-[11px]"
           }`}
         >

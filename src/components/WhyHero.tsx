@@ -101,16 +101,17 @@ export default function WhyHero() {
           >
             <a
               href={WHY_HERO.ctaHref}
-              className="group inline-flex h-14 items-center gap-2 rounded-full bg-primary px-8 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
+              className="group inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 text-[15px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 sm:h-14 sm:px-8 sm:text-[17px]"
             >
-              {WHY_HERO.cta}
+              <span className="sm:hidden">{WHY_HERO.ctaShort}</span>
+              <span className="hidden sm:inline">{WHY_HERO.cta}</span>
               <span className="transition-transform group-hover:translate-x-1">
                 <Icon name="arrow" className="size-5" />
               </span>
             </a>
             <a
               href={WHY_HERO.subHref}
-              className="group inline-flex h-14 items-center gap-2 px-2 text-[17px] font-semibold text-foreground transition-colors hover:text-accent-strong"
+              className="group inline-flex h-12 items-center gap-2 whitespace-nowrap px-2 text-[15px] font-semibold sm:h-14 sm:text-[17px] text-foreground transition-colors hover:text-accent-strong"
             >
               {WHY_HERO.sub}
               <span className="transition-transform group-hover:translate-y-1">

@@ -12,6 +12,7 @@ import {
   ServiceNode,
   connectorPoints,
 } from "./parts";
+import EcosystemSphere from "./EcosystemSphere";
 import {
   CLOSED_SERVICE_FACTOR,
   SERVICE_ANGLES,
@@ -520,6 +521,11 @@ export default function EcosystemConstellation({
         </p>
       </div>
 
+      {/* Below `lg`: the sphere for the sense of scale, then the accordion
+          for the content. Both are hidden at `lg`, where the map above takes
+          over. The sphere is decoration (aria-hidden); every mark in it is a
+          named chip in the accordion. */}
+      <EcosystemSphere />
       <EcosystemList capabilities={CAPABILITIES} idPrefix={idPrefix} />
     </>
   );

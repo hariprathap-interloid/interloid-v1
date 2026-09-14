@@ -227,7 +227,7 @@ export default function CapabilityShowcase({
                         className={`pointer-events-none absolute right-0 top-0 size-48 -translate-y-1/3 translate-x-1/3 rounded-full blur-[70px] ${h.glow}`}
                         aria-hidden="true"
                       />
-                      <div className="relative aspect-[7/5] w-full">
+                      <div className="relative aspect-[8/5] w-full">
                         <Diagram name={c.figure} />
                       </div>
                     </div>
@@ -259,7 +259,7 @@ export default function CapabilityShowcase({
                           className={`mt-1 shrink-0 ${h.text}`}
                           aria-hidden="true"
                         >
-                          <Icon name="check" className="size-4" />
+                          <Icon name="check-circle" className="size-4" />
                         </span>
                         <span {...(o.ph ? { "data-placeholder": o.ph } : {})}>
                           {o.text}
@@ -324,7 +324,12 @@ export default function CapabilityShowcase({
                 box scales the diagram down and centres it rather than
                 cropping it. The index is `shrink-0` and always survives. */}
             <div className="sticky top-28 flex max-h-[calc(100dvh-8rem)] flex-col">
-              <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-4xl border border-border bg-card p-8 shadow-[0_30px_80px_-15px_rgba(15,23,42,.12)] ring-1 ring-foreground/5">
+              {/* p-6, mt-5, pt-4 — trimmed from p-8/mt-8/pt-6 on 2026-09-12. Measured
+                  at 1440x900 the panel was 692px of which 204px (29%) was chrome,
+                  and 120px of THAT was pure whitespace against 84px of actual
+                  index chips. The drawing is the argument this section makes;
+                  the gaps around it are not, so the gaps gave way first. */}
+              <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-4xl border border-border bg-card p-6 shadow-[0_30px_80px_-15px_rgba(15,23,42,.12)] ring-1 ring-foreground/5">
                 {/* h.glow is a whole class string — never composed at runtime
                     (site.ts's HUE banner). */}
                 {CAPABILITIES.map((c, i) => (
@@ -342,7 +347,7 @@ export default function CapabilityShowcase({
                     way to make a scroll-linked section feel broken. It keeps
                     that aspect wherever there is room for it and only gives
                     way when the window is too short (see the note above). */}
-                <div className="relative aspect-[7/5] w-full min-h-0 shrink">
+                <div className="relative aspect-[8/5] w-full min-h-0 shrink">
                   {CAPABILITIES.map((c, i) => (
                     <div
                       key={c.k}
@@ -366,9 +371,9 @@ export default function CapabilityShowcase({
                     these work with JS off and are shareable. */}
                 <nav
                   aria-label="Capabilities"
-                  className="mt-8 shrink-0 border-t border-hairline pt-6"
+                  className="mt-5 shrink-0 border-t border-hairline pt-4"
                 >
-                  <ul className="flex flex-wrap gap-2">
+                  <ul className="flex flex-wrap gap-1.5">
                     {CAPABILITIES.map((c, i) => {
                       const on = i === active;
                       return (
@@ -384,7 +389,7 @@ export default function CapabilityShowcase({
                                showing the capability they just navigated away
                                from. The observer still owns scrolling. */
                             onClick={() => setActive(i)}
-                            className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-semibold transition-all duration-300 ${
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-all duration-300 ${
                               on
                                 ? "border-transparent bg-primary text-primary-foreground shadow-sm shadow-primary/25"
                                 : "border-border bg-background text-muted-foreground hover:border-accent/40 hover:text-foreground"

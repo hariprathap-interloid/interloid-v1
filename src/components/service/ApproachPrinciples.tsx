@@ -47,7 +47,7 @@ export default function ApproachPrinciples() {
           eyebrow="How we work"
           icon="repeat"
           accent="that survives the second month."
-          lead="Method, not ceremony. These five hold whether we are building your product or sitting inside your team — the last line of each says what it means for you."
+          lead="Method, not ceremony. These five hold whether we are building your product or sitting inside your team; the last line of each says what it means for you."
           className="max-w-3xl"
         >
           The way of working

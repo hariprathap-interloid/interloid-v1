@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
      shared parent of this app and the folder its node_modules points into. */
   turbopack: { root: path.resolve(__dirname, "..") },
 
+  /* /careers/apply posts a CV of up to 5 MB (content/apply.ts). Server
+     Actions cap a request body at 1 MB by default, which would reject most
+     CVs before the action runs; 6 MB leaves room for the other fields and
+     the multipart overhead. */
+  experimental: {
+    serverActions: { bodySizeLimit: "6mb" },
+  },
+
   /* /content → /contact, 2026-09-11. The enquiry page was first built at
      /content — a slip for "contact" in the original brief — and renamed to
      what the menu calls it. These keep any link or bookmark to the old

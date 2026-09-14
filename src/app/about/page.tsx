@@ -11,7 +11,7 @@ import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 
 export const metadata: Metadata = {
-  title: "About — a small engineering firm in Tamil Nadu | Interloid",
+  title: "About: a small engineering firm in Tamil Nadu | Interloid",
   description:
     "Interloid Technologies Private Limited is a product-engineering company in Gobichettipalayam, Tamil Nadu. No bench, no account managers, no juniors on your project, and no lock-in of any kind.",
 };

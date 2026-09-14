@@ -6,9 +6,9 @@ import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 
 export const metadata: Metadata = {
-  title: "Contact us — tell us your story | Interloid",
+  title: "Contact us: tell us your story | Interloid",
   description:
-    "Skip the form. Tell us about your project in your own words — three blanks if you're in a rush, the full story if you have a few minutes — and watch it become a letter as you type. An engineer reads every word. A free 30-minute call, then a written scope and price within 48 hours.",
+    "Skip the form. Tell us about your project in your own words: three blanks if you're in a rush, the full story if you have a few minutes, and watch it become a letter as you type. An engineer reads every word. A free 30-minute call, then a written scope and price within 48 hours.",
 };
 
 /* ==========================================================================

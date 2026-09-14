@@ -102,7 +102,7 @@ export default function Roles() {
                 style={{ "--delay": `${i * 80}ms` } as React.CSSProperties}
                 className="h-full"
               >
-                <article className="group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card p-8 shadow-sm transition-[border-color,box-shadow] duration-300 ease-out hover:border-accent/40 hover:shadow-lg">
+                <article className="group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card p-6 shadow-sm sm:p-8 transition-[border-color,box-shadow] duration-300 ease-out hover:border-accent/40 hover:shadow-lg">
                   {/* SIGNATURE — the role's own hue floods the card. Bigger
                       and softer than a corner accent so it reads as the card
                       warming up rather than as a light in the corner, and it is
@@ -133,7 +133,7 @@ export default function Roles() {
                         className="flex gap-2.5 text-[14px] leading-[1.6] text-muted-foreground"
                       >
                         <span className="mt-0.5 shrink-0 text-accent-strong">
-                          <Icon name="check" className="size-4" />
+                          <Icon name="check-circle" className="size-4" />
                         </span>
                         {l}
                       </li>
@@ -143,7 +143,10 @@ export default function Roles() {
                   {/* mt-auto pins this row to the bottom of every card, so the
                       marks line up across a row whose summaries differ in
                       length. Without it the grid reads as ragged. */}
-                  <div className="relative mt-auto flex items-center justify-between gap-4 border-t border-hairline pt-6">
+                  {/* flex-wrap: four marks plus Apply need ~276px, and a
+                      360px phone leaves the card ~264px, so Apply drops to its
+                      own line there instead of pushing the card off-screen. */}
+                  <div className="relative mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-6">
                     <ul className="flex items-center gap-2">
                       {r.tech.map((t) => (
                         /* TechLogo IS the plate — it renders its own
@@ -164,9 +167,10 @@ export default function Roles() {
                       ))}
                     </ul>
                     <a
-                      href={`mailto:hello@interloid.com?subject=${encodeURIComponent(
-                        `Application — ${r.title}`,
-                      )}`}
+                      /* The application page, with this role preselected
+                         (2026-09-14). It was a mailto:, which fails silently
+                         with no mail client and carried no CV. */
+                      href={`/careers/apply?role=${r.id}`}
                       /* No arrow slide. `group-hover:translate-x-1` is the
                          same hover-geometry rule one level down, and with the
                          cards' lift gone it was the only thing still moving on
@@ -191,23 +195,25 @@ export default function Roles() {
         <p
           data-reveal
           style={{ "--delay": "360ms" } as React.CSSProperties}
-          className="mt-8 flex flex-wrap items-center gap-2 rounded-[1.25rem] border border-dashed border-border px-6 py-5 text-[15px] leading-[1.7] text-muted-foreground"
+          className="mt-8 flex items-start gap-3 rounded-[1.25rem] border border-dashed border-border px-6 py-5 text-[15px] leading-[1.7] text-muted-foreground"
         >
-          <span className="text-accent-strong">
+          <span className="mt-1.25 shrink-0 text-accent-strong">
             <Icon name="clock" className="size-4" />
           </span>
-          Hiring experienced or senior engineers is closed at the moment. When
-          it reopens it will be posted here first —{" "}
-          <a
-            href="mailto:hello@interloid.com?subject=Tell%20me%20when%20senior%20roles%20open"
-            className="font-semibold text-primary underline underline-offset-4"
-          >
-            {/* The full stop lives INSIDE the anchor's line, not on its own.
-                JSX turns a newline between `</a>` and `.` into a space, which
-                renders as "tell you when ." — visible at any size. */}
-            ask us to tell you when
-          </a>
-          {"."}
+          {/* ONE flex item for the whole sentence. As loose children of the
+              flex row, the link and its full stop were separate items, and
+              the row's gap rendered as "tell you when ." */}
+          <span>
+            Hiring experienced or senior engineers is closed at the moment.
+            When it reopens it will be posted here first;{" "}
+            <a
+              href="mailto:hello@interloid.com?subject=Tell%20me%20when%20senior%20roles%20open"
+              className="font-semibold text-primary underline underline-offset-4"
+            >
+              ask us to tell you when
+            </a>
+            .
+          </span>
         </p>
       </div>
     </section>

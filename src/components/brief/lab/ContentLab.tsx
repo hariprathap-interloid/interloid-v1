@@ -35,11 +35,11 @@ function Notes<T extends string>({ title, o }: { title: string; o: LabOption<T> 
       <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{title}</p>
       <h2 className="font-display text-xl font-bold tracking-[-0.02em] text-foreground">{o.name}</h2>
       <p className="text-[15px] leading-[1.7] text-muted-strong">
-        <span className="font-semibold text-foreground">Good at — </span>
+        <span className="font-semibold text-foreground">Good at: </span>
         {o.best}
       </p>
       <p className="text-[15px] leading-[1.7] text-muted-foreground">
-        <span className="font-semibold text-foreground">Costs — </span>
+        <span className="font-semibold text-foreground">Costs: </span>
         {o.cost}
       </p>
     </div>
@@ -137,7 +137,7 @@ export default function ContentLab({
             />
           </div>
           <p className="max-w-md text-center text-sm text-muted-foreground">
-            The real page at 390px — scroll, type, tap and send inside it.{" "}
+            The real page at 390px: scroll, type, tap and send inside it.{" "}
             <a href={src} target="_blank" rel="noopener" className="font-medium text-primary">
               Open it on its own ↗
             </a>

@@ -97,9 +97,10 @@ export default function ServiceHero() {
             >
               <Link
                 href={detail.ctaHref}
-                className="group inline-flex h-14 items-center gap-2 rounded-full bg-primary px-8 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
+                className="group inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 text-[15px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 sm:h-14 sm:px-8 sm:text-[17px]"
               >
-                {detail.cta}
+                <span className="sm:hidden">{detail.ctaShort}</span>
+                <span className="hidden sm:inline">{detail.cta}</span>
                 <span className="transition-transform group-hover:translate-x-1">
                   <Icon name="arrow" className="size-5" />
                 </span>
@@ -110,7 +111,7 @@ export default function ServiceHero() {
                   handles better itself. */}
               <a
                 href={detail.secondary.href}
-                className="inline-flex h-14 items-center gap-2 rounded-full border border-border bg-card px-8 text-[17px] font-semibold text-foreground shadow-sm transition-all hover:border-accent/40 hover:shadow-md active:scale-95"
+                className="inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-6 text-[15px] font-semibold sm:h-14 sm:px-8 sm:text-[17px] text-foreground shadow-sm transition-all hover:border-accent/40 hover:shadow-md active:scale-95"
               >
                 <Icon
                   name={detail.secondary.icon}
@@ -171,9 +172,9 @@ export default function ServiceHero() {
               </div>
               <p className="mt-3 flex items-start gap-2 text-[13px] leading-[1.6] text-muted-foreground">
                 <span className="mt-0.5 shrink-0 text-accent-strong">
-                  <Icon name="check" className="size-4" />
+                  <Icon name="check-circle" className="size-4" />
                 </span>
-                In writing within 48 hours of the first call — and an honest no
+                In writing within 48 hours of the first call, and an honest no
                 if the scope and the budget don&rsquo;t meet.
               </p>
             </div>

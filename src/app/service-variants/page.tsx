@@ -7,7 +7,7 @@ import Nav from "@/components/Nav";
 import Reveal from "@/components/Reveal";
 
 export const metadata: Metadata = {
-  title: "Ecosystem designs — pick one | Interloid",
+  title: "Ecosystem designs: pick one | Interloid",
   robots: { index: false, follow: false },
 };
 
@@ -39,16 +39,16 @@ const DESIGNS: EcosystemDesign[] = [
   {
     layout: "constellation",
     name: "Connected constellation",
-    best: "Every level is a node and every node is joined to its parent by a drawn edge, so the hierarchy is legible without reading a word — which is the whole job of this section. It is also the only layout that carries the travelling flow at all three depths.",
+    best: "Every level is a node and every node is joined to its parent by a drawn edge, so the hierarchy is legible without reading a word, which is the whole job of this section. It is also the only layout that carries the travelling flow at all three depths.",
     cost: "One service at a time. A visitor who wants to compare two stacks has to open each in turn.",
   },
   {
     layout: "branch",
     name: "Branch tree",
-    best: "Ships on /services today. The only layout that shows every technology's NAME without a hover, and the only one whose nodes do not move when a selection is made — so nothing can slide under a resting pointer.",
+    best: "Ships on /services today. The only layout that shows every technology's NAME without a hover, and the only one whose nodes do not move when a selection is made, so nothing can slide under a resting pointer.",
     cost: "Half diagram, half panel. The wheel stops being the whole story and becomes a picker, which gives up the ecosystem feeling the reference has.",
     caveat:
-      "It has no level-2 or level-3 edges — its subtree is a list — so there is nothing for the beads to travel along. Turn the flow on here and all it can do is decorate the six short core spokes, which is why it would ship with flow={false}.",
+      "It has no level-2 or level-3 edges: its subtree is a list, so there is nothing for the beads to travel along. Turn the flow on here and all it can do is decorate the six short core spokes, which is why it would ship with flow={false}.",
   },
   {
     layout: "tree",
@@ -59,7 +59,7 @@ const DESIGNS: EcosystemDesign[] = [
   {
     layout: "dendrogram",
     name: "Great circle",
-    best: "The whole hierarchy at once, with each wedge sized by how many technologies that service really has — so the picture is honest about where the depth is.",
+    best: "The whole hierarchy at once, with each wedge sized by how many technologies that service really has, so the picture is honest about where the depth is.",
     cost: "The densest of them all. It needs its full height, and on a small laptop it is the first to feel cramped.",
   },
   {
@@ -83,10 +83,10 @@ const DESIGNS: EcosystemDesign[] = [
   {
     layout: "shells",
     name: "Orbit shells",
-    best: "Every branch opens into the SAME sector, pointing right, so the reader learns one shape and re-uses it six times. The wheel turning is also the clearest possible signal that a selection happened — nothing else on the page moves that much.",
+    best: "Every branch opens into the SAME sector, pointing right, so the reader learns one shape and re-uses it six times. The wheel turning is also the clearest possible signal that a selection happened; nothing else on the page moves that much.",
     cost: "Every selection moves all six services, which is a great deal of travel for one hover.",
     caveat:
-      "Measured, repeatedly: because the wheel re-balances, a node genuinely slides under a resting pointer and fires a hover the guard cannot tell from a real one — the pointer has not moved, so no position test can separate the two. Two of six services fail on any harness run and which two changes between runs. It is excluded from the default harness set for this reason.",
+      "Measured, repeatedly: because the wheel re-balances, a node genuinely slides under a resting pointer and fires a hover the guard cannot tell from a real one; the pointer has not moved, so no position test can separate the two. Two of six services fail on any harness run and which two changes between runs. It is excluded from the default harness set for this reason.",
   },
 ];
 
@@ -98,7 +98,7 @@ export default function ServiceVariants() {
       <main id="main" className="pt-32">
         <header className="shell pb-12">
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent-strong">
-            Internal — not linked, not indexed
+            Internal: not linked, not indexed
           </p>
           <h1 className="mt-3 max-w-4xl font-display text-[clamp(2.2rem,4vw,3.2rem)] font-bold leading-[1.08] tracking-[-0.03em] text-foreground">
             Eight designs for the ecosystem map. Pick one.

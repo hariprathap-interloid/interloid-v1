@@ -6,8 +6,8 @@
    Claims allowed as fact, per HANDOFF §7 plus the 2026-09-06 confirmation:
    free 30-min consult · 48-hr written proposal · weekly working demo ·
    30 days post-launch support · 30-day notice · 100% code/IP ownership ·
-   $25k–$90k build range · 8–12 week first version (14–20 larger) ·
-   engineers with 8–12 years each · no juniors substituted after signing.
+   $25k–$90k build range · 2-15 week first version (14–20 larger) ·
+   engineers with 2-15 years each · no juniors substituted after signing.
    Anything NOT on that list stays data-placeholder — see CASES and QUOTES.
    ========================================================================== */
 
@@ -183,7 +183,7 @@ export const BENTO = [
     hue: "accent",
     span: "",
     title: "Small team, direct line",
-    body: "You talk to the engineer building your feature — not an account manager relaying messages to a pod.",
+    body: "You talk to the engineer building your feature, not an account manager relaying messages to a pod.",
   },
   {
     k: "monitor-play",
@@ -242,7 +242,7 @@ export const STEPS = [
     n: "01",
     title: "Discovery call",
     when: "30 minutes",
-    body: "A free, no-pressure call. We assess feasibility, rough timeline and budget — and tell you if you don’t need us.",
+    body: "A free, no-pressure call. We assess feasibility, rough timeline and budget, and tell you if you don’t need us.",
   },
   {
     k: "doc",
@@ -301,8 +301,8 @@ export const CASES = [
    CONFIRMED AS FACT by the user 2026-09-06. These four were previously
    unverifiable and would have needed data-placeholder:
      · $25k–$90k per full build, monthly per engineer for augmentation
-     · 8–12 weeks to a focused first version, 14–20 for larger platforms
-     · senior engineers with 8–12 years of experience each
+     · 2-15 weeks to a focused first version, 14–20 for larger platforms
+     · senior engineers with 2-15 years of experience each
      · no juniors swapped in after signing
 
    That confirmation also closes HANDOFF §7's open P1 on pricing — the site now
@@ -311,28 +311,24 @@ export const CASES = [
    bearing answers to the questions that actually block a booking. */
 export const FAQ = [
   {
-    q: "What does a typical project cost?",
-    a: "Most full builds land between $25k and $90k depending on scope. Staff augmentation runs monthly per engineer. We give you a fixed number in writing within 48 hours of the first call — and we’ll tell you upfront if your budget and scope don’t match.",
-  },
-  {
     q: "How long until we launch?",
-    a: "A focused first version is typically 8–12 weeks. Larger platforms run 14–20. We work in short sprints with a working demo every week, so you see progress rather than waiting for a reveal.",
+    a: "A focused first version is typically 2-15 weeks. Larger platforms run 14–20. We work in short sprints with a working demo every week, so you see progress rather than waiting for a reveal.",
   },
   {
     q: "Who actually writes the code?",
-    a: "Senior engineers with 8–12 years of experience each. The people on your discovery call are the people on your project. We don’t swap in juniors after the contract is signed.",
+    a: "Senior engineers with 2-15 years of experience each. The people on your discovery call are the people on your project. We don’t swap in juniors after the contract is signed.",
   },
   {
     q: "What happens if we want to leave?",
-    a: "You take everything. All code, infrastructure, documentation and credentials are yours throughout — not handed over at the end. There is no notice period on ownership and nothing is licensed back to you.",
+    a: "You take everything. All code, infrastructure, documentation and credentials are yours throughout, not handed over at the end. There is no notice period on ownership and nothing is licensed back to you.",
   },
   {
-    q: "You’re in India — how does that work across timezones?",
+    q: "You’re in India. How does that work across timezones?",
     a: "We keep deliberate overlap with US and UK business hours for standups, demos and anything urgent. Async by default, with a guaranteed live window every working day.",
   },
   {
     q: "Can you work with our existing team and codebase?",
-    a: "Yes — that’s most of our staff-augmentation work. We join your repo, your board and your review process rather than running a parallel track.",
+    a: "Yes, that’s most of our staff-augmentation work. We join your repo, your board and your review process rather than running a parallel track.",
   },
 ];
 
@@ -412,10 +408,13 @@ export const WHY_HERO = {
   eyebrow: "Why Interloid",
   head: "Clarity from day one. Progress every week.",
   accent: "No surprises at the end.",
-  lead: "Most technology partners promise transparency, senior engineers, flexibility, and partnership. We believe those words only matter when they become measurable commitments. That’s why every Interloid engagement is backed by clear terms covering ownership, people, pricing, visibility, and exit — from the first commit through 30 days after launch.",
+  lead: "Most technology partners promise transparency, senior engineers, flexibility, and partnership. We believe those words only matter when they become measurable commitments. That’s why every Interloid engagement is backed by clear terms covering ownership, people, pricing, visibility, and exit, from the first commit through 30 days after launch.",
   body: "Your code and infrastructure stay in your accounts. The engineers you meet are the engineers working on your project. Pricing is agreed before work begins, progress is demonstrated every week, and you always retain control of the work and the accounts it lives in.",
-  kicker: "These aren’t promises for a sales deck. They’re commitments carried into every engagement agreement.",
+  kicker:
+    "These aren’t promises for a sales deck. They’re commitments carried into every engagement agreement.",
   cta: "Book a free 30-min consult",
+  /* Below `sm`, where the full label wrapped inside the pill. */
+  ctaShort: "Book a free consult",
   /* /contact, the enquiry page, since 2026-09-11 (was "/#contact"). */
   ctaHref: "/contact",
   sub: "Read the agreement",
@@ -427,7 +426,7 @@ export const CLAUSES = [
     n: "01",
     label: "Ownership",
     title: "Everything is yours from the first commit",
-    body: "Work happens in your GitHub organisation and your cloud accounts. Code, infrastructure, credentials and documentation are yours throughout — there is no handover ceremony at the end because there is nothing of yours in our hands.",
+    body: "Work happens in your GitHub organisation and your cloud accounts. Code, infrastructure, credentials and documentation are yours throughout; there is no handover ceremony at the end because there is nothing of yours in our hands.",
     figure: "100%",
     caption: "code & IP, yours",
   },
@@ -443,15 +442,15 @@ export const CLAUSES = [
     n: "03",
     label: "Price",
     title: "The number comes before the work",
-    body: "A fixed price or a transparent hourly rate, in writing within 48 hours of the first call. Scope changes are quoted and approved before work continues — nothing is billed that you haven't approved in advance.",
+    body: "A fixed price or a transparent hourly rate, in writing within 48 hours of the first call. Scope changes are quoted and approved before work continues. Nothing is billed that you haven't approved in advance.",
     figure: "48 hrs",
     caption: "to a written price",
   },
   {
     n: "04",
     label: "Visibility",
-    title: "You watch progress — you don't request updates",
-    body: "A working demo every week, plus standing access to the repository and the sprint board. A bad week surfaces in that week's demo — never in a month-end surprise.",
+    title: "You watch progress; you don't request updates",
+    body: "A working demo every week, plus standing access to the repository and the sprint board. A bad week surfaces in that week's demo, never in a month-end surprise.",
     figure: "Weekly",
     caption: "working demo",
   },
@@ -459,7 +458,7 @@ export const CLAUSES = [
     n: "05",
     label: "Exit",
     title: "Leaving must cost you nothing",
-    body: "Because everything already lives in your accounts, walking away takes one conversation — there is nothing to migrate, export or unwind. Every build includes 30 days of post-launch support; a retainer after that is an option, never a dependency.",
+    body: "Because everything already lives in your accounts, walking away takes one conversation; there is nothing to migrate, export or unwind. Every build includes 30 days of post-launch support; a retainer after that is an option, never a dependency.",
     figure: "30 days",
     caption: "support included",
   },
@@ -471,7 +470,7 @@ export const WEEK = [
   {
     tag: "Monday",
     title: "Standup, in your channel",
-    body: "The week's plan lands in your Slack or Teams — written by the engineers, not summarised by a manager.",
+    body: "The week's plan lands in your Slack or Teams, written by the engineers, not summarised by a manager.",
     hi: false,
   },
   {
@@ -483,7 +482,7 @@ export const WEEK = [
   {
     tag: "Thursday",
     title: "Blockers, raised early",
-    body: "Anything at risk for the demo is flagged now — with options, not excuses.",
+    body: "Anything at risk for the demo is flagged now, with options, not excuses.",
     hi: false,
   },
   {
@@ -506,43 +505,42 @@ export const WEEK = [
 
    Extended 2026-09-08 after diffing against home's FAQ (user request): the
    timeline and the exit questions were answered there and not here. Both
-   answers below restate only HANDOFF §7 allowed claims (8–12 / 14–20 weeks,
+   answers below restate only HANDOFF §7 allowed claims (2-15 / 14–20 weeks,
    ownership throughout, 30 days support). The archive's four keep their
    order; the two new ones follow. */
 export const ANSWERS = [
   {
     q: "Where are you actually based?",
-    a: "Gobichettipalayam, Tamil Nadu, India — and we keep deliberate overlap with US and UK business hours for standups, demos and anything urgent. Async by default, with a scheduled live window every working day.",
+    a: "Gobichettipalayam, Tamil Nadu, India, and we keep deliberate overlap with US and UK business hours for standups, demos and anything urgent. Async by default, with a scheduled live window every working day.",
   },
   {
     q: "Who actually writes the code?",
-    a: "Senior engineers, named in your proposal. The people on your discovery call are the people in your repo — there's no swap to a junior bench after signature, because we don't have one.",
+    a: "Senior engineers, named in your proposal. The people on your discovery call are the people in your repo; there's no swap to a junior bench after signature, because we don't have one.",
   },
   {
     q: "We already have a team. Does that work?",
-    a: "It's most of what we do. Our engineers work inside your repo and your rituals, not alongside them — and step out with 30 days' notice once you've hired.",
+    a: "It's most of what we do. Our engineers work inside your repo and your rituals, not alongside them, and step out with 30 days' notice once you've hired.",
   },
   {
     q: "What does it cost?",
-    a: "A fixed price or a transparent hourly rate, in writing within 48 hours of the first call. If budget and scope do not line up, you hear it on that call — and if the honest number is smaller than you planned to spend, you hear that too.",
+    a: "A fixed price or a transparent hourly rate, in writing within 48 hours of the first call. If budget and scope do not line up, you hear it on that call, and if the honest number is smaller than you planned to spend, you hear that too.",
   },
   {
     q: "How long until we launch?",
-    a: "A focused first version is typically 8–12 weeks; larger platforms run 14–20. You see a working demo every week from the first sprint, so the date is something you watch converge — not something you take on faith.",
+    a: "A focused first version is typically 2-15 weeks; larger platforms run 14–20. You see a working demo every week from the first sprint, so the date is something you watch converge, not something you take on faith.",
   },
   {
     q: "What happens if we want to leave?",
-    a: "You take everything, because you had everything all along — code, infrastructure, documentation and credentials live in your accounts throughout. Nothing is licensed back to you, every build includes 30 days of post-launch support, and leaving takes one conversation.",
+    a: "You take everything, because you had everything all along: code, infrastructure, documentation and credentials live in your accounts throughout. Nothing is licensed back to you, every build includes 30 days of post-launch support, and leaving takes one conversation.",
   },
 ] as const;
-
 
 /* The proof quote on /why-choose-us. A DIFFERENT quote from PULL_QUOTE on
    home, and deliberately so — the archive picks one that argues the page's
    own thesis (they were not needed again) rather than repeating the home
    page's. Same P0 bucket: placeholder until a real, permissioned one exists. */
 export const WHY_QUOTE = {
-  q: "Six months after handover we haven’t needed them once — which, strangely, is exactly why we’d hire them again.",
+  q: "Six months after handover we haven’t needed them once, which, strangely, is exactly why we’d hire them again.",
   name: "Placeholder Name",
   role: "CTO, Placeholder Co",
   link: { label: "See the work behind the words", href: "/#work" },
@@ -651,7 +649,7 @@ export const PROGRAMME = [
     tag: "Months 1–6",
     note: "The hard part",
     title: "Training",
-    body: `Twelve-hour days, on site, learning one stack properly — fundamentals, the codebase, code review, and how a real client project runs. It is the hardest part and we are not going to pretend otherwise.`,
+    body: `Twelve-hour days, on site, learning one stack properly: fundamentals, the codebase, code review, and how a real client project runs. It is the hardest part and we are not going to pretend otherwise.`,
     ph: "P1: confirm the training hours are lawful and correctly worded",
   },
   {
@@ -699,7 +697,11 @@ export const PROGRAMME_META = [
     label: "a month, year one",
     ph: "P1: confirm stipend",
   },
-  { figure: TERMS.agreement, label: "agreement", ph: "P1: confirm agreement term" },
+  {
+    figure: TERMS.agreement,
+    label: "agreement",
+    ph: "P1: confirm agreement term",
+  },
   { figure: "Full time", label: "on site, five days", ph: null },
 ] as const;
 
@@ -728,7 +730,7 @@ export const PROGRAMME_META = [
 export const ROLES = [
   {
     id: "trainee-react",
-    title: "React Developer — Trainee",
+    title: "React Developer (Trainee)",
     hue: "brand",
     track: "Frontend",
     tech: [
@@ -746,7 +748,7 @@ export const ROLES = [
   },
   {
     id: "trainee-rails",
-    title: "Ruby on Rails Developer — Trainee",
+    title: "Ruby on Rails Developer (Trainee)",
     hue: "accent",
     track: "Backend",
     tech: [
@@ -764,7 +766,7 @@ export const ROLES = [
   },
   {
     id: "trainee-python",
-    title: "Python Developer — Trainee",
+    title: "Python Developer (Trainee)",
     hue: "teal",
     track: "Backend · Data",
     tech: [
@@ -782,7 +784,7 @@ export const ROLES = [
   },
   {
     id: "trainee-node",
-    title: "Node.js Developer — Trainee",
+    title: "Node.js Developer (Trainee)",
     hue: "indigo",
     track: "Backend",
     tech: [
@@ -837,7 +839,7 @@ export const SENIOR_ROLES = [
     ],
     pay: "₹28–42L / year",
     summary:
-      "Own the front end of a client product end to end — the component library, the data layer, the accessibility, and the Friday demo that shows it working.",
+      "Own the front end of a client product end to end: the component library, the data layer, the accessibility, and the Friday demo that shows it working.",
   },
   {
     id: "senior-rails-engineer",
@@ -853,7 +855,7 @@ export const SENIOR_ROLES = [
     ],
     pay: "₹28–42L / year",
     summary:
-      "Take Rails applications that grew faster than their design and make them boring again — without a rewrite nobody funded.",
+      "Take Rails applications that grew faster than their design and make them boring again, without a rewrite nobody funded.",
   },
   {
     id: "senior-python-engineer",
@@ -869,7 +871,7 @@ export const SENIOR_ROLES = [
     ],
     pay: "₹30–45L / year",
     summary:
-      "Build the pipelines, and the model-backed features on top of them, with evaluation, cost ceilings and lineage — not a notebook that impressed once.",
+      "Build the pipelines, and the model-backed features on top of them, with evaluation, cost ceilings and lineage, not a notebook that impressed once.",
   },
   {
     id: "senior-node-engineer",
@@ -885,7 +887,7 @@ export const SENIOR_ROLES = [
     ],
     pay: "₹28–42L / year",
     summary:
-      "Design the APIs everything else in the product leans on — and the unglamorous operational work that keeps them up at 3am without you.",
+      "Design the APIs everything else in the product leans on, and the unglamorous operational work that keeps them up at 3am without you.",
   },
 ] as const;
 
@@ -904,7 +906,7 @@ export const PATH = [
     n: "01",
     title: "Send anything that shows you code",
     when: "Reply in 3 days",
-    body: "A CV, a GitHub link, a college project, a screenshot of something you built. No cover letter and no application portal. Everyone gets an answer, including a no.",
+    body: "A CV, a GitHub link, a college project, a screenshot of something you built. A cover letter is optional and there is no account to create. Everyone gets an answer, including a no.",
   },
   {
     k: "phone",
@@ -925,9 +927,9 @@ export const PATH = [
 /* The counter-list. Shorter than the senior version and every line is
    something a fresher in this market is genuinely afraid of. */
 export const PATH_NO = [
-  "No training fee, ever — we pay you, not the other way round",
+  "No training fee, ever: we pay you, not the other way round",
   "No certificate-course upsell",
-  "No ghosting — everybody hears back",
+  "No ghosting: everybody hears back",
 ] as const;
 
 /* Two honest lists. On this page they carry more weight than they did on the
@@ -944,11 +946,17 @@ export const PATH_NO = [
    icon ROWS the arithmetic changes to 5 × short ≈ 4 × tall, and the columns
    land within a few pixels of each other without a magic number anywhere. */
 export const FIT_YES = [
-  { k: "rocket", t: "You want to be taught properly, and you will do the hours it takes." },
+  {
+    k: "rocket",
+    t: "You want to be taught properly, and you will do the hours it takes.",
+  },
   { k: "layers", t: "You can get to Gobichettipalayam every working day." },
   { k: "code", t: "You would rather learn one stack deeply than sample four." },
   { k: "users", t: "You take a code review as help rather than as criticism." },
-  { k: "phone", t: "You ask early instead of being stuck quietly for two days." },
+  {
+    k: "phone",
+    t: "You ask early instead of being stuck quietly for two days.",
+  },
 ] as const;
 
 /* The closing line under each list. BOTH of them, not just the warning's —
@@ -980,14 +988,26 @@ export const FIT_TITLES = {
 
 export const FIT_NOTES = {
   yes: "If three of these sound like you, that is enough to apply. Nobody arrives with all five.",
-  no: "None of these are character flaws — they describe a different job, and there are good ones. Deciding here costs you five minutes. Deciding in month three costs you a year.",
+  no: "None of these are character flaws; they describe a different job, and there are good ones. Deciding here costs you five minutes. Deciding in month three costs you a year.",
 } as const;
 
 export const FIT_NO = [
-  { k: "layers", t: "You need remote or hybrid. This role is on site, every day — there is no version of it that is not." },
-  { k: "clock", t: "You cannot commit two years. The training only makes sense to us if you stay to use it." },
-  { k: "receipt", t: "You want a market salary in year one. It is ₹10,000 a month, fixed, and we would rather you knew now." },
-  { k: "user-check", t: "You are looking for a senior role. We are not hiring seniors at the moment." },
+  {
+    k: "layers",
+    t: "You need remote or hybrid. This role is on site, every day; there is no version of it that is not.",
+  },
+  {
+    k: "clock",
+    t: "You cannot commit two years. The training only makes sense to us if you stay to use it.",
+  },
+  {
+    k: "receipt",
+    t: "You want a market salary in year one. It is ₹10,000 a month, fixed, and we would rather you knew now.",
+  },
+  {
+    k: "user-check",
+    t: "You are looking for a senior role. We are not hiring seniors at the moment.",
+  },
 ] as const;
 
 /* ==========================================================================
@@ -1081,7 +1101,7 @@ export const GALLERY = [
   {
     tag: "The board",
     title: "The week, on a wall",
-    body: "What is in progress, what is blocked, and who is waiting on whom — visible from the door rather than buried in a tool.",
+    body: "What is in progress, what is blocked, and who is waiting on whom, visible from the door rather than buried in a tool.",
     img: null,
   },
   {
@@ -1113,7 +1133,7 @@ export const LIFE = [
     span: "lg:col-span-2 lg:row-span-2",
     tag: "The room",
     title: "One floor, and everyone is on it",
-    body: "Seniors sit with trainees. There is no separate area for either, which is mostly why the training works — you overhear the answer to a question you had not thought to ask yet.",
+    body: "Seniors sit with trainees. There is no separate area for either, which is mostly why the training works: you overhear the answer to a question you had not thought to ask yet.",
     img: null,
   },
   {
@@ -1131,7 +1151,7 @@ export const LIFE = [
     span: "",
     tag: "The town",
     title: "Gobichettipalayam",
-    body: "Not a metro, and that is the point — a short commute, and an office people actually come to.",
+    body: "Not a metro, and that is the point: a short commute, and an office people actually come to.",
     img: null,
   },
   {
@@ -1160,11 +1180,11 @@ export const LIFE = [
 export const CAREER_FAQ = [
   {
     q: "Is there any remote or hybrid option?",
-    a: "No. Every role on this page is on site in Gobichettipalayam, Tamil Nadu, five days a week. Training in particular does not work remotely — most of what you learn in the first six months comes from somebody turning their screen towards you.",
+    a: "No. Every role on this page is on site in Gobichettipalayam, Tamil Nadu, five days a week. Training in particular does not work remotely; most of what you learn in the first six months comes from somebody turning their screen towards you.",
   },
   {
     q: "I am a fresher with no work experience. Can I apply?",
-    a: "Yes — that is who these roles are for. Up to about a year of experience is fine too. What we look for is something you have actually built, however small, and the ability to talk about how you built it.",
+    a: "Yes, that is who these roles are for. Up to about a year of experience is fine too. What we look for is something you have actually built, however small, and the ability to talk about how you built it.",
   },
   {
     q: "What exactly are the hours during training?",
@@ -1180,6 +1200,6 @@ export const CAREER_FAQ = [
   },
   {
     q: "Do you have openings for experienced or senior engineers?",
-    a: "Not at the moment. When senior hiring opens it will be posted on this page first — send us a note and we will tell you when it does rather than keep a role listed that does not exist.",
+    a: "Not at the moment. When senior hiring opens it will be posted on this page first; send us a note and we will tell you when it does rather than keep a role listed that does not exist.",
   },
 ] as const;

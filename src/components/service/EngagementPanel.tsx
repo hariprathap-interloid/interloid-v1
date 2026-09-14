@@ -102,7 +102,7 @@ export default function EngagementPanel() {
                       className="flex gap-3 text-[15px] leading-[1.7] text-muted-strong"
                     >
                       <span className="mt-0.5 shrink-0 text-accent-strong">
-                        <Icon name="check" className="size-4" />
+                        <Icon name="check-circle" className="size-4" />
                       </span>
                       {t}
                     </li>
@@ -125,7 +125,7 @@ export default function EngagementPanel() {
                   <p className="mt-6 border-t border-hairline pt-6 text-[13px] leading-[1.7] text-muted-foreground">
                     Your number is in writing within 48 hours of the first
                     call. Scope changes are quoted and approved before work
-                    continues — nothing is billed that you have not agreed in
+                    continues. Nothing is billed that you have not agreed in
                     advance.
                   </p>
                 </div>
@@ -133,9 +133,10 @@ export default function EngagementPanel() {
                 <div className="mt-auto flex flex-col gap-3">
                   <Link
                     href={detail.ctaHref}
-                    className="group inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
+                    className="group inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 text-[15px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 sm:h-14 sm:px-8 sm:text-[17px]"
                   >
-                    {detail.cta}
+                    <span className="sm:hidden">{detail.ctaShort}</span>
+                    <span className="hidden sm:inline">{detail.cta}</span>
                     <span className="transition-transform group-hover:translate-x-1">
                       <Icon name="arrow" className="size-5" />
                     </span>

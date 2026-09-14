@@ -54,8 +54,8 @@ const WORKING: Record<StageKind, string> = {
 };
 const DONE: Record<StageKind, string> = {
   mark: "Delivered safely to the Interloid team.",
-  team: "Connected — your story is with the engineers.",
-  blueprint: "Sketched — next comes a written price.",
+  team: "Connected. Your story is with the engineers.",
+  blueprint: "Sketched. Next comes a written price.",
 };
 
 export default function Stage({

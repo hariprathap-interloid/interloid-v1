@@ -3,7 +3,7 @@ import EcosystemTree from "@/components/service/ecosystem/EcosystemTree";
 import Reveal from "@/components/Reveal";
 
 export const metadata: Metadata = {
-  title: "Variant F — tech tree (scratch)",
+  title: "Variant F: tech tree (scratch)",
   robots: { index: false, follow: false },
 };
 

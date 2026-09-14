@@ -60,8 +60,12 @@ export default function CtaAnchor({
   eyebrow = "Let’s start",
   headline = "Still comparing",
   accent = "development partners?",
-  lead = "Book 30 minutes. We’ll tell you honestly whether we’re the right fit — and if we’re not, who is.",
+  lead = "Book 30 minutes. We’ll tell you honestly whether we’re the right fit, and if we’re not, who is.",
   cta = "Book a free 30-min consult",
+  /* Shown below `sm` instead of `cta`: the slab's own gutters leave ~280px
+     for the button on a 360px phone, and the full label wrapped inside the
+     fixed-height pill. */
+  ctaShort = "Book a free consult",
   href = "/contact",
   meta = ["No obligation", "No sales pressure", "Proposal in 48 hours"],
 }: {
@@ -71,6 +75,7 @@ export default function CtaAnchor({
   accent?: string;
   lead?: string;
   cta?: string;
+  ctaShort?: string;
   href?: string;
   meta?: readonly string[];
 } = {}) {
@@ -150,9 +155,10 @@ export default function CtaAnchor({
                 replacing it. */}
             <a
               href={href}
-              className="on-dark group inline-flex h-14 items-center gap-2 rounded-full border border-white/12 bg-ink-cta px-10 text-[17px] font-bold text-white shadow-[0_0_36px_-14px_rgba(40,157,190,.34)] transition-[background-color,box-shadow] duration-300 ease-out hover:bg-ink-cta-hover hover:shadow-[0_0_46px_-14px_rgba(40,157,190,.52)] active:scale-95"
+              className="on-dark group inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-full border border-white/12 bg-ink-cta px-7 text-[15px] font-bold text-white sm:h-14 sm:px-10 sm:text-[17px] shadow-[0_0_36px_-14px_rgba(40,157,190,.34)] transition-[background-color,box-shadow] duration-300 ease-out hover:bg-ink-cta-hover hover:shadow-[0_0_46px_-14px_rgba(40,157,190,.52)] active:scale-95"
             >
-              {cta}
+              <span className="sm:hidden">{ctaShort}</span>
+              <span className="hidden sm:inline">{cta}</span>
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -170,7 +176,7 @@ export default function CtaAnchor({
 
             {/* prototype 1's `.cta__meta` — three objection-removers under
                 the button, where the hesitation actually happens. */}
-            <ul className="mt-10 flex flex-wrap justify-center gap-6">
+            <ul className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-3">
               {meta.map(
                 (m) => (
                   <li
@@ -178,7 +184,7 @@ export default function CtaAnchor({
                     className="flex items-center gap-2 text-[13px] text-ink-muted"
                   >
                     <span className="text-spark" aria-hidden="true">
-                      <Icon name="check" className="size-3.5" />
+                      <Icon name="check-circle" className="size-3.5" />
                     </span>
                     {m}
                   </li>

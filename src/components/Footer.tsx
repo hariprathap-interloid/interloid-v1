@@ -144,8 +144,7 @@ export default function Footer() {
             </Link>
 
             <p className="max-w-sm text-sm leading-relaxed text-ink-foreground/70">
-              Senior product engineering. Defined problems to deployed software
-              — in your accounts, on your repos.
+              Senior product engineering. Defined problems to deployed software, in your accounts, on your repos.
             </p>
 
             {/* The one outbound action in the footer, and it goes to

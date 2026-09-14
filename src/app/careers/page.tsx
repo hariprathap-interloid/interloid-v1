@@ -12,7 +12,7 @@ import Reveal from "@/components/Reveal";
 import Roles from "@/components/Roles";
 
 export const metadata: Metadata = {
-  title: "Careers — trainee developer roles for freshers | Interloid",
+  title: "Careers: trainee developer roles for freshers | Interloid",
   description:
     "Four on-site trainee developer roles in Gobichettipalayam for freshers: React, Ruby on Rails, Python and Node.js. Six months of training, then real client work. Every term on one page.",
 };
@@ -115,12 +115,13 @@ export default function Careers() {
           eyebrow="Still reading?"
           headline="Send us something"
           accent="you have built."
-          lead="A college project, a half-finished app, a script that automates something small. It does not have to be good — it has to be yours, and you have to be able to talk about how you made it."
+          lead="A college project, a half-finished app, a script that automates something small. It does not have to be good. It has to be yours, and you have to be able to talk about how you made it."
           cta="Apply for a trainee role"
-          href="mailto:hello@interloid.com?subject=Trainee%20application"
+          ctaShort="Apply for a role"
+          href="/careers/apply"
           meta={[
             "No application fee, ever",
-            "No portal, no account",
+            "Two minutes, no account",
             "Everybody hears back",
           ]}
         />

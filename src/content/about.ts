@@ -72,7 +72,7 @@ export const ABOUT_FACTS = [
   {
     k: "users",
     label: "Small and senior",
-    body: "Engineers with 8–12 years each",
+    body: "Engineers with 2-15 years each",
     ph: null,
   },
   {
@@ -111,7 +111,7 @@ export const ORIGIN = {
   accent: "reaction to bad experiences.",
   body: [
     "Almost every client who calls us has been through it once already. A fixed price that moved. A team that was senior in the pitch and junior by the second sprint. A codebase they could not read, in an account they did not control, with a vendor who had to be present for anything to be deployed.",
-    "None of that is exotic. It is the normal shape of the industry, and it is profitable — a client who cannot leave is a client who renews. We decided to build the company that is bad at that: everything in your accounts from the first commit, the price in writing before the work, the same engineers throughout, and a working demo every Friday whether or not the week went well.",
+    "None of that is exotic. It is the normal shape of the industry, and it is profitable: a client who cannot leave is a client who renews. We decided to build the company that is bad at that: everything in your accounts from the first commit, the price in writing before the work, the same engineers throughout, and a working demo every Friday whether or not the week went well.",
     "The consequence is that we are small, and we intend to stay small enough that the person you speak to is the person who writes the code. That is not a growth strategy. It is the only way the rest of it stays true.",
   ],
   /* The pull-out beside the narrative. Every figure is on site.ts's allowed
@@ -122,7 +122,7 @@ export const ORIGIN = {
     rows: [
       { label: "Legal entity", value: "Interloid Technologies Private Limited" },
       { label: "Where", value: "Gobichettipalayam, Tamil Nadu, India" },
-      { label: "What", value: "Product engineering — build, and embedded teams" },
+      { label: "What", value: "Product engineering: build, and embedded teams" },
       { label: "Price", value: "In writing within 48 hours of the first call" },
       { label: "Ownership", value: "100% of the code and IP, yours throughout" },
       { label: "Notice", value: "30 days, either direction" },
@@ -160,7 +160,7 @@ export const SHAPE = [
     k: "user-check",
     hue: "light",
     title: "There are no juniors on your project",
-    body: "Engineers here have 8–12 years each, and the people on your discovery call are the people in your repository. That is in the engagement, not just on this page.",
+    body: "Engineers here have 2-15 years each, and the people on your discovery call are the people in your repository. That is in the engagement, not just on this page.",
     ph: null,
   },
   {
@@ -218,7 +218,7 @@ export const PEOPLE = {
     {
       k: "repeat",
       title: "The same people throughout",
-      body: "Any change of personnel goes through you, in writing, before it happens — including ours.",
+      body: "Any change of personnel goes through you, in writing, before it happens, including ours.",
     },
     {
       k: "monitor-play",

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -29,6 +30,13 @@ import {
    rows need, and the scrollspy still reads `l.href` from LINKS rather than
    from the DOM, so nothing below changed with it.
 
+   ACTIVE STATE FOLLOWS THE ROUTE FROM 2026-09-14. It used to come ONLY from
+   the scrollspy, which watches `/#id` fragments — and five of the seven
+   links are pages now, so on /services, /about, /careers, /why-choose-us and
+   /contact nothing was ever marked current. The route decides first
+   (`usePathname`, exact or nested match); the scrollspy only runs on `/`,
+   where it still splits Home from Work. See `activeHref` below.
+
    Every link
    resolves: `/careers` shipped 2026-09-07 and `/about` 2026-09-08, so the
    `data-placeholder` flags this list used to carry are both gone. If a link
@@ -37,18 +45,39 @@ import {
 const LINKS = [
   { href: "/#home", label: "Home" },
   { href: "/services", label: "Services" },
-  /* "Why us", renamed from "Commitments" 2026-09-08. The footer's matching
-     entry was renamed with it — the two lists are kept in step deliberately,
-     see COMPANY_LINKS there. */
   { href: "/why-choose-us", label: "Why us" },
-  { href: "/#work", label: "Work" },
   { href: "/about", label: "About us" },
   { href: "/careers", label: "Careers" },
-  /* The story enquiry, added on request 2026-09-11 — the same page "Let's
-     talk" opens, named as the menu names it. Seven links now: re-measured
-     at `lg:` (1024px) with the rest of this change; see the banner. */
   { href: "/contact", label: "Contact" },
 ] as const;
+
+const HOME_HREF = "/#home";
+
+/* The fragment links other than Home — the only ones the scrollspy watches. */
+const SECTION_LINKS = LINKS.filter(
+  (l) => l.href.startsWith("/#") && l.href !== HOME_HREF,
+);
+
+/* The route decides; the scrollspy only breaks the tie on `/`. A nested
+   match counts (`/services/x` lights Services) so a future sub-page does not
+   silently fall back to nothing lit. Returns null for a route with no link —
+   the labs and previews — rather than guessing one. */
+function activeHref(pathname: string, homeSection: string): string | null {
+  if (pathname === "/") return homeSection;
+  const hit = LINKS.find(
+    (l) =>
+      !l.href.includes("#") &&
+      (pathname === l.href || pathname.startsWith(l.href + "/")),
+  );
+  return hit ? hit.href : null;
+}
+
+/* `page` for a route, `location` for a section inside one — they are
+   different claims to a screen reader, and "Work" is not a page. */
+function ariaCurrent(href: string, active: string | null) {
+  if (href !== active) return undefined;
+  return SECTION_LINKS.some((l) => l.href === href) ? "location" : "page";
+}
 
 /* THEME AS EXTERNAL STATE.
    `.dark` on <html> is not React's to own: the inline script in layout.tsx
@@ -72,18 +101,45 @@ const getTheme = () => document.documentElement.classList.contains("dark");
 const getServerTheme = () => false;
 
 /* The two states of DS §6.1's morph, now expressed INSIDE the shell rather
-   than as page widths of their own. `max-w-none` at rest is what makes the
+   than as page widths of their own. `max-w-full` at rest is what makes the
    bar fill the content column exactly; `max-w-6xl` scrolled is the same
-   1152px pill it has always been, centred by `mx-auto`. */
-const REST = "max-w-none px-0 border-transparent";
+   1152px pill it has always been, centred by `mx-auto`.
+
+   ── WHY THE MORPH USED TO SNAP (fixed 2026-09-14) ───────────────────────
+   It had `transition-all` and still read as one bar being hidden and another
+   appearing, because nearly every property had NO VALUE TO TWEEN FROM:
+     · `max-w-none` → `max-w-6xl`. `none` is not a length; the browser cannot
+       interpolate it and jumps straight to 1152px. `max-w-full` (100%) can.
+     · `rounded-full` is an infinite radius, so 0 → ∞ is "fully round" on the
+       first frame. The radius is now CONSTANT (MORPH below) — at rest the
+       bar is transparent and borderless, so its corners are invisible.
+     · background, shadow and blur existed only in PILL. Each now has an
+       explicit zero in REST of the same shape: `bg-card/0`, `shadow-none`
+       (same composed shadow list as `shadow-lg`, just zeroed), and
+       `blur(0px)` as a literal filter so both ends are a `blur()` function.
+   Every REST class must keep a tweenable counterpart in PILL. Adding a
+   property to only one side brings the snap back. */
+const REST =
+  "max-w-full px-0 py-0 border-transparent bg-card/0 shadow-none [-webkit-backdrop-filter:blur(0px)] [backdrop-filter:blur(0px)]";
 const PILL =
-  "max-w-6xl px-6 py-2 bg-card/80 backdrop-blur-lg shadow-lg border-border rounded-full";
+  "max-w-6xl px-6 py-2 border-border bg-card/80 shadow-lg [-webkit-backdrop-filter:blur(16px)] [backdrop-filter:blur(16px)]";
+
+/* One duration and one curve for the bar AND the <nav>'s own padding, so the
+   height change and the width change land on the same frame. Properties are
+   listed rather than `all`: `all` also animated the text colour of every
+   child link on each theme toggle. The curve is an ease-out — the bar
+   responds immediately to the scroll and settles, where ease-in-out held
+   still for the first ~80ms and then lurched. */
+const EASE = "duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]";
+const MORPH = `rounded-[2.5rem] transition-[max-width,padding,background-color,border-color,box-shadow,backdrop-filter,-webkit-backdrop-filter] ${EASE}`;
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const dark = useSyncExternalStore(subscribeTheme, getTheme, getServerTheme);
-  const [current, setCurrent] = useState<string | null>(null);
+  const pathname = usePathname();
+  /* Which home fragment is being read. Only consulted on `/`. */
+  const [homeSection, setHomeSection] = useState<string>(HOME_HREF);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -93,7 +149,11 @@ export default function Nav() {
      hot reload stacks a fresh listener on every edit (TAILWIND-MAP §4). This
      is a failure mode the static prototype could not have. */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
+    /* Hysteresis: morph at 64px, un-morph only back under 24px. One 50px
+       line flipped the bar on every small wheel tick near the top, so a
+       500ms morph kept being reversed halfway and never finished. */
+    const onScroll = () =>
+      setScrolled((s) => (s ? window.scrollY > 24 : window.scrollY > 64));
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -119,26 +179,33 @@ export default function Nav() {
      a fractional threshold of a shrunken root at 400% zoom, and every section
      here is taller than the strip. */
   useEffect(() => {
-    /* Links are "/#id" now so they work from any page; the scrollspy only
-       cares about the fragment, and only on a page that actually has it. */
-    const targets = LINKS.map((l) =>
-      l.href.includes("#")
-        ? document.querySelector("#" + l.href.split("#")[1])
-        : null,
+    /* Home only. Every other link is a page and the route answers for it.
+       Home itself is not observed: it is the DEFAULT, so the stretch between
+       the hero and #work (Advantage, Process) and everything after it reads
+       as "Home" rather than leaving Work lit on the FAQ. Leaving a section's
+       band hands the mark back to Home, but only if that section still holds
+       it — two adjacent sections can report in either order. */
+    if (pathname !== "/") return;
+    const targets = SECTION_LINKS.map((l) =>
+      document.getElementById(l.href.slice(2)),
     ).filter(Boolean) as Element[];
     if (!targets.length) return;
 
     const spy = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) setCurrent(`/#${e.target.id}`);
+          const href = `/#${e.target.id}`;
+          if (e.isIntersecting) setHomeSection(href);
+          else setHomeSection((prev) => (prev === href ? HOME_HREF : prev));
         });
       },
       { threshold: 0, rootMargin: "-45% 0px -50% 0px" },
     );
     targets.forEach((t) => spy.observe(t));
     return () => spy.disconnect();
-  }, []);
+  }, [pathname]);
+
+  const active = activeHref(pathname, homeSection);
 
   /* ---- mobile menu: outside click, Escape, and breakpoint ---------------- */
   useEffect(() => {
@@ -185,8 +252,11 @@ export default function Nav() {
     /* nowrap + px-3 below `xl:`: with the seventh link ("Contact",
        2026-09-11) the labels at 1024px wrapped — "Why / us", "About / us" —
        inside a pill that still measured clear of the CTA. */
-    `nav-link whitespace-nowrap rounded-full px-3 py-2 text-sm transition-all hover:bg-card hover:text-primary xl:px-4 ${current === href
-      ? "bg-card text-primary font-semibold shadow-sm"
+    `nav-link whitespace-nowrap rounded-full px-3 py-2 text-sm transition-all hover:bg-card hover:text-primary xl:px-4 ${active === href
+      /* Shadow from a token, not `shadow-sm`: the dark value has to be a
+         different COLOUR — see --nav-active-shadow in globals.css. Light
+         mode resolves to exactly `shadow-sm`. */
+      ? "bg-card text-primary font-semibold shadow-(--nav-active-shadow)"
       : "font-medium text-muted-foreground"
     }`;
 
@@ -199,7 +269,7 @@ export default function Nav() {
            starts exactly where the page's first line of text starts. Adding
            one back would offset the header from the page by 16px at every
            width — which is how this was wrong before. */
-        className={`fixed left-0 right-0 top-0 z-50 transition-[padding] duration-300 ease-in-out ${scrolled ? "py-3" : "py-6"
+        className={`fixed left-0 right-0 top-0 z-50 transition-[padding] ${EASE} ${scrolled ? "py-3" : "py-6"
           }`}
       >
         <div className="shell">
@@ -210,7 +280,7 @@ export default function Nav() {
                wrong node. An attribute survives markup changes; a position
                does not. */
             data-navbar
-            className={`relative mx-auto flex w-full items-center justify-between gap-6 border transition-all duration-300 ease-in-out ${scrolled ? PILL : REST
+            className={`relative mx-auto flex w-full items-center justify-between gap-6 border ${MORPH} ${scrolled ? PILL : REST
               }`}
           >
             <Link
@@ -248,7 +318,7 @@ export default function Nav() {
                   key={l.href}
                   href={l.href}
                   className={linkClass(l.href)}
-                  aria-current={current === l.href ? "true" : undefined}
+                  aria-current={ariaCurrent(l.href, active)}
                   {...("placeholder" in l
                     ? { "data-placeholder": l.placeholder }
                     : {})}
@@ -373,20 +443,36 @@ export default function Nav() {
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="rounded-xl px-2 py-3.5 font-display text-lg font-semibold text-foreground transition-colors hover:text-primary"
+              aria-current={ariaCurrent(l.href, active)}
+              /* The menu had no current state at all. Below `lg` it is the
+                 only navigation, so it needs the plainest one: a tinted row
+                 and a gradient bar on the leading edge. */
+              className={`relative flex items-center justify-between rounded-xl px-4 py-3.5 font-display text-lg font-semibold transition-colors ${active === l.href
+                ? "bg-primary/10 text-primary"
+                : "text-foreground hover:bg-muted hover:text-primary"
+                }`}
               {...("placeholder" in l
                 ? { "data-placeholder": l.placeholder }
                 : {})}
             >
+              {active === l.href && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-full bg-linear-to-b from-brand to-accent"
+                />
+              )}
               {l.label}
             </Link>
           ))}
           <Link
             href="/contact"
             onClick={() => setOpen(false)}
-            className="mt-4 inline-flex h-12 items-center justify-center rounded-full bg-primary px-6 text-base font-medium text-primary-foreground shadow-lg shadow-primary/25"
+            className="mt-4 inline-flex h-12 items-center justify-center whitespace-nowrap rounded-full bg-primary px-5 text-[15px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 active:scale-95 sm:px-6 sm:text-base"
           >
-            Book a free 30-min consult
+            {/* The panel leaves ~265px on a phone; the full label wrapped to
+                two lines inside the fixed-height pill. */}
+            <span className="sm:hidden">Book a free consult</span>
+            <span className="hidden sm:inline">Book a free 30-min consult</span>
           </Link>
         </nav>
       </div>

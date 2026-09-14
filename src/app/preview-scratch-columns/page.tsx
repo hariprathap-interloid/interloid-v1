@@ -3,7 +3,7 @@ import EcosystemColumns from "@/components/service/ecosystem/EcosystemColumns";
 import Reveal from "@/components/Reveal";
 
 export const metadata: Metadata = {
-  title: "Variant H · flow columns — scratch",
+  title: "Variant H · flow columns: scratch",
   robots: { index: false, follow: false },
 };
 

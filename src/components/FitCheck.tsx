@@ -147,7 +147,7 @@ export default function FitCheck() {
                   {...(c.key === "no"
                     ? {
                         "data-placeholder":
-                          "P1: these restate the terms — keep in step with TERMS",
+                          "P1: these restate the terms: keep in step with TERMS",
                       }
                     : {})}
                 >

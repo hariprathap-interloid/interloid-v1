@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Icon from "../../Icon";
 import TechLogo from "../TechLogo";
 import type { Capability, Tech } from "@/content/service";
@@ -462,60 +463,135 @@ export function TechNode({
   );
 }
 
-/* ── THE READABLE FALLBACK ────────────────────────────────────────────────
+/* ── THE READABLE FALLBACK ───────────────────────────────────────
    Below `lg` there is no radial map. A 900px wheel does not survive a 390px
    screen by scaling — the labels become unreadable and the technology plates
    collide — so the small screen gets a different composition with the SAME
    information: the six services as a list, each opening onto its groups and
-   marks. This is also what a screen reader gets on every viewport, because
-   it is real DOM in reading order rather than a positioned diagram. */
+   marks.
+
+   ── AN ACCORDION, FROM 2026-09-12 ──────────────────────────────────
+   It was six cards with every group open. Measured on a 390x844 phone that
+   was 4031px tall — 4.8 screens, 19% of the whole /services page — for six
+   service names, twenty group headings and sixty-two marks, with no
+   hierarchy past the service name and nothing to do. Five layouts were built
+   and compared at 390px on /stack-lab; this one won at 1041px, a quarter of
+   the height, and it is the only compact option that still lets a reader see
+   all six service names at once without swiping.
+
+   The mark COUNT in each header is what makes it work closed: a row that
+   says "Backend Development & APIs · 13 technologies" answers the section's
+   question — how much is there — before anything is opened.
+
+   ONE OPEN AT A TIME, and the first one open on load. An accordion where
+   everything is shut reads as an empty section; where everything can be open
+   at once it is the old flat list with extra taps.
+
+   ── WHY THE PANEL IS `invisible` AND NOT JUST ZERO-HEIGHT ──────────────
+   `grid-rows: 0fr` collapses the row but leaves its contents focusable, so a
+   keyboard reader tabs into sixty-two invisible technology chips. `invisible`
+   takes them out of the tab order and the a11y tree together. Same rule as
+   ProblemLedger and Faq (HANDOFF §5.4).
+
+   `grid-rows` 0fr→1fr rather than a max-height, because a max-height needs a
+   magic number that is wrong for every panel — these range from three groups
+   to five.
+
+   This is also what a screen reader gets below `lg`, because it is real DOM
+   in reading order rather than a positioned diagram. Above `lg` the map
+   carries its own tablist and live region (EcosystemConstellation).
+
+   `className` exists so /stack-lab can render THIS component rather than a
+   copy of it. A lab specimen that re-implements what it is testing drifts
+   from it, and then the thing approved is not the thing that ships. */
 export function EcosystemList({
   capabilities,
   idPrefix,
+  className = "lg:hidden",
 }: {
   capabilities: readonly Capability[];
   idPrefix: string;
+  /** Defaults to hiding the list above `lg`, where the map takes over. */
+  className?: string;
 }) {
+  const [open, setOpen] = useState<string | null>(capabilities[0]?.k ?? null);
+
   return (
-    <ul className="flex flex-col gap-4 lg:hidden">
+    <ul className={`flex flex-col gap-3 ${className}`}>
       {capabilities.map((c) => {
         const h = HUE[c.hue];
+        const on = open === c.k;
+        const count = c.stack.reduce((n, g) => n + g.items.length, 0);
         return (
           <li
             key={c.k}
-            className="rounded-[1.25rem] border border-border bg-card p-5 shadow-sm"
+            className="overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-sm"
           >
-            <div className="mb-4 flex items-center gap-3">
-              <span
-                className={`grid size-11 shrink-0 place-items-center rounded-xl text-white shadow-sm ${h.tile}`}
+            <h3>
+              <button
+                type="button"
+                aria-expanded={on}
+                aria-controls={`${idPrefix}-stack-${c.k}`}
+                onClick={() => setOpen(on ? null : c.k)}
+                className="flex w-full items-center gap-3 p-4 text-left"
               >
-                <Icon name={c.icon} className="size-5" />
-              </span>
-              <h3 className="font-display text-[15px] font-bold leading-[1.3] tracking-[-0.015em] text-foreground">
-                {c.name}
-              </h3>
-            </div>
-            <div className="flex flex-col gap-4">
-              {c.stack.map((g) => (
-                <div key={g.group}>
-                  <h4 className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                    {g.group}
-                  </h4>
-                  <ul className="flex flex-wrap items-center gap-2">
-                    {g.items.map((t) => (
-                      <li
-                        key={t.name}
-                        className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3"
-                      >
-                        <TechLogo tech={t} size="sm" />
-                        <span className="text-[12px] font-medium text-muted-strong">
-                          {t.name}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                <span
+                  className={`grid size-10 shrink-0 place-items-center rounded-xl text-white shadow-sm ${h.tile}`}
+                >
+                  <Icon name={c.icon} className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-display text-[15px] font-bold leading-[1.3] tracking-[-0.015em] text-foreground">
+                    {c.name}
+                  </span>
+                  <span className="block text-[11px] font-semibold text-muted-foreground">
+                    {count} technologies
+                  </span>
+                </span>
+                <span
+                  aria-hidden="true"
+                  className={`grid size-8 shrink-0 place-items-center rounded-full border transition-all duration-300 ${
+                    on
+                      ? "rotate-180 border-accent/40 bg-accent/10 text-accent-strong"
+                      : "border-border text-muted-foreground"
+                  }`}
+                >
+                  <Icon name="chevron" className="size-4" />
+                </span>
+              </button>
+            </h3>
+
+            <div
+              id={`${idPrefix}-stack-${c.k}`}
+              role="region"
+              className={`grid transition-all duration-300 ease-[cubic-bezier(.16,1,.3,1)] ${
+                on ? "visible grid-rows-[1fr]" : "invisible grid-rows-[0fr]"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="flex flex-col gap-3 px-4 pb-5">
+                  {c.stack.map((g) => (
+                    <div key={g.group}>
+                      <h4 className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        {g.group}
+                      </h4>
+                      <ul className="flex flex-wrap items-center gap-2">
+                        {g.items.map((t) => (
+                          <li
+                            key={t.name}
+                            className="flex items-center gap-2 rounded-full border border-border bg-background py-1 pl-1 pr-3"
+                          >
+                            <TechLogo tech={t} size="sm" />
+                            <span className="text-[12px] font-medium text-muted-strong">
+                              {t.name}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </li>
         );

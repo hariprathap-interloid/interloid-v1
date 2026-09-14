@@ -82,7 +82,7 @@ export default function Clauses() {
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border bg-secondary px-6 py-6 sm:px-8 md:px-12">
             <h3 className="text-[13px] font-bold uppercase tracking-[0.14em] text-foreground">
-              Working agreement &mdash; summary of terms
+              Working agreement: summary of terms
             </h3>
             <span className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
               Applies to every engagement
@@ -150,7 +150,7 @@ export default function Clauses() {
               <strong className="font-semibold text-foreground">
                 Interloid Technologies Private Limited
               </strong>{" "}
-              &mdash; these clauses are carried into every engagement agreement.
+              carries these clauses into every engagement agreement.
             </span>
             <span>India-based &middot; US &amp; UK overlap hours</span>
           </div>

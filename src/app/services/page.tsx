@@ -13,7 +13,7 @@ import ServiceHero from "@/components/service/ServiceHero";
 import { SERVICE_START } from "@/content/service";
 
 export const metadata: Metadata = {
-  title: "Services — build it with us, or extend your team | Interloid",
+  title: "Services: build it with us, or extend your team | Interloid",
   description:
     "Web and mobile development, backend and APIs, cloud infrastructure and DevOps, AI integration and staff augmentation. Built from scratch in your own accounts, or senior engineers embedded in your team on contract. Written scope and price within 48 hours.",
 };
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
    five of its figures are stated as full sentences in `engagement`
    immediately above it, two of them a third time in `approach` above that,
    and the set is a 1:1 restatement of the five clauses that are the whole of
-   /why-choose-us. Even "8–12 yrs per engineer, no juniors" is already the
+   /why-choose-us. Even " yrs per engineer, no juniors" is already the
    first outcome bullet of the Staff Augmentation capability.
 
    `ServiceTerms.tsx` and `SERVICE_TERMS` are KEPT and merely uncalled, the
@@ -125,7 +125,7 @@ export default function Services() {
           eyebrow="Start here"
           headline="Tell us what's stuck."
           accent="We'll tell you if we can help."
-          lead="Thirty minutes, no obligation. We assess feasibility, rough timeline and budget — and if this doesn't need us, or needs someone else, you hear that on the call."
+          lead="Thirty minutes, no obligation. We assess feasibility, rough timeline and budget, and if this doesn't need us, or needs someone else, you hear that on the call."
           cta="Book a free 30-min consult"
           meta={SERVICE_START}
         />

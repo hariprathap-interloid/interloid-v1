@@ -18,13 +18,35 @@ export const ICONS = {
       <path d="M8 17v-3" />
     </>
   ),
-  cloud: (
-    <>
-      <path d="M12 2v8" />
-      <path d="m16 6-4 4-4-4" />
-      <path d="M8 16H7a4 4 0 0 1 0-8 5 5 0 0 1 9.7-1.7A4.5 4.5 0 0 1 17 16h-1" />
-    </>
-  ),
+  /* CLOUD INFRASTRUCTURE & DEVOPS.
+     Replaced 2026-09-12. What was here was Lucide `cloud-download` — a cloud
+     with an arrow pointing down THROUGH it — which reads as "download", not as
+     infrastructure, and that is the wrong verb for the one capability whose
+     whole claim is that your team OPERATES the thing.
+
+     This is Lucide `cloud`, plain, and the plainness is the finding rather
+     than a shortcut. Four compositions were rendered at 16/20/24/40/96px and
+     compared at the sizes this icon is actually used — the capability index
+     chip and the section tile, both under 24px:
+
+       cloud + gear inside (`cloud-cog`)  gear became a blob and broke the
+                                          cloud's own silhouette
+       cloud + gear as a corner badge     read as two small objects, not one
+       cloud + up arrow                   held well, and "provision up into
+                                          the cloud" is the right verb
+       plain cloud                        legible at every size, unmistakable
+
+   Detail that survives 96px but not 16px is not detail, it is noise, and the
+   five siblings are all single-concept nouns too (code, smartphone, server,
+   sparkle, users) — the label already says DevOps, so the glyph need not.
+   The up-arrow version is the alternative if a verb is ever wanted here:
+   `<path d="M12 13v8"/><path d="m8 17 4-4 4 4"/><path d="M4.4 14.9A5 5 0 0 1
+   7 5.5a6.5 6.5 0 0 1 12 1 4.5 4.5 0 0 1 .6 8.4"/>`.
+
+   A vendor mark from the Desktop icons folder would have been wrong twice
+   over: off-family, and implying one cloud when the stack row directly
+   beneath already shows AWS, Azure and Google Cloud together. */
+  cloud: <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />,
   sparkle: (
     <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
   ),
@@ -49,6 +71,39 @@ export const ICONS = {
     </>
   ),
   check: <path d="M20 6 9 17l-5-5" />,
+  /* THE SITE'S VERIFIED-CLAIM MARK. Chosen from /check-lab on 2026-09-12 over
+     the bare tick, which appeared in eleven components and at that density had
+     stopped reading as "verified" and started reading as texture.
+
+     The two children are CLASSED because globals.css animates them: the ring
+     scales up and the tick strokes on when the row scroll-reveals. Both are
+     inert -- fully drawn, fully opaque -- anywhere outside a [data-reveal]
+     ancestor, so a mark that never reveals is still a mark. `pathLength={1}`
+     normalises the dash maths so the keyframes do not depend on this path's
+     real length; change the `d` freely, the animation still works.
+
+     `check` itself is KEPT and still used where a tick means something other
+     than a verified claim: the selected-mode confirmation in ModeContext and
+     the "What you get" heading glyph in CapabilityShowcase. Neither is a
+     claim, and neither should animate on scroll. */
+  "check-circle": (
+    <>
+      <circle
+        cx="12"
+        cy="12"
+        r="9.25"
+        strokeWidth="1.5"
+        opacity="0.35"
+        className="check-ring"
+      />
+      <path
+        d="m8.25 12.4 2.6 2.6 5-5.4"
+        strokeWidth="2.25"
+        pathLength={1}
+        className="check-tick"
+      />
+    </>
+  ),
   doc: (
     <>
       <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />

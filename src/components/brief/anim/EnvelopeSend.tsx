@@ -89,7 +89,7 @@ export default function EnvelopeSend({ name, children }: { name: string; childre
               <div className="h-1.5 w-4/5 rounded-full bg-[#e2e8f0]" />
               <div className="h-1.5 w-3/5 rounded-full bg-[#e2e8f0]" />
             </div>
-            <p className="mt-4 font-display text-sm text-[#1f5da0]">Thanks — {name || "you"}</p>
+            <p className="mt-4 font-display text-sm text-[#1f5da0]">Thanks, {name || "you"}</p>
           </div>
           {/* the pocket, in front of the letter */}
           <div className="absolute inset-0 rounded-2xl bg-[#a9c6ea] [clip-path:polygon(0_0,50%_52%,100%_0,100%_100%,0_100%)]" />

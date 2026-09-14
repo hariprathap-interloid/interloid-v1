@@ -131,6 +131,18 @@
   --ink-cta-hover: #2666a8; /* a LIGHTER BLUE, not the teal */
 
   --destructive: oklch(0.577 0.245 27.325);
+
+  /* Technology logo plates (TechLogo.tsx). White in light; see .dark. */
+  --logo-plate: oklch(1 0 0);
+
+  /* The nav's current-link lift. In light this is EXACTLY Tailwind v4's
+     `shadow-sm`, so light mode is unchanged. It is a token because the dark
+     value has to be a different COLOUR, not a different size: a black shadow
+     on a #0f172b pill measured as nothing, and the current link's bg-card is
+     the same colour as the pill it sits in, so in dark the shadow was the
+     only mark the link had and it could not be seen. */
+  --nav-active-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 /* DS §1.2 rule 1: "Light-first. There is no dark mode." This block is declared
@@ -186,6 +198,39 @@
   --ink: oklch(0.2084 0.0417 266.36);
   --ink-deep: oklch(0.1298 0.0425 265.13);
   --ink-foreground: oklch(0.8686 0.0216 252.51);
+
+  /* #1e293b — one step ABOVE --card (#0f172b), so a plate still lifts off
+     both the section ground and a card, as the white plate does in light. */
+  --logo-plate: oklch(0.2795 0.0368 260.03);
+
+  /* The primary cyan as light rather than as shade: a 1px hairline for the
+     edge plus a soft glow below. Built from var(--primary), which is the
+     cyan here, so the lift matches the link's own text colour. */
+  --nav-active-shadow: 0 0 0 1px
+      color-mix(in oklab, var(--primary) 30%, transparent),
+    0 4px 16px -4px color-mix(in oklab, var(--primary) 45%, transparent);
+}
+
+/* Near-black logo ink on the dark plate — see TechLogo.tsx's INK_MARKS.
+   Scoped to `.dark` here because that is how this app themes (never the
+   `dark:` utility, which follows the OS rather than the toggle).
+     · logo-mono   — a single-colour mark flattened to pure white.
+     · logo-invert — a black-and-white-only mark with the two swapped. */
+.dark .logo-mono {
+  filter: brightness(0) invert(1);
+}
+.dark .logo-invert {
+  filter: invert(1);
+}
+/* Per-theme FILE swap for multi-colour marks (TechLogo.tsx's ON_DARK). */
+.logo-dark-src {
+  display: none;
+}
+.dark .logo-light-src {
+  display: none;
+}
+.dark .logo-dark-src {
+  display: block;
 }
 
 @keyframes gradient {
@@ -255,6 +300,7 @@
   --color-brand-light: var(--brand-light); /* raw #3a7bc8            */
   --color-accent-strong: var(--accent-strong); /* AA-safe accent on light*/
   --color-hairline: var(--hairline); /* lighter than --border  */
+  --color-logo-plate: var(--logo-plate); /* TechLogo plate         */
 
   /* next/font supplies hashed family names through these CSS variables, set on
      <html> in layout.tsx. Both faces are SELF-HOSTED — Inter via
@@ -999,30 +1045,85 @@ html.dark .hero-rule {
   border-color: rgb(255 255 255 / 0.14);
 }
 
-/* ── /check-lab only: the "ring, tick draws in" specimen ──────────────────
-   Lives here rather than inline because a keyframe cannot be expressed as a
-   style prop. `pathLength: 1` on the <path> normalises the dash maths, so
-   these numbers hold whatever the tick's real geometry is. DELETE THIS BLOCK
-   with the lab if that variant is not the one chosen. */
-.check-draw {
-  animation: check-draw-ring 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+/* ── /stack-lab only: the "marquee rails" specimen ────────────────────
+   -50% and not -100%: each rail renders its marks TWICE, so travelling half
+   the track lands the second copy exactly where the first began and the loop
+   has no seam to hide. DELETE with the lab if that variant does not win. */
+@keyframes stack-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
-.check-draw-path {
+
+/* ── THE VERIFIED-CLAIM MARK ─ Icon `check-circle` ──────────────────────
+   The ring scales up and the tick strokes on as each claim scroll-reveals.
+   Chosen from /check-lab on 2026-09-12.
+
+    THE DEFAULT STATE IS "ALREADY DRAWN", AND THAT IS THE WHOLE SAFETY
+   PROPERTY. The animation is keyed off an ancestor [data-reveal] gaining
+   `is-in`, i.e. off Reveal.tsx's observer. A mark placed outside a reveal
+   node — or inside one the observer never reaches — therefore falls through
+   to a plain, fully painted circle-check rather than to an invisible tick.
+   Never invert these two rules "to save a line": hiding by default means any
+   mark that fails to reveal disappears silently.
+
+   The delay inherits `--delay`, which the reveal vocabulary already sets per
+   element, so lists whose items each carry their own reveal delay stagger for
+   free. `nth-child` adds a small cascade for lists that do not. */
+.check-tick {
   stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: check-draw-tick 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  stroke-dashoffset: 0;
 }
-@keyframes check-draw-ring {
+.check-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+[data-reveal] .check-ring {
+  opacity: 0;
+  transform: scale(0.7);
+}
+[data-reveal] .check-tick {
+  stroke-dashoffset: 1;
+}
+
+[data-reveal].is-in .check-ring,
+.check-armed .check-ring {
+  animation: check-ring-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--delay, 0ms);
+}
+[data-reveal].is-in .check-tick,
+.check-armed .check-tick {
+  animation: check-tick-draw 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--delay, 0ms) + 120ms);
+}
+li:nth-child(2) .check-tick {
+  animation-delay: calc(var(--delay, 0ms) + 180ms);
+}
+li:nth-child(3) .check-tick {
+  animation-delay: calc(var(--delay, 0ms) + 240ms);
+}
+li:nth-child(4) .check-tick {
+  animation-delay: calc(var(--delay, 0ms) + 300ms);
+}
+li:nth-child(n + 5) .check-tick {
+  animation-delay: calc(var(--delay, 0ms) + 360ms);
+}
+
+@keyframes check-ring-in {
   from {
     opacity: 0;
     transform: scale(0.7);
   }
   to {
-    opacity: 1;
+    opacity: 0.35;
     transform: scale(1);
   }
 }
-@keyframes check-draw-tick {
+@keyframes check-tick-draw {
   to {
     stroke-dashoffset: 0;
   }
@@ -1032,13 +1133,22 @@ html.dark .hero-rule {
   html {
     scroll-behavior: auto;
   }
-  /* The drawn tick must still BE a tick when motion is off — the blanket
-     `animation-duration: 0.01ms` below leaves a `both`-filled animation on
-     its start frame otherwise, i.e. an invisible ring and no tick at all. */
-  .check-draw {
+  /* The drawn tick must still BE a tick when motion is off. The blanket
+     `animation-duration: 0.01ms` below would leave these `both`-filled
+     animations parked on their START frame — a transparent ring and an
+     undrawn tick — so they are cancelled outright and the finished state is
+     restated here. Reveal.tsx adds `is-in` to everything immediately under
+     reduced motion, which is what makes this path the one that runs. */
+  [data-reveal] .check-ring,
+  [data-reveal].is-in .check-ring,
+  .check-armed .check-ring {
     animation: none;
+    opacity: 0.35;
+    transform: none;
   }
-  .check-draw-path {
+  [data-reveal] .check-tick,
+  [data-reveal].is-in .check-tick,
+  .check-armed .check-tick {
     animation: none;
     stroke-dashoffset: 0;
   }

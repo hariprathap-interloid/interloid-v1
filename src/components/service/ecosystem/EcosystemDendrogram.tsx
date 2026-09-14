@@ -562,8 +562,8 @@ export default function EcosystemDendrogram({
         <p className="mt-4 text-center text-[13px] leading-[1.6] text-muted-foreground">
           <span className="font-semibold text-foreground">
             {activeService.cap.name}
-          </span>{" "}
-          — {activeService.groups.length} groups, {activeService.marks}{" "}
+          </span>
+          : {activeService.groups.length} groups, {activeService.marks}{" "}
           technologies, {activeService.width.toFixed(0)}° of the circle. Every
           technology owns the same 4.3° of arc, so a wedge is exactly as wide
           as the stack behind it.

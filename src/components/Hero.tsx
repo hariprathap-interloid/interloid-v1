@@ -102,7 +102,7 @@ export default function Hero() {
             build, test, and ship continuously, delivering working software
             every week as a demo and maintaining clarity throughout the process.
             Bugs, product changes, and potential issues are surfaced and
-            addressed as they arise &mdash; not discovered at the end of a
+            addressed as they arise, not discovered at the end of a
             sprint or review cycle.
           </p>
 
@@ -113,9 +113,10 @@ export default function Hero() {
           >
             <a
               href="/contact"
-              className="shine group relative inline-flex h-14 items-center gap-2 overflow-hidden rounded-full bg-primary px-9 text-lg font-medium text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:bg-brand-light hover:shadow-2xl hover:shadow-primary/40 active:scale-95"
+              className="shine group relative inline-flex h-12 items-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-primary px-6 text-[15px] font-medium text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:bg-brand-light hover:shadow-2xl hover:shadow-primary/40 active:scale-95 sm:h-14 sm:px-9 sm:text-lg"
             >
-              Book a free 30-min consult
+              <span className="sm:hidden">Book a free consult</span>
+              <span className="hidden sm:inline">Book a free 30-min consult</span>
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -135,7 +136,7 @@ export default function Hero() {
                 hero-level promise. Land the case studies or repoint this. */}
             <a
               href="#work"
-              className="inline-flex h-14 items-center rounded-full border border-border bg-card/60 px-8 text-lg font-medium text-foreground backdrop-blur-sm transition-all hover:border-primary hover:bg-card hover:text-primary active:scale-95"
+              className="inline-flex h-12 items-center whitespace-nowrap rounded-full border border-border bg-card/60 px-6 text-[15px] font-medium sm:h-14 sm:px-8 sm:text-lg text-foreground backdrop-blur-sm transition-all hover:border-primary hover:bg-card hover:text-primary active:scale-95"
             >
               See the proof
             </a>

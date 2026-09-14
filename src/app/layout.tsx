@@ -43,7 +43,7 @@ const satoshi = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Interloid — Senior product engineering",
+  title: "Interloid: Senior product engineering",
   description:
     "Interloid is a senior product-engineering team. Defined problems to deployed software, in your accounts, on your repos.",
 };

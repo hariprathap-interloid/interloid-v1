@@ -56,7 +56,7 @@ export const CHECK_VARIANTS: CheckVariant[] = [
   {
     key: "disc",
     name: "Filled disc",
-    note: "Solid accent circle, white tick. Reads unmistakably as “confirmed”. Strongest of the set — and the one most at risk of becoming a row of dots down a long list.",
+    note: "Solid accent circle, white tick. Reads unmistakably as “confirmed”. Strongest of the set, and the one most at risk of becoming a row of dots down a long list.",
     wrapper: true,
   },
   {
@@ -68,13 +68,13 @@ export const CHECK_VARIANTS: CheckVariant[] = [
   {
     key: "ring-draw",
     name: "Ring, tick draws in",
-    note: "The ring fades up and the tick strokes on, staggered down the list. Most characterful; it is also motion on every bulleted list in the app. Honours prefers-reduced-motion.",
+    note: "CHOSEN 2026-09-12. The ring scales up and the tick strokes on, staggered down the list, when the row scroll-reveals. Shipped as Icon `check-circle`; honours prefers-reduced-motion, and falls back to a plain painted circle-check anywhere outside a reveal.",
     wrapper: true,
   },
   {
     key: "tint",
     name: "Tinted tile",
-    note: "Soft accent square with the tick in it — the same device the capability and principle icons already use, so the page gains no new vocabulary.",
+    note: "Soft accent square with the tick in it, the same device the capability and principle icons already use, so the page gains no new vocabulary.",
     wrapper: true,
   },
   {
@@ -158,46 +158,41 @@ function Mark({
     );
   }
 
-  /* ring-draw. The tick is drawn by animating stroke-dashoffset from its own
-     length to zero; `pathLength={1}` normalises that length to 1 so the
-     numbers do not depend on the path's real geometry. `key` on the <svg>
-     remounts it when the Replay button bumps `cycle`, which is the only
-     reliable way to restart a CSS animation. */
-  const delay = `${i * 90}ms`;
+  /* ring-draw — THE CHOSEN ONE, and this renders the production mark itself
+     rather than a copy of it: `check-circle` from Icon.tsx, under the same
+     globals.css rules that drive it on the live pages. A lab specimen that
+     re-implements what it is testing can drift from it, and then the thing
+     you approved is not the thing that ships.
+
+     `.check-armed` is the second activation hook in those rules. On a real
+     page the animation fires when an ancestor [data-reveal] gains `is-in`;
+     this page deliberately mounts no <Reveal /> (see the route's banner), so
+     `check-armed` stands in for it and `key={cycle}` remounts to replay.
+     `--delay` is the same custom property the reveal vocabulary sets, so the
+     stagger here is the stagger you get in production. */
   return (
     <span
       key={cycle}
-      className={`check-draw mt-0.5 grid size-[18px] shrink-0 place-items-center rounded-full ring-1 ${ringed} ${ink}`}
-      style={{ animationDelay: delay }}
+      className={`check-armed mt-0.5 shrink-0 ${ink}`}
+      style={{ "--delay": `${i * 90}ms` } as React.CSSProperties}
       aria-hidden="true"
     >
-      <svg viewBox="0 0 24 24" className="size-3" fill="none">
-        <path
-          d="M20 6 9 17l-5-5"
-          pathLength={1}
-          stroke="currentColor"
-          strokeWidth={3}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="check-draw-path"
-          style={{ animationDelay: `calc(${delay} + 120ms)` }}
-        />
-      </svg>
+      <Icon name="check-circle" className="size-[18px]" />
     </span>
   );
 }
 
 const DENSE = [
-  "A focused first version in 8–12 weeks, not quarters — with a working demo every week from week one.",
+  "A focused first version in 2-15 weeks, not quarters, with a working demo every week from week one.",
   "SEO-optimised from day one, and an architecture that scales to millions of users.",
-  "You own 100% of the code — zero vendor lock-in.",
-  "Engineers with 8–12 years each, no juniors substituted after signing.",
+  "You own 100% of the code, with zero vendor lock-in.",
+  "Engineers with 2-15 years each, no juniors substituted after signing.",
 ];
 
 const PROSE = [
   "A fixed price or a transparent hourly rate, in writing within 48 hours of the first call.",
-  "A focused first version in 8–12 weeks; larger platforms run 14–20.",
-  "A working demo every week from week one — software you can click, not a status report.",
+  "A focused first version in 2-15 weeks; larger platforms run 14–20.",
+  "A working demo every week from week one: software you can click, not a status report.",
   "Your GitHub organisation and your cloud accounts from the first commit. There is no handover ceremony because nothing of yours is ever in our hands.",
   "30 days of post-launch support included; a retainer after that is an option, never a dependency.",
 ];
@@ -267,7 +262,7 @@ export default function CheckVariants() {
             Dense
           </h2>
           <p className="mb-6 text-[13px] text-muted-foreground">
-            CapabilityShowcase — “What you get”. Four short items, repeated six
+            CapabilityShowcase: “What you get”. Four short items, repeated six
             times down /services.
           </p>
           <h3 className="mb-4 flex items-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
@@ -291,7 +286,7 @@ export default function CheckVariants() {
             Prose
           </h2>
           <p className="mb-6 text-[13px] text-muted-foreground">
-            EngagementPanel — the terms. Five items, most of them two lines.
+            EngagementPanel: the terms. Five items, most of them two lines.
           </p>
           <h3 className="mb-4 flex items-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
             The terms
@@ -314,7 +309,7 @@ export default function CheckVariants() {
             On the dark slab
           </h2>
           <p className="mb-6 text-[13px] text-ink-muted">
-            CtaAnchor — the meta row under every page&rsquo;s closing CTA. A
+            CtaAnchor: the meta row under every page&rsquo;s closing CTA. A
             different palette entirely: <code>--spark</code>, not{" "}
             <code>--accent</code>. A mark tuned only for the light card
             disappears here.

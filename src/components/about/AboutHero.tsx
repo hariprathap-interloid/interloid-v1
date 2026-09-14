@@ -86,7 +86,7 @@ export default function AboutHero() {
           >
             <a
               href={ABOUT_HERO.href}
-              className="inline-flex h-14 items-center gap-2 rounded-full bg-primary px-8 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
+              className="inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 text-[15px] font-semibold sm:h-14 sm:px-8 sm:text-[17px] text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
             >
               {ABOUT_HERO.cta}
               <Icon name="arrow" className="size-5" />

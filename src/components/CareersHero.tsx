@@ -71,12 +71,16 @@ export default function CareersHero() {
         <div className="max-w-3xl 2xl:max-w-4xl">
           <div
             data-reveal
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium leading-[1.5] shadow-sm"
+            className="mb-6 inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-4 py-2 text-sm font-medium leading-[1.5] shadow-sm"
           >
             <span className="text-accent-strong">
               <Icon name="users" className="size-4" />
             </span>
-            <span className="text-muted-foreground">Careers at Interloid</span>
+            {/* "at Interloid" drops below `sm`: the full badge wrapped to a
+                two-line pill on a 360px phone. */}
+            <span className="text-muted-foreground">
+              Careers<span className="hidden sm:inline"> at Interloid</span>
+            </span>
             <span
               className="ml-1 flex items-center gap-1.5 rounded-full bg-teal-600/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] text-teal-600"
               data-placeholder="P1: confirm roles are open before publishing"
@@ -110,7 +114,7 @@ export default function CareersHero() {
             className="mt-6 max-w-2xl text-lg leading-[1.5] text-muted-foreground 2xl:max-w-3xl 2xl:text-xl"
           >
             Four trainee roles for freshers, on site in {TERMS.location}. Six
-            months of training, then real client work — and every term of it is
+            months of training, then real client work, and every term of it is
             on this page rather than in a conversation you have to get to first.
           </p>
 
@@ -126,7 +130,7 @@ export default function CareersHero() {
                  hover-triggered translate on the hovered element flickers at
                  its own edge — and naming the two properties that actually
                  change is self-documenting where `all` never is. */
-              className="inline-flex h-14 items-center gap-2 rounded-full bg-primary px-8 text-[17px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
+              className="inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 text-[15px] font-semibold sm:h-14 sm:px-8 sm:text-[17px] text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
             >
               See the four roles
               <Icon name="arrow" className="size-5" />

@@ -41,7 +41,7 @@ export default function Shape() {
           eyebrow="How we are built"
           icon="layers"
           accent="is the interesting part."
-          lead="What a company does not have shapes your experience of it more than anything it puts on a values page — and unlike a value, an absence is something you can check on the first call."
+          lead="What a company does not have shapes your experience of it more than anything it puts on a values page, and unlike a value, an absence is something you can check on the first call."
         >
           What we do not have
         </SectionHeading>

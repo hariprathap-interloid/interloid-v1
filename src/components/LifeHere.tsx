@@ -209,7 +209,7 @@ export default function LifeHere() {
           </span>
           The tiles above and the frames beside them are waiting on real
           photographs of this office. We would rather show you nothing than a
-          stock photo of somebody else&rsquo;s team — you will see the real room
+          stock photo of somebody else&rsquo;s team; you will see the real room
           on your first day either way.
         </p>
       </div>

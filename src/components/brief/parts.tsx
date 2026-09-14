@@ -502,7 +502,7 @@ export function SendFoot({
         <button
           type="submit"
           disabled={pending}
-          className="group inline-flex h-16 items-center gap-2 rounded-full bg-primary px-10 text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95 disabled:cursor-wait disabled:opacity-70"
+          className="group inline-flex h-14 items-center gap-2 whitespace-nowrap rounded-full bg-primary px-8 text-base font-semibold sm:h-16 sm:px-10 sm:text-lg text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95 disabled:cursor-wait disabled:opacity-70"
         >
           {pending
             ? BRIEF_SEND.pending
@@ -518,7 +518,7 @@ export function SendFoot({
               className="flex items-center gap-2 text-sm text-muted-foreground"
             >
               <span className="text-accent-strong" aria-hidden="true">
-                <Icon name="check" className="size-3.5" />
+                <Icon name="check-circle" className="size-3.5" />
               </span>
               {m}
             </li>

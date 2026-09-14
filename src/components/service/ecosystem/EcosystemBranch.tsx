@@ -181,7 +181,7 @@ export default function EcosystemBranch({
 
           <p className={`mt-4 text-[13px] ${h.text}`}>
             {eco.pinned
-              ? "Pinned — tap the service again, or press Escape, to release it."
+              ? "Pinned. Tap the service again, or press Escape, to release it."
               : "Hover or focus a service to open it; tap to keep it open."}
           </p>
 

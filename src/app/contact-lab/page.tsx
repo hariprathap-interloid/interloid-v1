@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import Nav from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "Story letter — decide the details | Interloid",
+  title: "Story letter: decide the details | Interloid",
   robots: { index: false, follow: false },
 };
 
@@ -96,7 +96,7 @@ export default function ContentLabPage() {
       <main id="main" className="pt-32">
         <header className="shell pb-10">
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent-strong">
-            Internal — not linked, not indexed
+            Internal: not linked, not indexed
           </p>
           <h1 className="mt-3 max-w-4xl font-display text-[clamp(2.2rem,4vw,3.2rem)] font-bold leading-[1.08] tracking-[-0.03em] text-foreground">
             The live letter, and every variant of it.

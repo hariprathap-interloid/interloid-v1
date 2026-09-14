@@ -77,7 +77,7 @@ export default function Programme() {
           eyebrow="The programme"
           icon="rocket"
           accent="written down before you start."
-          lead="Six months of training, then real client work, on a two-year agreement. Here is the whole of it — including the part that will put some people off."
+          lead="Six months of training, then real client work, on a two-year agreement. Here is the whole of it, including the part that will put some people off."
         >
           Two years,
         </SectionHeading>

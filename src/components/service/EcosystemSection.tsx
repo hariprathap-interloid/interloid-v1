@@ -128,7 +128,7 @@ export default function EcosystemSection({
           </span>
           <span className="hidden lg:inline">
             Hover, tap, or focus a service with the keyboard and use the arrow
-            keys — its groups and technologies open around it.
+            keys. Its groups and technologies open around it.
           </span>
           <span className="lg:hidden">
             Every service, with the groups and technologies behind it.
@@ -161,11 +161,11 @@ export default function EcosystemSection({
           className="mt-8 flex items-start gap-2.5 text-[15px] leading-[1.7] text-muted-foreground"
         >
           <span className="mt-0.5 shrink-0 text-accent-strong">
-            <Icon name="check" className="size-5" />
+            <Icon name="check-circle" className="size-5" />
           </span>
           <span>
             Every technology shown is one we run in production today. Where your
-            team already has a stack, we work in it — this is what we reach for,
+            team already has a stack, we work in it; this is what we reach for,
             not what we insist on.
           </span>
         </p>

@@ -196,11 +196,11 @@ export default function TechStacks({
           className="mt-6 flex items-start gap-2.5 text-[15px] leading-[1.7] text-muted-foreground"
         >
           <span className="mt-0.5 shrink-0 text-accent-strong">
-            <Icon name="check" className="size-5" />
+            <Icon name="check-circle" className="size-5" />
           </span>
           <span>
             Every stack above is one we run in production today. Where your
-            team already has a stack, we work in it — the list is what we
+            team already has a stack, we work in it; the list is what we
             reach for, not what we insist on.
           </span>
         </p>
