@@ -112,7 +112,7 @@ export default function Hero() {
             className="flex flex-wrap items-center gap-4"
           >
             <a
-              href="/contact"
+              href="/contact#story"
               className="shine group relative inline-flex h-12 items-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-primary px-6 text-[15px] font-medium text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:bg-brand-light hover:shadow-2xl hover:shadow-primary/40 active:scale-95 sm:h-14 sm:px-9 sm:text-lg"
             >
               <span className="sm:hidden">Book a free consult</span>

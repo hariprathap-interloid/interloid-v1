@@ -33,12 +33,12 @@ import type { Tech } from "@/content/service";
    are deliberately left alone.
 
    ── WHEN THERE IS NO MARK ────────────────────────────────────────────────
-   Nine of the ~50 technologies on this page have no icon in the set
-   (FastAPI, Expo, Xcode, Prometheus, LangChain, LangGraph, Scikit-learn,
-   pandas, Pinecone, Weaviate). They render a MONOGRAM plate instead. The
-   alternative was to borrow a neighbouring product's mark — the set has
-   `pandacss.svg`, which is a CSS library and not pandas — and shipping the
-   wrong company's logo is worse than shipping letters.
+   Every technology on this page has a mark as of 2026-09-14 (the last ten —
+   FastAPI, Expo, Xcode, Prometheus, LangChain, LangGraph, Scikit-learn,
+   pandas, Pinecone, Weaviate — were supplied by hand). A Tech without a
+   `file` still renders a MONOGRAM plate. Never borrow a neighbouring
+   product's mark instead — `pandacss.svg` is a CSS library, not pandas — and
+   shipping the wrong company's logo is worse than shipping letters.
 
    Plain <img>, not next/image: these are tiny static SVGs already in
    `public/`, so there is nothing for the optimiser to do, and next/image
@@ -77,6 +77,10 @@ const INK_MARKS: Record<string, "logo-mono" | "logo-invert"> = {
      vanished. White is MySQL's own on-dark treatment. */
   "mysql.svg": "logo-mono",
   "nextjs.svg": "logo-invert",
+  /* Added 2026-09-14 with the manual set: Expo's official mark is #000
+     only, Pinecone's #201d1e only. */
+  "expo.svg": "logo-mono",
+  "pinecone.svg": "logo-mono",
 };
 
 /* Multi-colour marks with dark ink cannot be filtered (see the banner), so
@@ -86,6 +90,11 @@ const INK_MARKS: Record<string, "logo-mono" | "logo-invert"> = {
    to white and the orange smile untouched — AWS's own dark-background logo. */
 const ON_DARK: Record<string, string> = {
   "aws.svg": "aws-on-dark.svg",
+  /* pandas' #130754 bars set to white, yellow and pink untouched — pandas'
+     own dark-background logo. scikit-learn's #010101 "scikit" lettering set
+     to white, the orange and blue untouched. */
+  "pandas.svg": "pandas-on-dark.svg",
+  "scikit-learn.svg": "scikit-learn-on-dark.svg",
 };
 
 function MarkImg({ file, className }: { file: string; className: string }) {

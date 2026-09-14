@@ -143,6 +143,10 @@
      only mark the link had and it could not be seen. */
   --nav-active-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
     0 1px 2px -1px rgb(0 0 0 / 0.1);
+
+  /* The nav links pill's hairline. White/40 in light, as it always was; a
+     white ring on navy read as a hard outline, so dark tints it — see .dark. */
+  --nav-pill-border: rgb(255 255 255 / 0.4);
 }
 
 /* DS §1.2 rule 1: "Light-first. There is no dark mode." This block is declared
@@ -209,6 +213,9 @@
   --nav-active-shadow: 0 0 0 1px
       color-mix(in oklab, var(--primary) 30%, transparent),
     0 4px 16px -4px color-mix(in oklab, var(--primary) 45%, transparent);
+
+  /* The same cyan as the active link's hairline above. */
+  --nav-pill-border: color-mix(in oklab, var(--primary) 30%, transparent);
 }
 
 /* Near-black logo ink on the dark plate — see TechLogo.tsx's INK_MARKS.

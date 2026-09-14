@@ -66,7 +66,7 @@ export default function CtaAnchor({
      for the button on a 360px phone, and the full label wrapped inside the
      fixed-height pill. */
   ctaShort = "Book a free consult",
-  href = "/contact",
+  href = "/contact#story",
   meta = ["No obligation", "No sales pressure", "Proposal in 48 hours"],
 }: {
   id?: string;

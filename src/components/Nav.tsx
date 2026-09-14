@@ -312,7 +312,7 @@ export default function Nav() {
             </Link>
 
             {/* §6.2 a pill inside a pill */}
-            <div className="hidden items-center gap-1 rounded-full border border-white/40 bg-card/80 px-3 py-2 p-1 shadow-sm backdrop-blur-sm lg:flex">
+            <div className="hidden items-center gap-1 rounded-full border border-(--nav-pill-border) bg-card/80 px-3 py-2 p-1 shadow-sm backdrop-blur-sm lg:flex">
               {LINKS.map((l) => (
                 <Link
                   key={l.href}
@@ -376,7 +376,7 @@ export default function Nav() {
                   button now leads to /contact too; linking straight there
                   saves every page a scroll-and-click. */}
               <Link
-                href="/contact"
+                href="/contact#story"
                 className="hidden whitespace-nowrap rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 lg:inline-flex"
               >
                 Let&apos;s talk
@@ -465,7 +465,7 @@ export default function Nav() {
             </Link>
           ))}
           <Link
-            href="/contact"
+            href="/contact#story"
             onClick={() => setOpen(false)}
             className="mt-4 inline-flex h-12 items-center justify-center whitespace-nowrap rounded-full bg-primary px-5 text-[15px] font-semibold text-primary-foreground shadow-lg shadow-primary/25 active:scale-95 sm:px-6 sm:text-base"
           >

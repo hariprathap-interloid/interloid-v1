@@ -257,7 +257,7 @@ export default function LetterComposer({
       <ThankYou brief={brief} className={`${CARD} p-8 sm:p-12`} />
     );
     return (
-      <section className="bg-background py-16 lg:py-24">
+      <section id="story" className="bg-background py-16 lg:py-24">
         <div className="shell">
           <div className="mx-auto max-w-5xl">
             {anim === "envelope" ? (
@@ -320,8 +320,11 @@ export default function LetterComposer({
   /* Only one live animation at a time — see the banner. */
   const columnStage = hasStage(anim) && (wide || mobile === "tabs");
 
+  /* id="story" — every "Book a free consult" / "Start a project" button links
+     to /contact#story, so it lands on the form rather than BriefHero. */
   return (
     <section
+      id="story"
       className={
         mobile === "drawer"
           ? "bg-background pb-32 pt-14 lg:py-28 2xl:py-32"

@@ -416,7 +416,7 @@ export const WHY_HERO = {
   /* Below `sm`, where the full label wrapped inside the pill. */
   ctaShort: "Book a free consult",
   /* /contact, the enquiry page, since 2026-09-11 (was "/#contact"). */
-  ctaHref: "/contact",
+  ctaHref: "/contact#story",
   sub: "Read the agreement",
   subHref: "#agreement",
 };

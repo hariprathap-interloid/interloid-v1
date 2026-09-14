@@ -110,7 +110,7 @@ function LinkColumn({
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-ink-deep py-20 text-ink-foreground">
+    <footer className="border-t border-white/5 bg-ink-deep pt-20 pb-7.5 text-ink-foreground">
       <div className="shell">
         <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-12">
           {/* ---- identity, address, contact ----------------------------- */}
@@ -144,7 +144,8 @@ export default function Footer() {
             </Link>
 
             <p className="max-w-sm text-sm leading-relaxed text-ink-foreground/70">
-              Senior product engineering. Defined problems to deployed software, in your accounts, on your repos.
+              Senior product engineering. Defined problems to deployed software,
+              in your accounts, on your repos.
             </p>
 
             {/* The one outbound action in the footer, and it goes to
@@ -155,7 +156,7 @@ export default function Footer() {
                 blue the CTA slab uses; --brand shifts in dark and this
                 surface does not. */}
             <Link
-              href="/contact"
+              href="/contact#story"
               className="on-dark group mt-7 inline-flex h-11 items-center gap-2 rounded-full bg-ink-cta px-5 text-sm font-semibold text-white transition-colors hover:bg-ink-cta-hover"
             >
               Start a project
@@ -173,7 +174,6 @@ export default function Footer() {
                 <path d="m12 5 7 7-7 7" />
               </svg>
             </Link>
-
           </div>
 
           {/* ---- the three link columns --------------------------------- */}
@@ -204,7 +204,10 @@ export default function Footer() {
               <a href="tel:+919042032424" className={`${LINK} py-1.5`}>
                 +91 9042032424
               </a>
-              <a href="mailto:connect@interloid.com" className={`${LINK} py-1.5`}>
+              <a
+                href="mailto:connect@interloid.com"
+                className={`${LINK} py-1.5`}
+              >
                 connect@interloid.com
               </a>
             </div>

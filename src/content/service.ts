@@ -153,7 +153,7 @@ export const SERVICE_MODES = [
       "From custom web applications to mobile apps, cloud infrastructure and AI integration, we provide the complete technology services a growing business needs, built in your own accounts and yours from the first commit.",
     cta: "Start a project",
     ctaShort: "Start a project",
-    ctaHref: "/contact",
+    ctaHref: "/contact#story",
     secondary: { label: "See how we work", href: "#capabilities", icon: "search" },
     title: "We build it. You own it, throughout.",
     who: "Best when the work is a defined slice: a first version, a rebuild, a platform your team has no capacity to start.",
@@ -177,7 +177,7 @@ export const SERVICE_MODES = [
       "Add experienced senior engineers without hiring costs, long-term overhead or months of onboarding. Ours join your repo, your board and your standups, named in the proposal, and out again with 30 days' notice.",
     cta: "Add engineers to our team",
     ctaShort: "Add engineers",
-    ctaHref: "/contact",
+    ctaHref: "/contact#story",
     secondary: {
       label: "Meet the engineers",
       href: "/about#team",
@@ -315,12 +315,12 @@ export const CAPABILITIES: readonly Capability[] = [
         items: [
           { name: "React Native", file: "reactjs.svg" },
           { name: "Flutter", file: "flutter.svg" },
-          { name: "Expo" },
+          { name: "Expo", file: "expo.svg" },
         ],
       },
       {
         group: "Native iOS",
-        items: [{ name: "Swift", file: "swift.svg" }, { name: "Xcode" }],
+        items: [{ name: "Swift", file: "swift.svg" }, { name: "Xcode", file: "xcode.svg" }],
       },
       {
         group: "Native Android",
@@ -377,7 +377,7 @@ export const CAPABILITIES: readonly Capability[] = [
         items: [
           { name: "Python", file: "python.svg" },
           { name: "Django", file: "django.svg" },
-          { name: "FastAPI" },
+          { name: "FastAPI", file: "fastapi.svg" },
         ],
       },
       {
@@ -443,7 +443,7 @@ export const CAPABILITIES: readonly Capability[] = [
       },
       {
         group: "Monitoring & logging",
-        items: [{ name: "Prometheus" }, { name: "Grafana", file: "grafana.svg" }],
+        items: [{ name: "Prometheus", file: "prometheus.svg" }, { name: "Grafana", file: "grafana.svg" }],
       },
     ],
   },
@@ -476,8 +476,8 @@ export const CAPABILITIES: readonly Capability[] = [
         group: "LLM frameworks",
         items: [
           { name: "OpenAI", file: "openai.svg" },
-          { name: "LangChain" },
-          { name: "LangGraph" },
+          { name: "LangChain", file: "langchain.svg" },
+          { name: "LangGraph", file: "langgraph.svg" },
         ],
       },
       {
@@ -485,20 +485,20 @@ export const CAPABILITIES: readonly Capability[] = [
         items: [
           { name: "TensorFlow", file: "tensorflow.svg" },
           { name: "PyTorch", file: "pytorch.svg" },
-          { name: "Scikit-learn" },
+          { name: "Scikit-learn", file: "scikit-learn.svg" },
         ],
       },
       {
         group: "Data science",
         items: [
           { name: "Python", file: "python.svg" },
-          { name: "pandas" },
+          { name: "pandas", file: "pandas.svg" },
           { name: "NumPy", file: "numpy.svg" },
         ],
       },
       {
         group: "Vector databases",
-        items: [{ name: "Pinecone" }, { name: "Weaviate" }],
+        items: [{ name: "Pinecone", file: "pinecone.svg" }, { name: "Weaviate", file: "weaviate.svg" }],
       },
     ],
   },
