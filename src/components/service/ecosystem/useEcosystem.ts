@@ -6,35 +6,22 @@ import { CAPABILITIES } from "@/content/service";
 /* ==========================================================================
    ONE SELECTION MODEL FOR MOUSE, KEYBOARD AND TOUCH.
    ==========================================================================
-   The brief says "when I hover the services I need to separate their
-   children". Hover alone is not a usable interaction: it is unavailable on
-   touch and invisible to a keyboard, and this diagram is the only route to
-   the technology list, so a hover-only version would simply hide that content
-   from a large share of visitors.
+   Hover alone is unavailable on touch and invisible to a keyboard, so it is
+   one of three ways into the same state:
 
-   So hover is one of three ways into the SAME state:
-
-     hover      onMouseEnter activates; leaving returns to whatever is pinned
-     keyboard   onFocus activates; Arrow keys move; the tablist is one tab stop
-     touch/click  activates AND PINS. Tapping the pinned service unpins it.
-
-   `pinned` is what makes touch work without a second mental model: a tap is
-   just a hover that persists. A mouse user who clicks gets the same — the
-   branch stays open while they read it, which is what they wanted when they
-   clicked. Escape unpins.
+     hover        onMouseEnter activates (fine pointers only)
+     keyboard     onFocus activates; Arrow/Home/End move; Escape resets
+     touch        a tap activates and pins; tapping the pinned service unpins
 
    ── ROVING TABINDEX ──────────────────────────────────────────────────────
-   The six services are one composite widget, so they are ONE tab stop, not
-   six: only the active service has tabIndex 0 and Arrow keys move between
-   them. That is what a tablist owes a keyboard user, and it matches the other
-   tablists on this site (Roles, TechStacks, the mode switch).
+   The services are one composite widget and one tab stop: only the active
+   service has tabIndex 0, and Arrow keys move focus between them.
 
-   ── WHY THE PANEL IS ALWAYS RENDERED ─────────────────────────────────────
-   Reveal.tsx observes [data-reveal] once on mount. Anything created later by
-   a state change is never observed and stays at opacity 0 forever. So every
-   variant renders all six subtrees and hides the inactive ones with `hidden`
-   or opacity — never a conditional render around revealed content. Same rule
-   as Roles.tsx's filter.
+   ── PANELS ARE ALWAYS RENDERED ───────────────────────────────────────────
+   The reveal script observes [data-reveal] once on mount; anything created
+   later by a state change stays at opacity 0 forever. Callers render every
+   subtree and hide inactive ones — never a conditional render around
+   revealed content.
    ========================================================================== */
 
 export type EcosystemSelection = {
@@ -43,11 +30,8 @@ export type EcosystemSelection = {
   active: number;
   /** False until the visitor has hovered, focused or tapped anything.
 
-      THE RESTING STATE IS ITS OWN DESIGN. Before any interaction the map is
-      the reference picture: six labelled services on their alternating radii,
-      the emphasis cycling slowly, no branch open. `engaged` is what lets the
-      variants draw that, instead of forcing a branch open on load and
-      making the first impression the busiest one. */
+      Lets the map draw a distinct resting state — all services labelled, no
+      branch open — rather than forcing a branch open on load. */
   engaged: boolean;
   /** True when the selection was made by click/tap and should survive
       the pointer leaving. */
@@ -69,7 +53,6 @@ export type EcosystemSelection = {
   };
   /** Spread onto the stage wrapper. */
   stageProps: {
-    onMouseLeave: () => void;
     onPointerMove: (e: React.PointerEvent) => void;
     "data-pinned": "true" | undefined;
     "data-settling": "true" | undefined;
@@ -85,19 +68,12 @@ export type EcosystemSelection = {
 
 export function useEcosystem(
   idPrefix: string,
-  /** Set for a variant whose nodes MOVE when a selection is made.
-
-      ONLY VARIANT C NEEDS THIS, AND IT NEEDS IT BADLY. That variant turns the
-      whole wheel so the open service points right, which means every node
-      moves under a stationary cursor - and whichever node lands beneath the
-      pointer fires its own mouseenter and steals the selection, which moves
-      the wheel again. Playwright caught the cascade as three of six services
-      failing to stay selected, plus the arrow keys appearing not to work
-      because a stolen hover overrode the focus.
-
-      With this set, a mouseenter only counts if the pointer has actually moved
-      since the last selection. Focus and click are never gated: those are
-      deliberate acts. */
+  /** Set when the layout moves nodes on selection. A node sliding under a
+      stationary cursor fires mouseenter and would steal the selection
+      (including one just made by keyboard). With this set, a mouseenter only
+      counts if the pointer has moved since the last selection, and other
+      nodes ignore the pointer while the layout settles. Focus and click are
+      never gated. */
   guardMovingLayout = false,
 ): EcosystemSelection {
   const [active, setActive] = useState(0);
@@ -110,7 +86,7 @@ export function useEcosystem(
   const lastPointer = useRef<{ x: number; y: number } | null>(null);
   /* Where the pointer was when the current selection was made. A mouseenter
      arriving at the SAME point is the layout moving under a still cursor; one
-     arriving anywhere else is the user. See `onMouseEnter`. */
+     arriving anywhere else is a real pointer move. See `onMouseEnter`. */
   const pointerAt = useRef<{ x: number; y: number } | null>(null);
 
   const register = useCallback(
@@ -126,14 +102,10 @@ export function useEcosystem(
       setEngaged(true);
       if (!guardMovingLayout) return;
       pointerAt.current = lastPointer.current;
-      /* While the wheel turns, the OTHER nodes stop accepting the pointer.
-
-         The pointer-move gate alone was not enough: a node sliding to a stop
-         under a cursor that had legitimately moved a moment earlier still
-         claimed the selection, and two of the six services could never be
-         opened by hovering them. Taking the losers out of the pointer's reach
-         for the length of the transition is deterministic where a heuristic
-         about movement is not. 640ms covers the 620ms transition. */
+      /* While nodes move, `data-settling` takes the other nodes out of the
+         pointer's reach. The position check alone misses a node that stops
+         under a cursor which moved a moment earlier. The timeout must outlast
+         the CSS layout transition. */
       setSettling(true);
       if (settleTimer.current) clearTimeout(settleTimer.current);
       settleTimer.current = setTimeout(() => setSettling(false), 640);
@@ -175,12 +147,11 @@ export function useEcosystem(
       if (e.key === "Escape") {
         e.preventDefault();
         setPinned(false);
-        /* Escape returns the map to its resting picture, which is the only
-           way back to it once a branch has been opened. */
+        /* Escape returns the map to its resting state. */
         setEngaged(false);
       }
     },
-    [active, activate, pinned],
+    [active, activate],
   );
 
   const nodeProps = useCallback(
@@ -203,15 +174,9 @@ export function useEcosystem(
         ) {
           return;
         }
-        /* THE MOUSEENTER THE LAYOUT CAUSED, NOT THE ONE THE USER DID.
-
-           A first attempt ignored every hover for 700ms after a selection,
-           which also ignored a user genuinely moving to the next node inside
-           that window. A second compared event ORDER - had a pointermove been
-           seen since the selection - which rejected a pointer that arrived in
-           a single jump. This compares POSITION, which is the thing actually
-           being asked about: if the cursor is where it was when the selection
-           was made, the node came to it; otherwise it went to the node. */
+        /* Ignore a mouseenter caused by the layout moving. Compare pointer
+           position rather than timing or event order: if the cursor is where
+           it was when the selection was made, the node came to it. */
         if (guardMovingLayout) {
           const at = pointerAt.current;
           const moved =
@@ -222,14 +187,9 @@ export function useEcosystem(
       },
       onFocus: () => activate(i),
       onClick: () => {
-        /* PINNING IS FOR TOUCH ONLY.
-
-           It used to happen on every click, and a pinned selection ignores
-           every later hover - so one stray click on a mouse made the whole
-           diagram stop responding to the pointer, which read as broken rather
-           than as locked. On a device with hover there is nothing to preserve
-           between pointer movements, so a click simply selects. On a coarse
-           pointer there is no hover at all, so the tap has to persist, and
+        /* Pinning is for touch only. A pinned selection ignores later hovers,
+           so pinning on a mouse click would make the diagram stop responding
+           to the pointer. On a hover-less device the tap must persist, and
            tapping the open service again releases it. */
         const coarse =
           typeof window !== "undefined" &&
@@ -246,24 +206,14 @@ export function useEcosystem(
       },
       onKeyDown,
     }),
-    [active, activate, idPrefix, onKeyDown, pinned, register],
+    [active, activate, guardMovingLayout, idPrefix, onKeyDown, pinned, register],
   );
 
-  /* NO REVERT ON MOUSE-LEAVE, and that is deliberate.
-
-     The obvious behaviour — close the branch when the pointer leaves — was
-     built first and measured badly. Opening a branch moves the service node
-     (all six converge on one radius so the branch always starts the same
-     distance from the core), which can move it out from under the very
-     pointer that opened it; the branch then closes, the node slides back, and
-     the whole map flickers under a stationary cursor. Playwright caught it as
-     "selects on hover" failing on three of the six services in variant C.
-
-     So the last opened service simply stays open. That is also the kinder
-     behaviour: a reader who opened Backend to read twelve marks does not want
-     it to vanish because their pointer drifted two pixels off the node. */
+  /* No revert on mouse-leave. Opening a branch moves the service node, which
+     can move it out from under the pointer that opened it; closing on leave
+     would then flicker the map under a stationary cursor. The last opened
+     service stays open. */
   const stageProps = {
-    onMouseLeave: () => {},
     onPointerMove: (e: React.PointerEvent) => {
       lastPointer.current = { x: e.clientX, y: e.clientY };
     },

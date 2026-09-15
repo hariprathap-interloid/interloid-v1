@@ -16,33 +16,23 @@ import {
 } from "@/content/brief";
 import type { Brief, SetValue } from "./useStoryBrief";
 
-/* ==========================================================================
-   The shared pieces of the story letter: the paragraph-style blanks, the
+/* The shared pieces of the story letter: the paragraph-style blanks, the
    suggestions, the version toggle, the honeypot, the send foot and the
    thank-you. LetterComposer arranges them; useStoryBrief drives them.
 
-   The inline-blank pieces (InlineBlank, OpenSpace, Line, Chapters) were cut
-   once when plain labelled boxes replaced them, and RESTORED the same day
-   (2026-09-11): the user found the boxes "look like a form" and asked for
-   the paragraph style back as the input, with the live preview beside it.
+   No `data-reveal` in here: classNames are computed from state, and React's
+   next write would wipe the `is-in` class Reveal adds directly to the DOM. */
 
-   No `data-reveal` in here: every className is computed from state, and
-   Reveal's `is-in` would be wiped by React's next write (see Faq's note).
-   ========================================================================== */
-
-/* The /contact scale — raised 2026-09-11 ("the contact form is very small").
-   PARA is the STORY (the sentences you write into); PARA_MD is the LETTER,
-   one step smaller so the story leads and the letter follows. Each grows
-   once more on wide screens (2xl, ≥1536px), where 20px sentences in a
-   1600px shell read as fine print. */
+/* PARA is the story (the sentences you write into); PARA_MD is the letter,
+   one step smaller so the story leads. Each grows again at 2xl, where the
+   base sizes read as fine print in a wide shell. */
 export const PARA =
   "font-display text-xl leading-loose text-foreground md:text-2xl 2xl:text-[1.75rem]";
 export const PARA_MD =
   "font-display text-lg leading-loose text-foreground md:text-xl 2xl:text-2xl";
 
-/* The card. Lifted off a tinted ground by a long, soft shadow rather than
-   the site's `shadow-sm` — on a tinted ground a 1px shadow reads as a
-   border, and the letter is the one object that should come forward. */
+/* A long, soft shadow rather than `shadow-sm`: on a tinted ground a 1px
+   shadow reads as a border, and the letter should come forward. */
 export const CARD =
   "min-w-0 rounded-[1.5rem] border border-border bg-card shadow-[0_30px_60px_-30px_rgba(15,23,43,.28)]";
 
@@ -62,26 +52,18 @@ export function InlineBlank({
   /** The id of this blank's error message, while it has one. */
   describedBy?: string;
 }) {
-  /* ── SIZED BY ITS OWN TEXT, AND WRAPPING (rebuilt 2026-09-11) ─────────
-     The blank was an <input> sized with `size` — a count of AVERAGE
-     characters, which in a proportional face is badly wrong: the box ran
-     far wider than the words, so the full stop after it floated mid-line
-     and "I'm Asha" sat a thumb's width from "from". And an <input> is one
-     line: a long answer scrolled sideways inside it instead of wrapping.
+  /* Sized by its own text. An invisible copy of the value (or the hint while
+     empty) sits in the flow and alone sets the size; the real field is laid
+     absolutely over it. The box is exactly as wide as the words, up to the
+     line; past that the copy wraps (overflow-wrap:anywhere) and the box
+     grows down, the textarea filling it. An <input>'s `size` counts average
+     characters, which in a proportional face runs far wider than the words.
 
-     Now an invisible copy of the text (or the hint while empty) sits in
-     the flow and alone sets the size; the real field is laid ABSOLUTELY
-     over it. The box is exactly as wide as the words, up to the line; past
-     that the copy wraps — long unspaced words included
-     (overflow-wrap:anywhere) — and the box grows DOWN, the textarea filling
-     it. Email and phone stay one-line <input>s so a phone still shows the
-     right keyboard; they are short by nature. Enter never adds a line: a
-     blank is part of a sentence, not a paragraph.
+     Absolute rather than a shared grid cell: in a grid the field's intrinsic
+     width (a textarea's default ~20 columns) would still size the track.
 
-     Absolute, not a shared grid cell: a first version put both in one
-     inline-grid cell, and the field's own INTRINSIC width (a textarea's
-     default ~20 columns) still sized the track — "Asha" measured 212px. An
-     absolutely-positioned field contributes nothing to its parent's size. */
+     Email and phone stay one-line <input>s so phones show the right
+     keyboard. Enter never adds a line: a blank is part of a sentence. */
   const wraps = f.type !== "email" && f.type !== "tel";
   /* `blank-in-text`: its focus style lives in globals.css — see there for
      why a utility class cannot override the global ring. */
@@ -174,17 +156,16 @@ export function OpenSpace({
   );
 }
 
-/* ── the `*` and the error icon (2026-09-11) ─────────────────────────────
-   Every blank we need to reply carries a small `*` (the key sits under the
-   version toggle). After a send that came back without it, the `*` turns
-   into an alert icon. Hovering the icon shows why — and so does focusing
-   any blank in that sentence, which is how a phone, with no hover, gets the
-   message (the send moves focus to the first missing blank for them). The
-   field is `aria-describedby` the message too, so a screen reader hears it.
+/* ── the `*` and the error icon ──────────────────────────────────────────
+   Every blank we need in order to reply carries a small `*`. After a send
+   that came back without it, the `*` becomes an alert icon. Hovering the
+   icon shows why, and so does focusing any blank in that sentence, which is
+   how touch devices get the message (the send moves focus to the first
+   missing blank). The field is `aria-describedby` the message as well.
 
-   The bubble is anchored to the whole LINE (the icon itself is not
-   positioned), left-aligned above the sentence: a bubble centred on the
-   icon ran off the card whenever the blank sat near either edge. */
+   The bubble is anchored to the whole line (the icon is not positioned),
+   left-aligned above the sentence, so it cannot run off the card when the
+   blank sits near either edge. */
 const REACH_NAMES: readonly string[] = BRIEF_REACH.fields;
 const isNeeded = (f: Field) => !!f.required || REACH_NAMES.includes(f.name);
 const errorOf = (f: Field) =>
@@ -222,11 +203,9 @@ function Needed({ id, bad, error }: { id: string; bad: boolean; error?: string }
 export function Line({
   line,
   brief,
-  para = PARA,
 }: {
   line: readonly Segment[];
   brief: Brief;
-  para?: string;
 }) {
   const { values, set, invalid, formId } = brief;
   const below = line.filter((s): s is Field => typeof s !== "string");
@@ -235,7 +214,7 @@ export function Line({
   const errId = (f: Field) => `${formId}-${f.name}-err`;
   return (
     <div className="group/line relative">
-      <p className={para}>
+      <p className={PARA}>
         {line.map((s, si) => {
           /* Punctuation right after a blank is glued to it (nowrap), so a
              wrapping blank never leaves its full stop alone on a line. */
@@ -292,13 +271,11 @@ export function Line({
   );
 }
 
-/** Every chapter of the current version, numbers in their own gutter. */
+/** Every chapter of the current version. */
 export function Chapters({
   brief,
-  para = PARA,
 }: {
   brief: Brief;
-  para?: string;
 }) {
   return (
     <>
@@ -306,12 +283,8 @@ export function Chapters({
         <section
           key={c.key}
           aria-labelledby={`ch-${c.key}-h`}
-          /* NO NUMBER GUTTER (removed 2026-09-11, user request). The 2.25rem
-             numeral column plus its gap pushed every sentence ~56px in from
-             the card's edge, so the story read one-sided and the blanks lost
-             that width. The number now rides above the title as a small
-             label — what phones already showed — and the prose starts on the
-             card's own edge. */
+          /* No number gutter: the chapter number rides above the title as a
+             small label, so the prose keeps the card's full width. */
           className="border-t border-border py-10 first:border-t-0 2xl:py-12"
         >
           <header className="mb-6">
@@ -332,7 +305,7 @@ export function Chapters({
           </header>
           <div className="space-y-6">
             {c.lines.map((line, li) => (
-              <Line key={li} line={line} brief={brief} para={para} />
+              <Line key={li} line={line} brief={brief} />
             ))}
           </div>
         </section>
@@ -383,13 +356,9 @@ export function Suggestions({
   );
 }
 
-/** "We value your time" — the quick note or the full story.
-
-    Stacked, not side by side: the promise on top in the story's own voice,
-    a one-line hint under it, then two equal buttons that each say what
-    they are AND how long they take ("Quick note · 30 sec"). Side by side,
-    a sentence-length heading and two pills fought for one row in the
-    narrower story column. */
+/** The quick note or the full story. Stacked rather than side by side: a
+    sentence-length heading and two buttons do not share one row in the
+    story column. Each button says what it is and how long it takes. */
 export function VersionToggle({
   brief,
   className = "",
@@ -408,9 +377,8 @@ export function VersionToggle({
           {BRIEF_SEND.questionHint}
         </p>
       </div>
-      {/* Name over time, on purpose: "Quick note · 30 sec" on one line is
-          wider than half a 390px phone and broke as "30 / sec". Two lines
-          fit at every width and read as a deliberate segmented control. */}
+      {/* Name over time on two lines: on one line the label is wider than
+          half a phone and breaks mid-phrase. */}
       <div
         role="group"
         aria-label={BRIEF_SEND.question}
@@ -463,33 +431,20 @@ export function Honeypot() {
   );
 }
 
-/** Sign-off, the "we still need…" line, the send button and its promises. */
+/** The "we still need…" line, the send button and its promises. */
 export function SendFoot({
   brief,
   className = "",
-  signoff = true,
 }: {
   brief: Brief;
   className?: string;
-  /** Off where the layout already shows the sign-off (the live letter). */
-  signoff?: boolean;
 }) {
-  const { who, company, notice, pending, quick } = brief;
+  const { notice, pending, quick } = brief;
   return (
     <div className={className}>
-      {signoff && (
-        <p className={PARA}>
-          {BRIEF_SEND.signoff}{" "}
-          <span className={who ? "text-primary" : "text-hint"}>
-            {who || "your name"}
-          </span>
-          {company && <span className="text-primary">, {company}</span>}
-        </p>
-      )}
-
       <p
         aria-live="polite"
-        className={`${signoff ? "mt-5" : ""} rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
+        className={`rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
           notice ? "bg-rose-500/10 text-foreground" : "sr-only"
         }`}
       >
@@ -497,7 +452,7 @@ export function SendFoot({
       </p>
 
       <div
-        className={`${notice || signoff ? "mt-6" : ""} flex flex-wrap items-center gap-x-8 gap-y-5`}
+        className={`${notice ? "mt-6" : ""} flex flex-wrap items-center gap-x-8 gap-y-5`}
       >
         <button
           type="submit"
@@ -531,15 +486,9 @@ export function SendFoot({
 
 /** What replaces the letter once it is sent.
 
-    With a `stage` (the logo gathering), the two are ONE CARD — the dark logo
-    side ~40%, the words ~60%, and on a phone the logo on top — so the mark
-    reads as the signature on this message, not a banner over it, and the
-    whole thing fits one laptop screen. They were two stacked sections until
-    2026-09-11: the panel alone was ~450px, which pushed "It's with us…" to
-    mid-screen and the next steps below the fold on a laptop.
-
-    Without a stage (the envelope and no-animation variants) it is the plain
-    card, steps in three columns. `className` carries the card surface. */
+    The stage and the words share one card (stage ~40%, words ~60%; stage on
+    top on phones) so the whole thing fits one laptop screen. `className`
+    carries the card surface. */
 export function ThankYou({
   brief,
   className = "",
@@ -547,11 +496,10 @@ export function ThankYou({
 }: {
   brief: Brief;
   className?: string;
-  stage?: ReactNode;
+  stage: ReactNode;
 }) {
   const { state, formId } = brief;
   if (state.status !== "sent") return null;
-  const beside = !!stage;
 
   const words = (
     <>
@@ -573,19 +521,15 @@ export function ThankYou({
       </h2>
       <p className="mt-4 text-lg text-muted-foreground">{BRIEF_DONE.lead}</p>
 
-      {/* Beside the logo the steps are a short list — three columns in the
-          narrower words side wrapped every body to four lines. */}
-      <ol
-        className={
-          beside ? "mt-7 grid gap-4" : "mt-10 grid gap-6 sm:grid-cols-3"
-        }
-      >
-        {BRIEF_DONE.steps.map((s, i) => {
+      {/* A single column: three columns in the narrower side would wrap
+          every body to several lines. */}
+      <ol className="mt-7 grid gap-4">
+        {BRIEF_DONE.steps.map((s) => {
           const body = s.body.replace(
             "{contact}",
             state.contact || BRIEF_DONE.contactFallback,
           );
-          return beside ? (
+          return (
             <li
               key={s.title}
               className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-3"
@@ -602,24 +546,12 @@ export function ThankYou({
                 </span>
               </span>
             </li>
-          ) : (
-            <li key={s.title} className="border-t-2 border-brand pt-4">
-              <span className="flex items-center gap-2 font-display text-sm font-semibold text-primary">
-                <Icon name={s.k} className="size-4" />0{i + 1}
-              </span>
-              <h3 className="mt-2 font-display text-lg font-semibold text-foreground">
-                {s.title}
-              </h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                {body}
-              </p>
-            </li>
           );
         })}
       </ol>
 
       <div
-        className={`${beside ? "mt-8" : "mt-10"} flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-sm text-muted-foreground`}
+        className={`mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-sm text-muted-foreground`}
       >
         {state.ref !== "—" && (
           <span>
@@ -638,25 +570,16 @@ export function ThankYou({
     </>
   );
 
-  /* No scroll-margin here: <html> already has `scroll-padding-top: 7rem`
-     for the fixed nav (globals.css), and a `scroll-mt-32` on top of it
-     parked the card 240px down — measured on every viewport — which put the
-     bottom of this card off a 720px laptop. The page-wide 7rem is enough. */
-  if (!beside) {
-    return (
-      <div id={`${formId}-done`} className={`self-start ${className}`}>
-        {words}
-      </div>
-    );
-  }
+  /* No scroll-margin: <html> already sets `scroll-padding-top` for the fixed
+     nav (globals.css), and adding one here would stack with it and push the
+     card's bottom off a short laptop screen. */
   return (
     <div
       id={`${formId}-done`}
       className={`grid self-start overflow-hidden lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] ${className}`}
     >
       <div className="min-w-0">{stage}</div>
-      {/* p-10, not lg:p-12: the extra 16px was what the card overran a
-          1280×720 screen by once it sat at the right scroll position. */}
+      {/* Capped at p-10 so the card still fits a 1280×720 screen. */}
       <div className="min-w-0 p-7 sm:p-10">{words}</div>
     </div>
   );

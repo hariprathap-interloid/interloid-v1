@@ -1,28 +1,22 @@
 import Icon from "./Icon";
 import { WHY_HERO } from "@/content/site";
 
-/* /why-choose-us hero — prototype2-archive's left-aligned hero, rebuilt on the
-   CareersHero skeleton so the two sub-pages read as one site: bg-secondary,
-   masked backdrop texture, orb, badge → H1 → lead → body → kicker → actions,
-   reveal delays at 0/100/200/300/400/500.
+/* /why-choose-us hero, on the same skeleton as the careers hero: bg-secondary,
+   masked backdrop texture, orb, then badge → H1 → lead → body → kicker →
+   actions with reveal delays in 100ms steps.
 
-   The texture is the archive's LINE grid rather than careers' dot grid — the
-   page argues "this is a document", and ruled lines are the closest thing a
-   backdrop has to ruled paper. `var(--border)` for the line colour, not a
-   literal, so it survives the dark theme.
+   The texture is a LINE grid — ruled paper, for a page that argues "this is a
+   document". `var(--border)` rather than a literal keeps it visible in dark.
 
-   The H1 is two BLOCK spans because the archive breaks the two sentences —
-   the silhouette is part of the design (DS §3.3). The gradient is applied to
-   one whole span, never split across children (HANDOFF §5.13: background-clip
-   paints on the parent, inline-block children render as nothing).
+   The H1 is two block spans so the two sentences always break. The gradient
+   is applied to one whole span, never split across children: background-clip
+   paints on the parent, so inline-block children render as nothing.
 
-   One filled button only (DS §9: max one primary per view). "Read the
-   agreement" is the archive's `tlink--down` — a plain link whose arrow points
-   at the very next section, so it stays typographic, not a competing pill. */
+   One filled button only. The secondary action is a plain link whose arrow
+   points at the next section, so it does not compete as a second pill. */
 export default function WhyHero() {
-  /* min-h-svh + items-center is DS §7.3's inner-page hero: the first cut was
-     padding-sized and sat shallow on tall monitors (user, 2026-09-08). svh,
-     not vh — mobile browser chrome. */
+  /* min-h-svh + items-center so the hero fills tall screens instead of being
+     padding-sized. svh, not vh, to account for mobile browser chrome. */
   return (
     <section className="relative flex min-h-svh items-center overflow-hidden bg-secondary pb-24 pt-32">
       <div
@@ -40,9 +34,8 @@ export default function WhyHero() {
             data-reveal
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium leading-[1.5] shadow-sm"
           >
-            {/* shield, not doc — "The commitments" badge two sections down
-                already uses doc, and two identical badge icons in one
-                viewport read as a copy-paste (user, 2026-09-08). */}
+            {/* shield, not doc: a badge further down the page already uses
+                doc, and repeated badge icons read as copy-paste. */}
             <span className="text-accent-strong">
               <Icon name="shield" className="size-4" />
             </span>
@@ -78,13 +71,10 @@ export default function WhyHero() {
 
           {/* The bold close. It is set apart with an accent rule rather than
               another paragraph because it is the hero's thesis, and the copy
-              itself is emphasised in the source.
+              itself is emphasised.
 
-              ⚠ data-placeholder is REQUIRED here, not decorative: "carried
-              into every engagement agreement" is HANDOFF §7's open P1, the
-              same claim the Clauses foot carries — and this copy states it
-              above the fold. Do not remove the flag without the real
-              contract in hand. */}
+              Copy marked data-placeholder is unverified; confirm before
+              public launch. */}
           <p
             data-reveal
             data-placeholder="P1: verify the engagement agreement actually carries these commitments"

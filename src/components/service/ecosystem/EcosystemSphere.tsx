@@ -4,57 +4,33 @@ import { useEffect, useRef, useState } from "react";
 import { CAPABILITIES } from "@/content/service";
 
 /* ==========================================================================
-   THE PHONE SPHERE — all 62 technology marks on a sphere you can spin, shown
-   above the accordion below `lg`.
+   PHONE SPHERE — every technology mark on a spinnable sphere, shown above the
+   accordion below `lg`.
    ==========================================================================
-   Chosen on /stack-lab (the "3D" variant, sphere arrangement). The accordion
-   stays exactly as it is and carries the content; this is the object that
-   gives the phone version of the section what the desktop map already has —
-   a sense of how much there is, before anyone reads a list.
+   Decoration over real content: `aria-hidden`, no focusable nodes. Every mark
+   is also a named chip in the accordion below, which is what assistive tech,
+   keyboards and no-JS browsers get.
 
-   ── IT IS DECORATION OVER REAL CONTENT, NEVER A REPLACEMENT ──────────────
-   `aria-hidden`, no focusable nodes. Every mark here is also a named chip in
-   the accordion directly below, which is what a screen reader, a keyboard,
-   and a browser with JS off all get.
+   ── LOADING ──────────────────────────────────────────────────────────────
+   three.js and CSS3DRenderer are imported dynamically, only when both the
+   viewport is below `lg` (on desktop this block is display:none) and the
+   stage is within 300px of the viewport. The render loop pauses whenever the
+   stage leaves the viewport. Teardown cancels the frame, disconnects
+   observers, and removes listeners and the renderer's DOM node.
 
-   ── IT COSTS ALMOST NOTHING, AND NOTHING UNTIL IT IS NEARLY ON SCREEN ────
-   Measured on /services, 2026-09-14: the core `three` module is ALREADY on
-   the page at load, brought in by HeroStage and CtaStage. So this component
-   does not add three.js — its marginal cost is the CSS3DRenderer module
-   alone (~10KB in dev), and even that is imported dynamically, only when
-   BOTH:
-     · the viewport is below `lg` — on desktop this block is display:none and
-       the constellation is shown instead, so loading three there would be
-       pure waste; and
-     · the stage is within 300px of the viewport — this section is near the
-       bottom of /services, and most visits never scroll that far.
-   Once running, the loop pauses whenever the stage leaves the viewport, so
-   it does not spin in the background draining a phone battery.
+   ── SCROLL ───────────────────────────────────────────────────────────────
+   The stage is `touch-action: pan-y` so a thumb on the sphere still scrolls
+   the page; only horizontal drags spin it. A vertical gesture fires
+   `pointercancel` as the browser takes it, and the sphere lets go.
 
-   ── IT MUST NOT TRAP THE PAGE SCROLL ─────────────────────────────────────
-   A 360px band that swallows touch is a real phone bug: start a scroll with
-   a thumb on the sphere and the page would not move. So the stage is
-   `touch-action: pan-y` — the browser keeps vertical scrolling — and only
-   HORIZONTAL drags spin it. A vertical gesture fires `pointercancel` as the
-   page takes it, and the sphere simply lets go.
+   ── SHAPE ────────────────────────────────────────────────────────────────
+   Plates sit on a Fibonacci sphere and each faces straight out from the
+   centre (`lookAt(p·2)`), so plates near the poles tilt over rather than
+   turning edge-on. Tuned values: 360px stage, 60° FOV, camera at 560,
+   radius 205, 44px plates with 24px marks, idle drift 0.0016 rad/frame,
+   drag 0.00022 per px easing back at 0.02.
 
-   ── IT IS THE /stack-lab GLOBE, NUMBER FOR NUMBER ───────────────────────
-   Two earlier passes each copied the wrong reference. The first sized itself
-   from the stage and came out small and flat; the second copied /stack-arc,
-   whose plates face outward HORIZONTALLY only, so the ones near the poles
-   turn edge-on and the silhouette reads as a barrel. The approved look is
-   the /stack-lab 3D variant, where every plate faces straight out from the
-   centre (`lookAt(p·2)`): plates wrap over the top and bottom as well as the
-   sides, and the set reads as a rounded globe. These are that sphere's own
-   values: 360px stage, 60° lens, camera at 560, radius 205, 44px plates with
-   24px marks, idle drift 0.0016 rad/frame, drag 0.00022 per px easing back
-   at 0.02.
-
-   The one deliberate difference is the drag axis: only sideways drags spin
-   it here, for the scroll reason above. The lab also tilts on a vertical
-   drag because it lives inside a frame that does not need to scroll the page.
-
-   CSS3DRenderer, not WebGL: the marks stay vector-crisp, no GPU context is
+   CSS3DRenderer, not WebGL: marks stay vector-crisp, no GPU context is
    created, and it runs where WebGL is blocked. Each plate is wrapped because
    CSS3DRenderer owns `style.transform` on the element it is given.
    Reduced motion stops the idle spin; dragging still works.
@@ -137,9 +113,8 @@ export default function EcosystemSphere() {
         group.add(obj);
       });
 
-      /* The lab's camera and radius. Only the aspect and the renderer size
-         follow the stage; the sphere itself is fixed so it matches
-         /stack-arc exactly. Re-run on resize, including a phone rotating. */
+      /* Only the aspect and renderer size follow the stage; camera distance
+         and sphere radius are fixed. Re-runs on resize, including rotation. */
       const layout = () => {
         const W = host.clientWidth;
         const H = host.clientHeight;
@@ -158,9 +133,8 @@ export default function EcosystemSphere() {
           const r = Math.sqrt(1 - y * y);
           const th = golden * i;
           obj.position.set(Math.cos(th) * r * R, y * R, Math.sin(th) * r * R);
-          /* Face straight out from the centre, like /stack-lab. This is
-             what makes it a globe: plates at the poles tilt over the top and
-             bottom instead of standing upright and going edge-on. */
+          /* Face straight out from the centre, so plates at the poles tilt
+             over instead of going edge-on. */
           obj.lookAt(obj.position.clone().multiplyScalar(2));
         });
       };
@@ -218,8 +192,8 @@ export default function EcosystemSphere() {
     };
 
     /* Load when nearly on screen; pause the loop whenever it is off it.
-       `threshold: 0` with a rootMargin, per the site's reveal rule — a
-       fractional threshold can never be met at high zoom. */
+       `threshold: 0` with a rootMargin — a fractional threshold can never be
+       met at high zoom. */
     const io = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting;

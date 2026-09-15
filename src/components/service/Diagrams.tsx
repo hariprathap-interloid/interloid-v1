@@ -1,12 +1,7 @@
 /* ==========================================================================
    MECHANISM DIAGRAMS — one per capability.
    ==========================================================================
-   SERVICE-PAGE-RESEARCH.md §2 P1: the reference pages' strongest move is that
-   every capability block is paired with a drawing of HOW THE THING WORKS —
-   an orchestrator with models on an orbit, a Bronze→Silver→Gold refinery —
-   rather than a stock illustration. That is the principle taken here; none of
-   their drawings is reproduced. These five are ours, drawn from our own
-   mechanisms:
+   Each capability is paired with a drawing of how the thing works:
 
      slice      one vertical slice crossing every layer, in production first
      stores     one codebase, one release train, two app stores
@@ -15,12 +10,7 @@
      retrieval  a model call wrapped in retrieval, guardrails and evaluation
      merge      two lanes of engineers converging on one repository
 
-   Rebuilt 2026-09-08 for the live site's SIX services: `stores` and `api`
-   are new (Mobile and Backend were one service before), and `lineage` was
-   retired with the Data & analytics capability, which interloid.com does not
-   sell as a separate service.
-
-   ── THREE CONSTRAINTS, ALL LOAD-BEARING ─────────────────────────────────
+   ── CONSTRAINTS ──────────────────────────────────────────────────────────
    1. NO `id`s, no `<defs>`, no gradients. Every diagram renders TWICE on the
       page — once in the desktop sticky panel and once inline for mobile — so
       any id would be duplicated in the document, and a duplicated gradient id
@@ -38,24 +28,12 @@
    the same claim, so nothing is only available as a picture.
    ========================================================================== */
 
-/* EVERY DIAGRAM CARRIES ITS OWN viewBox, AND THAT IS WORTH THE PROP.
-   All six shared `0 0 560 400` until 2026-09-12, which meant each one was
-   scaled to fit a box that was mostly empty margin. Measured with getBBox:
+/* Every diagram passes its own viewBox (`box`): its content bounds plus ~5%,
+   normalised to one 8:5 aspect so drawings land at a consistent size and the
+   sticky panel never resizes between capabilities.
 
-     web      fills 85% x 85% of the box      deploy   fills 77% x 54%
-     stores   fills 89% x 74%                 retrieval fills 94% x 74%
-     api      fills 90% x 73%                 merge    fills 87% x 56%
-
-   `deploy` and `merge` were spending nearly HALF their vertical space on
-   nothing, so the drawing rendered at roughly three quarters of the size the
-   panel could actually afford it. The boxes below are each diagram's real
-   content bounds plus 5%, normalised to ONE aspect (8:5) so the drawings all
-   land at a consistent size and the sticky panel never resizes between
-   capabilities — a panel that jumps as you scroll reads as broken.
-
-   Re-measure with getBBox and recompute if you move anything: a box tighter
-   than its content CROPS, because the stage is a fixed aspect and this is
-   `preserveAspectRatio: meet`. */
+   Recompute the box (getBBox) if you move anything: a box tighter than its
+   content crops. */
 function Frame({
   label,
   box,
@@ -134,10 +112,8 @@ function Label({
 
 /* ── 01 · PRODUCT ENGINEERING ──────────────────────────────────────────────
    A four-by-four grid: four product layers down the side, four slices across.
-   Slice 01 is built and live; 02-04 are the same shape, waiting. The argument
-   is that integration risk is paid in week two rather than in the final
-   month, and it only reads if the queue is visible — see the note above the
-   rewrite for why the first version did not. */
+   Slice 01 is built and live; 02-04 are the same shape, waiting. The queue
+   must stay visible for the "integration risk paid early" argument to read. */
 function Slice() {
   const lanes = ["INTERFACE", "SERVICE", "DATA", "DEPLOY"];
   /* Four columns on one pitch, so the built slice and the queued ones are
@@ -502,32 +478,15 @@ function Api() {
    afterthought — the section's claim is that the client's own team can run
    both directions of it.
 
-   ── REBUILT 2026-09-12. THREE THINGS WERE WRONG ──────────────────────────
-   1. TWO OF THE FOUR ARROWS POINTED BACKWARDS. The loop is Push → CI checks
-      → Deploy → Observe → Push, which is clockwise in this arrangement, and
-      the right and left arrows said so. The top one pointed at Push and the
-      bottom one pointed at Deploy, so the drawing contradicted both its own
-      sequence and its own aria-label. Read closely it described a loop that
-      ran two directions at once.
-   2. THE ROLLBACK ARC RAN THROUGH ITS OWN LABEL. The pill was filled
-      `fill-brand-light/10` — ten percent — so the curve stayed visible
-      straight across the words "rollback: one command". An edge label has to
-      be OPAQUE to interrupt its edge; that is the whole mechanism. It is
-      `fill-card` now, and the arc genuinely disappears behind it.
-   3. THE ARROWS WERE NOT ON THE RAIL. The rail was one rounded rect spanning
-      130–430 × 78–298; the arrowheads sat at y=90, y=320, x=124 and x=436 —
-      between 6 and 22px off it, and the bottom one floated clear of the
-      dashes with nothing to attach it to.
+   The loop runs clockwise: Push → CI checks → Deploy → Observe → Push. Every
+   arrowhead must agree with that order and with the aria-label.
 
-   The rail is four straight segments now, one per hand-off, drawn between
-   the box edges rather than as a single rounded rect running behind them.
-   That is what makes (3) impossible to get wrong again: each arrowhead is
-   placed at the midpoint of the segment it belongs to, so it cannot drift
-   off a line it is defined against. The rounded rect also bowed its corners
-   up over the top boxes, which read as a stray arc rather than a connector.
+   The rail is four straight segments, one per hand-off, between box edges;
+   each arrowhead sits at its own segment's midpoint so it cannot drift off
+   the line. The rollback label is opaque (`fill-card`) so the arc is
+   interrupted behind it.
 
-   Geometry: boxes 148×64 at (64|348) × (92|244), so the content is centred
-   on the 560×400 frame at (280, 200) rather than sitting high in it. */
+   Geometry: boxes 148×64 at (64|348) × (92|244), centred on (280, 200). */
 function Deploy() {
   const nodes = [
     { x: 64, y: 92, micro: "ANY ENGINEER", label: "Push" },
@@ -621,37 +580,16 @@ function Deploy() {
    box in the middle, and everything around it - retrieval, guardrails,
    evaluation, cost ceiling - is what makes it survive review.
 
-   -- REBUILT 2026-09-12. WHAT WAS WRONG -----------------------------------
-   1. TWO CAPTIONS AND TWO LINES OCCUPIED THE SAME BAND. "A PROMPT CHANGE VS
-      A REGRESSION" sat at y=306; the feedback line ran at y=288 and the
-      guardrail frame's bottom edge at y=304 - both struck straight through
-      the words. "GUARDRAILS BOTH ENDS" then sat below the frame at y=324,
-      detached from anything it named. Neither caption had clear space.
-   2. THE FEEDBACK EDGE ENDED IN MID-AIR. `M440 254 v34 H238 v-0` - note the
-      `v-0`, a no-op - stopped at x=238 inside the guardrail frame with no
-      arrowhead and no target. It pointed at nothing.
-   3. "GUARDRAILS BOTH ENDS" WAS A BOX AROUND EVERYTHING. A dashed rect
-      wrapping retrieval, the call and the cost ceiling does not say "both
-      ends" - it says "this region is guarded", which is a different and
-      vaguer claim, and it swept in the cost ceiling, which is not a
-      guardrail at all.
+   The guardrails are two gates on the spine, one before the call and one
+   after ("both ends"). A dashed brace joins them to a single caption.
 
-   -- WHAT IT DRAWS NOW ----------------------------------------------------
-   The guardrails are TWO GATES ON THE SPINE, one before the call and one
-   after, because that is literally what "on both ends" means and it is the
-   sentence the capability's own copy makes. A dashed brace joins the two up
-   to a single caption, so the caption is attached to both of the things it
-   names instead of floating under a frame.
+   The feedback edge leaves the harness, runs along the bottom and turns up
+   into the workflow step with an arrowhead: the verdict reaching whoever
+   changes the prompt. Captions sit in clear bands with no line crossing them.
 
-   The feedback edge now leaves the harness, runs along the bottom and turns
-   up into The step with an arrowhead on it - the verdict reaching the person
-   who changes the prompt, which is what the harness is FOR. Its caption sits
-   in the clear band above that run, with nothing crossing it.
-
-   Content spans x 20-544, y 52-348, centred on the frame at (282, 200).
-   The harness micro is "EVAL HARNESS" and not "EVALUATION HARNESS": at 10px
-   with 0.14em tracking the longer string is ~133px against 120px of usable
-   box, so it overset. */
+   Content spans x 20-544, y 52-348, centred on (282, 200). The harness micro
+   is "EVAL HARNESS" because the longer "EVALUATION HARNESS" oversets the box
+   at 10px with 0.14em tracking. */
 function Retrieval() {
   const metrics: [string, number][] = [
     ["accuracy", 0.86],
@@ -689,8 +627,8 @@ function Retrieval() {
       </g>
 
       {/* ---- the two gates ------------------------------------------------
-          A chip with two bars in it, before the call and after it. Drawn as
-          a pair so the brace below can name them together. */}
+          Before the call and after it, drawn as a pair so the brace below
+          can name them together. */}
       {[132, 342].map((gx) => (
         <g key={gx}>
           <rect
@@ -702,11 +640,8 @@ function Retrieval() {
             className="fill-indigo-600/10 stroke-indigo-600"
             strokeWidth={1}
           />
-          {/* A CHEVRON, NOT TWO BARS. The first pass drew two vertical
-              strokes inside each chip, which is the universal pause glyph —
-              it read as "the call is halted here" rather than "the call
-              passes a check here". The chevron points along the flow, so a
-              gate reads as something traffic goes THROUGH. */}
+          {/* A chevron along the flow, so the gate reads as something
+              traffic passes through. Two bars would read as a pause glyph. */}
           <path
             d={`M${gx + 10} 179 L${gx + 17} 186 L${gx + 10} 193`}
             className="stroke-indigo-600"

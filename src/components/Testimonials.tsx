@@ -1,24 +1,11 @@
 import SectionHeading from "./SectionHeading";
 import { QUOTES } from "@/content/site";
 
-/* DS §8.3 — client feedback, converted from prototype/ (hand-CSS → tokens).
+/* Client feedback grid. The attribution is pinned to the bottom (mt-auto) so
+   cards of different lengths still line up. The pull-quote is a separate
+   section (PullQuote.tsx): it is a slogan, not a fourth testimonial.
 
-   ⚠ EVERY QUOTE HERE IS A PLACEHOLDER AND MUST NOT SHIP AS-IS.
-   HANDOFF §7 P0: this is the same bucket as the case studies. A testimonials
-   block showing "Placeholder Name · VP Product, Placeholder Co" is worse than
-   having no testimonials — an empty space reads as an early company, a visibly
-   fake quote reads as a company that fabricates proof, which is precisely the
-   review's core finding. The section exists so the design is settled and the
-   real quotes can be dropped in; it is flagged so it cannot ship by accident.
-
-   Card design is prototype 1's `.quote`: a large quote mark, the quote at
-   17px/1.7, and the attribution pinned to the bottom (mt-auto) with a
-   gradient initials avatar so cards of different lengths still line up.
-
-   THE PULL-QUOTE USED TO LIVE HERE and was moved to PullQuote.tsx on
-   2026-09-07. It is not a fourth testimonial: this grid is evidence, that is a
-   slogan, and hanging it off the bottom of the grid under this section's
-   heading filed it as the former. Do not fold it back in. */
+   Copy marked data-placeholder is unverified; confirm before public launch. */
 export default function Testimonials() {
   return (
     <section
@@ -36,10 +23,9 @@ export default function Testimonials() {
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {QUOTES.map((q, i) => (
-            /* Wrapper reveals, figure hovers — same split as WorkCard and
-               CommitmentTile. `[data-reveal]` is unlayered in globals.css and
-               out-ranks any transition utility on its own element, so this
-               card's hover shadow was snapping. */
+            /* Wrapper reveals, figure hovers. `[data-reveal]` is unlayered in
+               globals.css and out-ranks any transition utility on its own
+               element, which would make the hover snap. */
             <div
               key={i}
               data-reveal
@@ -64,11 +50,6 @@ export default function Testimonials() {
                 </blockquote>
                 <figcaption className="mt-auto flex items-center gap-3.5">
                   <span
-                    /* 13px, not the 15px `.quote__avatar` asks for. In
-                     prototype 1 the sibling rule `.quote__who span` (0,1,1)
-                     out-specifies `.quote__avatar` (0,1,0) and wins, so the
-                     avatar RENDERS at 13px. Matched to the render, as asked —
-                     change to text-[15px] for the authored intent. */
                     className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand to-accent font-display text-[13px] font-bold text-white"
                     aria-hidden="true"
                   >

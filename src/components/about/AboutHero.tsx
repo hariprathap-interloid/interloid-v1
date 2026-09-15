@@ -1,34 +1,18 @@
 import Icon from "../Icon";
 import { ABOUT_FACTS, ABOUT_HERO } from "@/content/about";
 
-/* /about hero.
+/* /about hero. Same skeleton as the other sub-page heroes (bg-secondary,
+   badge → H1 → lead → one action) so the pages read as one site. The
+   backdrop is deliberately just two orbs, with no grid texture: the quietest
+   hero on the site, for a page where the company talks about itself.
 
-   Same skeleton as WhyHero and CareersHero — `min-h-svh`, bg-secondary,
-   badge → H1 → lead → one action — so the four sub-pages read as one site.
-
-   ── THE BACKDROP IS THE DIFFERENCE ───────────────────────────────────────
-   Each sub-page hero has its own texture, and by now they are a set:
-   /careers is a DOT grid, /why-choose-us is a LINE grid ("this page is a
-   document"). This one has NO grid at all — two orbs and nothing else. It is
-   the quietest hero on the site on purpose: the page is a company talking
-   about itself, and a ruled backdrop would give it a formality the copy
-   spends three paragraphs disowning.
-
-   `min-h-[88svh]` with `items-center`, not padding-sized: a padding-sized hero
-   is a FIXED height at every viewport, which measured 57% of a 2560×1440
-   monitor on /careers before that was fixed.
-
-   Three details, all of them learned on the careers hero:
-     · `svh`, not `vh`. `vh` is the LARGEST viewport height on mobile, so a
-       `100vh`-family hero sits under the browser's own chrome until scrolled.
-     · a MINIMUM, so it can never squash content on a short viewport.
-     · 88 rather than 100, so the next section's top edge stays visible. A hero
-       that exactly fills the screen hides the fact that anything is below it.
-
-   ⚠ /why-choose-us' hero uses a full `min-h-svh`, so the site currently has
-   two rules for the same thing. Flagged to the user rather than unified here:
-   that hero's height was set on their instruction on 2026-09-08 and is not
-   this page's to change. */
+   Height is `min-h-[88svh]` with `items-center` rather than padding-sized,
+   which would be a fixed height that looks short on a large monitor:
+     · `svh`, not `vh`: `vh` is the largest viewport height on mobile, so a
+       `vh` hero sits under the browser's own chrome until scrolled.
+     · a minimum, so it can never squash content on a short viewport.
+     · 88 rather than 100, so the next section's top edge stays visible and
+       signals there is more below. */
 export default function AboutHero() {
   return (
     <section
@@ -56,10 +40,10 @@ export default function AboutHero() {
             <span className="text-muted-foreground">{ABOUT_HERO.eyebrow}</span>
           </div>
 
-          {/* Two BLOCK spans, and the gradient is applied to ONE of them
-              whole. HANDOFF §5.13: `background-clip: text` paints on the
-              parent, so an inline-block child falls outside the clip and
-              renders as nothing. Never split a gradient across spans. */}
+          {/* Two block spans, with the gradient applied to one of them whole:
+              `background-clip: text` paints on the element that carries it,
+              so an inline-block child falls outside the clip and renders as
+              nothing. Never split a gradient across spans. */}
           <h1
             data-reveal
             style={{ "--delay": "100ms" } as React.CSSProperties}
@@ -94,12 +78,11 @@ export default function AboutHero() {
           </div>
         </div>
 
-        {/* One panel of four cells rather than four cards. Careers learned
-            this the hard way: as separate cards, a cell whose body wraps to
-            two lines leaves the row visibly ragged, and `h-full` only moves
-            the gap inside the boxes. FLEX, not grid — `divide-x` keys off DOM
-            order, so on a wrapping grid it draws a rule down the left of a
-            cell that is sitting in column one. */}
+        {/* One panel of four cells rather than four cards: as separate cards,
+            a body that wraps to two lines leaves the row ragged, and `h-full`
+            only moves the gap inside the boxes. Flex, not grid: `divide-x`
+            keys off DOM order, so on a wrapping grid it draws a rule down the
+            left of a cell sitting in column one. */}
         <div
           data-reveal
           style={{ "--delay": "380ms" } as React.CSSProperties}

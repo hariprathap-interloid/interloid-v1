@@ -1,36 +1,19 @@
 import SectionHeading from "../SectionHeading";
 import { ORIGIN } from "@/content/about";
 
-/* "Why we exist" — the narrative.
-
-   ── THE ONE PROSE SECTION ON THE SITE ────────────────────────────────────
-   Every other section anywhere on this site is tiles, cards or a list. This
-   one is three paragraphs, because it is the only thing here that is
-   genuinely a STORY and tiles would chop it into slogans. It is DS §3.4's
-   long-form typography, which the site has never used, and that is the point:
-   an About page should sound like a person, and a person does not speak in a
-   three-column grid.
-
-   The first paragraph opens with the reader's experience rather than the
-   company's history, which is also how it avoids inventing one — see the
-   content banner, which is emphatic about this. Nothing here is a historical
-   claim.
+/* "Why we exist" — the narrative, set as long-form prose rather than tiles,
+   because it is a story and tiles would chop it into slogans.
 
    ── LAYOUT: 7/5, AND THE ASIDE IS STICKY ─────────────────────────────────
    `lg:grid-cols-12` with the prose on 7 and the facts on 5, so the measure
-   stays near 65–75 characters at every width — a full-width paragraph at
-   1280px is unreadable and is the usual way "long-form" goes wrong.
+   stays near 65–75 characters at every width.
 
-   The aside is `lg:sticky lg:top-32`, which is the ONE thing on this page
-   that would have silently done nothing a week ago: `<body>` carried
-   `overflow-x-hidden`, making it a scroll container, which makes every
-   `position: sticky` on the site inert. That was found and fixed during the
-   /services build (`overflow-x-clip` now) — see TAILWIND-MAP §4c before
-   touching any sticky layout.
+   The aside is `lg:sticky`. Sticky is inert inside any ancestor with
+   `overflow: hidden/auto/scroll` (it becomes the scroll container), which is
+   why <body> uses `overflow-x-clip`; keep it that way.
 
-   HOVER: the aside rows only, and only a colour — this section is reading
-   material, and a card that reacts under the cursor while you are reading a
-   paragraph is a distraction rather than an affordance. */
+   Hover is colour-only and on the aside rows only: this is reading
+   material, and a card reacting under the cursor mid-paragraph distracts. */
 export default function Origin() {
   return (
     <section
@@ -53,10 +36,8 @@ export default function Origin() {
 
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-7">
-            {/* `text-[17px]/[1.8]` and `space-y-6`, not the site's usual
-                15px/1.7 body: this is the one block a visitor reads
-                continuously rather than scans, and DS §3.4 sets long-form
-                looser than card copy for exactly that reason. */}
+            {/* Larger and looser than the usual 15px/1.7 body: this block is
+                read continuously rather than scanned. */}
             <div className="space-y-6">
               {ORIGIN.body.map((para, i) => (
                 <p

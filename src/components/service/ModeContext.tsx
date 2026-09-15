@@ -5,37 +5,21 @@ import Icon from "../Icon";
 import { SERVICE_MODES, type ServiceMode } from "@/content/service";
 
 /* ==========================================================================
-   THE PAGE'S SPINE — which of the two buyers is reading.
+   SERVICE MODE — which of the two buyers is reading ("build" or "extend").
    ==========================================================================
-   SERVICE-PAGE-RESEARCH.md §3.1: the reference pages speak to exactly one
-   customer ("we will build this for you"), so a visitor who wants engineers
-   INSIDE THEIR OWN TEAM has nowhere to land. Interloid has two audiences of
-   roughly equal weight, and the page's answer is to let the visitor say which
-   they are — once, in the hero — and then answer them specifically in the
-   hero lead, the approach notes, the engagement panel and the CTA.
+   The visitor picks once, in the hero, and the hero lead, approach notes,
+   engagement panel and CTA answer that choice specifically.
 
-   It is a genuine qualifying question, not a gimmick: the two paths differ in
-   price shape, timeline, staffing and exit, and a page that averages them
-   serves neither. It is also the one interaction on this page that has no
-   counterpart in the reference.
+   Context rather than props: several distant sections read the mode, and
+   threading a prop from the route would make page.tsx a Client Component.
 
-   ── WHY CONTEXT AND NOT PROPS ────────────────────────────────────────────
-   Four sections read the mode and two of them are far apart in the tree.
-   Threading a prop from the route would make page.tsx a Client Component and
-   pull every section into the client bundle with it; the provider keeps that
-   boundary at the sections that actually need it.
+   Switching mode must never unmount revealed content. The reveal script
+   observes [data-reveal] once, on mount, so an element created by a later
+   state change stays at opacity 0 forever. Consumers swap text inside a
+   stable element, or toggle `hidden` on an always-mounted node.
 
-   ── WHAT THIS MUST NOT DO ────────────────────────────────────────────────
-   Switching mode must never UNMOUNT revealed content. Reveal.tsx observes
-   [data-reveal] once, on mount (see its note), so an element created by a
-   later state change is never observed and stays at opacity 0 forever. Every
-   consumer therefore swaps TEXT inside a stable element, or toggles `hidden`
-   on a node that is always mounted — never a conditional render around a
-   [data-reveal] node. The same rule that Roles.tsx's filter obeys.
-
-   No persistence. localStorage was considered and rejected: a returning
-   visitor whose situation changed would be answered by last month's choice
-   with no visible reason, and the switch costs one click.
+   Deliberately not persisted: a returning visitor should not be answered by
+   a stale choice, and the switch costs one click.
    ========================================================================== */
 
 type Ctx = {
@@ -53,8 +37,7 @@ export function useServiceMode() {
 }
 
 export function ModeProvider({ children }: { children: React.ReactNode }) {
-  /* "build" first because it is the broader audience and the page has to make
-     sense before anybody touches the switch. */
+  /* "build" is the broader audience, so the page defaults to it. */
   const [mode, setMode] = useState<ServiceMode>("build");
   const value = useMemo<Ctx>(
     () => ({
@@ -70,15 +53,12 @@ export function ModeProvider({ children }: { children: React.ReactNode }) {
 /* ==========================================================================
    THE SWITCH.
    ==========================================================================
-   A real ARIA tablist with a roving tabindex — only the selected option is in
-   the tab order and Arrow keys move between them, which is what a two-option
-   selector owes a keyboard user. It is NOT a radio group: the choice has no
-   value on submit, it re-renders the page's content, which is what tabs are.
+   An ARIA tablist with a roving tabindex: only the selected option is in the
+   tab order and Arrow keys move between them. Tabs rather than a radio group,
+   because the choice has no submit value — it swaps page content.
 
-   `panelId` wires aria-controls to whichever region the caller considers the
-   panel (the hero copy, or the engagement card lower down). Two switches on
-   one page is deliberate — the second one is where a visitor who scrolled
-   past the first finally realises which they are.
+   `panelId` wires aria-controls to the caller's panel. `idPrefix` keeps tab
+   ids unique when more than one switch is on the page.
    ========================================================================== */
 export function ModeSwitch({
   panelId,
@@ -109,17 +89,9 @@ export function ModeSwitch({
       <div
         role="tablist"
         aria-label="Engagement model"
-        /* TWO PILLS IN A ROW NEED 414px, AND PHONES ARE NARROWER THAN THAT.
-           As a bare `inline-flex` the pills could not shrink below their
-           text, so at 320–413 both labels broke to two lines ("Build it
-           with / us"), the tabs grew 40px → 60px, and each icon detached
-           from the words it belongs to. Measured: the wrap clears at 414
-           exactly, so the row starts one step above that.
-
-           Below it the two pills stack full-width, which is also the better
-           tap target — and it echoes the hero's stacked cards at the same
-           width. `rounded-3xl` on the stacked box because `rounded-full` on
-           a two-row container bows its sides. */
+        /* Two pills in a row need ~414px without their labels wrapping, so
+           below 420px they stack full-width. `rounded-3xl` on the stacked
+           box because `rounded-full` on a two-row container bows its sides. */
         className="grid w-full grid-cols-1 gap-1 rounded-3xl border border-border bg-card p-1.5 shadow-sm min-[420px]:inline-flex min-[420px]:w-auto min-[420px]:rounded-full"
         onKeyDown={onKeyDown}
       >
@@ -150,19 +122,14 @@ export function ModeSwitch({
     );
   }
 
-  /* The hero version: two full cards, because at that point in the page the
-     visitor needs the HINT to recognise themselves, not just the label. */
+  /* The large version: full cards, so each option shows its hint as well as
+     its label. */
   return (
     <div
       role="tablist"
       aria-label="Which describes you"
-      /* ONE COLUMN AGAIN ACROSS 1024–1279, for the reason ServiceHero.tsx's
-         figure row is stacked over the same band: at `lg` the hero splits
-         7/5 and this card drops from full width to 355px, so two columns
-         are ~155px each — both labels wrap ("Build it with / us") and each
-         hint becomes a six-line ragged column. The cards need ~200px to
-         read, which they have below `lg` at full width and again from `xl`,
-         where the column is 453px. */
+      /* One column across `lg`–`xl`: the hero's 7/5 split narrows this card
+         so two columns would be ~155px each, and the cards need ~200px. */
       className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2"
       onKeyDown={onKeyDown}
     >
@@ -196,8 +163,8 @@ export function ModeSwitch({
                 <span className="font-display text-[15px] font-bold tracking-[-0.015em] text-foreground">
                   {m.label}
                 </span>
-                {/* The check is the confirmation that a choice registered —
-                    a border change alone is easy to miss on a small screen. */}
+                {/* Check mark confirms selection; a border change alone is
+                    easy to miss on a small screen. */}
                 <span
                   className={`grid size-4 place-items-center rounded-full transition-opacity duration-200 ${
                     on ? "bg-accent text-white opacity-100" : "opacity-0"

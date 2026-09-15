@@ -1,35 +1,19 @@
 /* ==========================================================================
-   Interloid — globals.css
-
-   The prototype split this in three because the Tailwind *browser* CDN cannot
-   resolve a relative @import (HANDOFF §5.12). That constraint is gone here, so
-   the three rejoin as one file, in the order TAILWIND-MAP §5 specifies:
-
+   Global styles, in order:
      1. @import "tailwindcss"
-     2. the semantic tokens  (was prototype3/theme.css)
-     3. @theme inline        (was the inline block in index.html)
-     4. non-utility CSS      (reveals, rail, focus rings, hero stage, keyframes)
+     2. semantic tokens (light, then .dark)
+     3. @theme inline
+     4. non-utility CSS: reveals, focus rings, component animations, hero
 
-   §4 stays real CSS on purpose — TAILWIND-MAP §3: per-element `var(--delay)`
-   transitions, whole-component `prefers-reduced-motion`, and composed
-   focus-ring shadows cannot be expressed as utilities.
-
-   NOTE: the prototype carried this block TWICE — index.html lines 111-163 were
-   a byte-identical duplicate of the head of the surviving block. Ported once.
+   Section 4 stays real CSS because per-element `var(--delay)` transitions,
+   whole-component reduced-motion handling and composed focus-ring shadows
+   cannot be expressed as utilities.
    ========================================================================== */
 
 @import "tailwindcss";
 
-/* NEUTRALS ARE TAILWIND **v4** SLATE (corrected 2026-09-06).
-   They were written from v3 values — slate-500 #64748b, slate-900 #0f172a,
-   slate-300 #cbd5e1, slate-950 #020617 — while DESIGN-SYSTEM.md §2.2 specifies
-   v4 and the reference site renders v4. This is the exact trap HANDOFF §4 and
-   TAILWIND-MAP §1 call the highest-risk item in the port, arriving from the
-   unexpected side: the build was already pinned to v4, but these hand-written
-   tokens still encoded v3, so every neutral sat one hair off spec with nothing
-   visibly broken. Found by diffing the ported sections against prototype 1,
-   where all 17 remaining colour differences traced back to these four values.
-   Do not "restore" the old numbers. */
+/* Neutrals are Tailwind v4 slate. v3 slate values differ slightly; do not mix
+   them in. */
 :root {
   --radius: 0.75rem;
 
@@ -51,35 +35,25 @@
      only. For body-size accent text use --accent-strong (#1b7c99, 4.6:1). */
   --accent: oklch(0.6481 0.1094 221.82); /* #289dbe */
   --accent-foreground: oklch(1 0 0);
-  --accent-strong: oklch(0.5466 0.0947 223.53); /* #1b7c99 */
+  --accent-strong: oklch(0.52 0.0947 223.53); /* AA on --secondary */
 
   /* Neutrals ------------------------------------------------------------- */
   --secondary: oklch(0.9621 0.0097 252.81); /* #eef3f9 alt section */
   --secondary-foreground: oklch(0.4751 0.1249 253.47);
   --muted: oklch(0.9683 0.0069 247.9); /* #f1f5f9 */
-  --muted-foreground: oklch(0.5542 0.0460 257.53); /* #62748e body copy   */
-  /* Body copy that has to survive something drawn UNDER it. --muted-foreground
-     is #62748e, which measures 4.69:1 on the commitment tile's hover ground —
-     0.19 over AA, no headroom for the cursor wash (see CommitmentTile.tsx §2
-     and spotlight-lab.html). This is slate-600, 7.5:1, which leaves room to
-     spend. A token and not a `dark:` utility on the element: NOTHING in this
-     app uses Tailwind's `dark:` variant, because dark is a `.dark` CLASS here
-     and v4's `dark:` defaults to prefers-color-scheme — the utility would
-     silently never fire. Themed values go through tokens, always. */
+  --muted-foreground: oklch(0.52 0.046 257.53); /* body copy, AA on --secondary */
+  /* Body copy that must stay AA over something drawn under it (e.g. a hover
+     wash). Themed values always go through tokens, never Tailwind's `dark:`
+     variant: dark mode here is a `.dark` class, and v4's `dark:` follows
+     prefers-color-scheme, so the utility would silently never fire. */
   --muted-strong: oklch(0.4461 0.0263 256.8); /* #45556c slate-600 */
   --border: oklch(0.9288 0.0126 255.51); /* #e2e8f0 */
-  /* Faint DISPLAY text (the stack marquee, inactive selector arrows). This used
-     to borrow --border, which works on light only: in dark --border is white at
-     10% alpha and the marquee all but disappeared. A border colour and a text
-     colour are not the same thing — they need separate tokens. */
+  /* Faint display text. Separate from --border: in dark, --border is a low
+     alpha white that all but disappears as text. */
   --faint: oklch(0.9288 0.0126 255.51); /* #e2e8f0 */
-  /* "FILL ME IN": the hint inside a blank on /contact, and the empty slots in
-     its live letter. Added 2026-09-12 — the grey it replaces passed AA at
-     4.76:1 but the user could not read it comfortably ("not visible
-     properly"). Teal, not a darker grey: a darker grey at body weight reads
-     as a TYPED answer, while the brand's cyan family says "a slot". ~5.6:1
-     on card. In DARK it is the body grey instead: there --primary flips to
-     cyan, so the answers are already cyan and a teal hint would fight them. */
+  /* Placeholder hint in /contact blanks and empty letter slots. Teal, not a
+     darker grey, which would read as a typed answer. In dark it is the body
+     grey, because answers there are already cyan. */
   --hint: oklch(0.44 0.09 223);
   --hairline: oklch(0.9683 0.0069 247.9); /* #f1f5f9 */
   --input: oklch(0.9288 0.0126 255.51);
@@ -92,42 +66,19 @@
   --ink-muted: #90a1b9; /* slate-400. Literal: the oklch round-trip landed
                            1-3 units off per channel against the reference. */
 
-  /* The dark slab's own accents. They are NOT --accent: the CTA reads against
-     #0f172b, where the brand cyan (#289dbe) goes muddy, so prototype 1 lights
-     it with a brighter pair — the badge, the check marks and the headline
-     gradient all come from here.
-
-     Written as literal hex ON PURPOSE. These are Tailwind v3's sky-400 and
-     emerald-400; v4 moved sky-400 to #00bcff, so `text-sky-400` in this build
-     would NOT reproduce the prototype. Same class of trap as the neutrals in
-     CLAUDE.md gotcha 2, caught the same way — by measuring rather than by
-     trusting the name.
-
-     Constant across themes: the slab is dark in both, so there is no dark
-     override for these three and there must not be one. */
+  /* The dark CTA slab's accents, brighter than --accent, which goes muddy on
+     ink. Literal hex on purpose: these are Tailwind v3 sky-400/emerald-400, and
+     v4's `sky-400` is a different colour. Constant across themes because the
+     slab is dark in both; there must be no .dark override. */
   --spark: #38bdf8; /* v3 sky-400     — badge, checks, gradient start */
   --spark-end: #34d399; /* v3 emerald-400 — gradient end               */
 
-  /* The CTA button's fill and hover, pinned. These are --brand and
-     --accent-strong in the light theme, and it is tempting to just use those
-     — but BOTH are redefined under .dark, and the slab is not: it is #0f172b
-     in either theme. Measured: with `bg-brand` the button rendered #1f5da0 in
-     light and #3a7bc8 in dark, i.e. the same dark slab showed two different
-     buttons for no reason a reader could see. Anything painted ON the slab
-     has to be theme-independent, like --ink itself. */
+  /* CTA button fill and hover on dark slabs, pinned. Not --brand: that is
+     redefined under .dark while the slab is not, so anything painted on the
+     slab must be theme-independent. */
   --ink-cta: #1f5da0; /* = light --brand          */
-  /* The hover was prototype 1's `--accent-text` (#1b7c99) and the user read it
-     as going DARKER. The numbers say it was in fact 1.40x brighter — but it is
-     a desaturated TEAL arriving over a saturated blue, and a hue shift that
-     drops saturation reads as dimming whatever the luminance does. So the
-     hover stays in the blue family and simply lightens.
-
-     It then went too far the other way: #2d74c4 (1.41x) read as too bright,
-     so this is #2666a8 — a 1.13x lift, which is enough to register as a state
-     change and not enough to flare. It also buys contrast back: white on it is
-     5.92:1 against #2d74c4's 4.77:1, and the button's 17px bold label is NOT
-     "large text" under WCAG (that starts at 18.66px bold), so it needs the
-     full 4.5:1, not 3:1 — 5.92 is a margin, 4.77 was a squeak. */
+  /* Hover stays in the blue family (a teal shift reads as dimming) and keeps
+     white text above 4.5:1; the 17px bold label is not WCAG large text. */
   --ink-cta-hover: #2666a8; /* a LIGHTER BLUE, not the teal */
 
   --destructive: oklch(0.577 0.245 27.325);
@@ -135,23 +86,18 @@
   /* Technology logo plates (TechLogo.tsx). White in light; see .dark. */
   --logo-plate: oklch(1 0 0);
 
-  /* The nav's current-link lift. In light this is EXACTLY Tailwind v4's
-     `shadow-sm`, so light mode is unchanged. It is a token because the dark
-     value has to be a different COLOUR, not a different size: a black shadow
-     on a #0f172b pill measured as nothing, and the current link's bg-card is
-     the same colour as the pill it sits in, so in dark the shadow was the
-     only mark the link had and it could not be seen. */
+  /* The nav's current-link lift. Light matches Tailwind v4's `shadow-sm`. A
+     token because dark needs a different colour: a black shadow is invisible
+     on the dark pill, where it is the link's only mark. */
   --nav-active-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1),
     0 1px 2px -1px rgb(0 0 0 / 0.1);
 
-  /* The nav links pill's hairline. White/40 in light, as it always was; a
-     white ring on navy read as a hard outline, so dark tints it — see .dark. */
+  /* The nav links pill's hairline. Dark tints it: a white ring on navy reads
+     as a hard outline. */
   --nav-pill-border: rgb(255 255 255 / 0.4);
 }
 
-/* DS §1.2 rule 1: "Light-first. There is no dark mode." This block is declared
-   so the architecture is complete and a future toggle is a CSS-only change —
-   nothing in the prototype activates it today. */
+/* Dark theme, applied by the `.dark` class on <html>. */
 .dark {
   --background: oklch(0.1298 0.0425 265.13);
   --foreground: oklch(0.9842 0.0034 247.86);
@@ -169,24 +115,9 @@
   --accent-foreground: oklch(0.1298 0.0425 265.13);
   --accent-strong: oklch(0.7107 0.0351 256.79);
 
-  /* ── THE ALT SECTION GROUND MUST STAY BELOW --card ────────────────────
-     Was oklch(0.2795 0.0368 260.03) (#1e293b) — the same value as --muted,
-     and that was the bug rather than the taste. In dark it made --secondary
-     the LIGHTEST surface on the page, above --card:
-
-         background #020618 L .0021  <  card #0f172b L .0089  <  #1e293b L .0218
-
-     So on the two `bg-secondary` sections (Advantage and the FAQ) the cards
-     were DARKER than the ground they sat on — 0.82x, a hole rather than a
-     lift — while the same cards lifted 1.13x on every other section. Light
-     mode has it right (card #fff is the lightest thing there); dark had the
-     stack upside down.
-
-     It now sits BETWEEN background and card, so the order matches light mode's
-     intent — the alternating band still reads, and cards lift on every
-     section. Deliberately NOT shared with --muted any more: --muted is a chip
-     and hover ground (Nav, the Services pills) which sits ON dark sections and
-     is supposed to come forward. Same colour, opposite jobs. */
+  /* --secondary must sit between --background and --card in lightness, or
+     cards on alternate sections read as holes instead of lifting. It is not
+     shared with --muted, a chip/hover ground that must come forward. */
   --secondary: oklch(0.166 0.043 264.5);
   --secondary-foreground: oklch(0.9842 0.0034 247.86);
   --muted: oklch(0.2795 0.0368 260.03);
@@ -218,9 +149,8 @@
   --nav-pill-border: color-mix(in oklab, var(--primary) 30%, transparent);
 }
 
-/* Near-black logo ink on the dark plate — see TechLogo.tsx's INK_MARKS.
-   Scoped to `.dark` here because that is how this app themes (never the
-   `dark:` utility, which follows the OS rather than the toggle).
+/* Near-black logo ink on the dark plate. Scoped to `.dark`, never the `dark:`
+   utility, which follows the OS rather than the toggle.
      · logo-mono   — a single-colour mark flattened to pure white.
      · logo-invert — a black-and-white-only mark with the two swapped. */
 .dark .logo-mono {
@@ -229,7 +159,7 @@
 .dark .logo-invert {
   filter: invert(1);
 }
-/* Per-theme FILE swap for multi-colour marks (TechLogo.tsx's ON_DARK). */
+/* Per-theme file swap for multi-colour marks. */
 .logo-dark-src {
   display: none;
 }
@@ -259,8 +189,8 @@
     transform: translateX(-33.333%);
   }
 }
-/* opacity only: `transform` is owned by the pointer/scroll parallax (§7.2).
-   Animating transform here would replace the whole property and cancel it. */
+/* Opacity only: `transform` is owned by the parallax. Animating transform
+   here would replace the whole property and cancel it. */
 @keyframes orb {
   0%,
   100% {
@@ -309,13 +239,9 @@
   --color-hairline: var(--hairline); /* lighter than --border  */
   --color-logo-plate: var(--logo-plate); /* TechLogo plate         */
 
-  /* next/font supplies hashed family names through these CSS variables, set on
-     <html> in layout.tsx. Both faces are SELF-HOSTED — Inter via
-     next/font/google, Satoshi via next/font/local from src/fonts/. That kills
-     the prototype's second font origin (api.fontshare.com), which HANDOFF §8
-     flagged as a DNS+TLS handshake against the FCP 364ms budget. */
+  /* next/font supplies self-hosted family names through CSS variables set on
+     <html> in layout.tsx, so no third-party font origin is contacted. */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  /* Outfit everywhere the design says "display" — prototype 1's face. */
   --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
   /* Satoshi is reserved for the hero H1. `font-hero` is the only way to reach
      it; do not widen that. */
@@ -325,7 +251,7 @@
   --animate-marquee: marquee 28s linear infinite;
   --animate-orb: orb 10s ease-in-out infinite;
 
-  /* DS §1.2 rule 3 — "nothing is sharp". One knob scales every radius. */
+  /* One knob scales every radius. */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -339,8 +265,9 @@ html {
   scroll-padding-top: 7rem;
 }
 
-/* §13.1 scroll-reveal vocabulary: opacity 0→1, y 20→0, ~600ms, once. */
-[data-reveal] {
+/* Scroll reveals: opacity 0→1, y 20→0, ~600ms, once (see Reveal.tsx). */
+/* Hidden only when JS is available (the `js` class is set in layout.tsx). */
+.js [data-reveal] {
   opacity: 0;
   transform: translateY(20px);
   transition:
@@ -353,7 +280,7 @@ html {
   transform: none;
 }
 
-/* The process connector draws itself (§8.9). */
+/* The process connector draws itself. */
 [data-rail] {
   transform: scaleX(0);
   transform-origin: left;
@@ -372,8 +299,8 @@ html {
   }
 }
 
-/* HANDOFF §5.2 — a component's own shadow out-cascades the global focus ring,
-     while the ring's outline:none still applies. Compose, never replace. */
+/* Focus ring as a box-shadow. A component's own shadow out-cascades it while
+   `outline: none` still applies, so compose shadows, never replace them. */
 :focus-visible {
   outline: none;
   box-shadow:
@@ -385,25 +312,19 @@ html {
     0 0 0 2px var(--ink-deep),
     0 0 0 4px var(--accent);
 }
-/* Inline blanks in the /contact story (brief/parts.tsx InlineBlank). The
-   ring above boxed ONE WORD inside a sentence — which turned the blank back
-   into a form field (the one thing that page exists to avoid) and covered
-   the underline of the blank on the line above. Here focus is the same 2px
-   ring colour laid along the bottom of the word, plus a faint tint behind
-   it: still a visible indicator, just shaped like the blank. Unlayered and
-   (0,2,0), so it beats the global rule above; a Tailwind utility could not,
-   because layered CSS loses to unlayered at any specificity. */
+/* Inline blanks in the /contact story: focus is an underline plus a faint
+   tint, shaped like the blank rather than a boxed ring. Unlayered and (0,2,0)
+   so it beats the global rule above; a Tailwind utility could not, because
+   layered CSS loses to unlayered CSS at any specificity. */
 .blank-in-text:focus-visible {
   box-shadow: 0 2px 0 0 var(--ring);
   background: color-mix(in srgb, var(--ring) 8%, transparent);
   border-radius: 0.35rem 0.35rem 0 0;
 }
 
-/* Tailwind v4's preflight gives buttons `cursor: default`, so every button
-   on the site — suggestion pills, toggles, send, the phone bar — showed an
-   arrow (user report, 2026-09-11). Restored for everything clickable. In
-   the BASE layer on purpose, so a utility like `disabled:cursor-wait` or
-   `cursor-not-allowed` still wins where a component asks for one. */
+/* Tailwind v4's preflight gives buttons `cursor: default`; restore the
+   pointer for everything clickable. In the base layer on purpose, so utilities
+   like `cursor-not-allowed` still win. */
 @layer base {
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -415,7 +336,7 @@ html {
   }
 }
 
-/* DS 9.10 shine sweep - reserved for the single most important CTA. */
+/* Shine sweep, reserved for the single most important CTA. */
 @keyframes shine {
   0% {
     opacity: 0;
@@ -467,28 +388,15 @@ html {
 /* ======================================================================
    ECOSYSTEM MAP — the /services three-level diagram.
 
-   Real CSS, not utilities, for the three reasons TAILWIND-MAP §3 lists:
-   these are per-element `var(--delay)` transitions, they must be switchable
-   as WHOLE COMPONENTS under prefers-reduced-motion (CLAUDE.md rule 7), and
-   two of them animate SVG geometry that no utility expresses.
+   Resting cycle: one service is emphasised at a time on a ~3.4s beat, driven
+   by pure CSS with a staggered `animation-delay` (no JS timer or re-render).
 
-   ── THE RESTING CYCLE ────────────────────────────────────────────────
-   At rest the map narrates itself: one service is emphasised at a time, on
-   a ~3.4s beat, looping — the behaviour measured on the reference's agent
-   diagram (scale 1.15, spring settle, ~3.4s per node). Here it is pure CSS
-   with a staggered `animation-delay`, NOT a JS timer: no client state, no
-   re-render, and the desktop copy and the mobile copy each run their own
-   without being told to.
+   The keyframe's end state must be the resting state: the global
+   reduced-motion block lands every animation on its final keyframe.
 
-   THE KEYFRAME'S END STATE IS THE RESTING STATE, AND THAT IS LOAD-BEARING.
-   The global reduced-motion block below forces `animation-iteration-count: 1`
-   and a 0.01ms duration, which lands every animated element on its FINAL
-   keyframe. So 100% must be the un-emphasised node — otherwise a
-   reduced-motion visitor would get six permanently-enlarged services.
-
-   The translate is inside the keyframe because the node's position comes
-   from left/top percentages plus a centring translate; animating `transform`
-   without it would fling every node to the stage origin. */
+   The translate is inside the keyframe because nodes are positioned by
+   left/top plus a centring translate; animating `transform` without it would
+   fling every node to the stage origin. */
 @keyframes eco-cycle {
   0%,
   13% {
@@ -501,16 +409,12 @@ html {
 }
 
 .eco-node {
-  /* THE BASE TRANSFORM IS NOT OPTIONAL. The node is positioned by left/top
-     percentages and centred by this translate. When the cycle below is
-     switched off (`animation: none` on hover, or under reduced motion) the
-     keyframe's transform vanishes with it — without a base transform here
-     every service would jump half its own size down and right at the moment
-     the visitor's cursor arrives. Found by hovering, not by reading. */
+  /* The base transform is required: when the cycle is switched off (hover or
+     reduced motion) the keyframe's transform goes with it, and nodes would
+     jump by half their size. */
   transform: translate(-50%, -50%);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  /* 6 services × 3.4s = 20.4s for a full turn of the map. DS §13.4 puts
-     continuous loops in the 2–25s band. */
+  /* 6 services × 3.4s = 20.4s for a full turn of the map. */
   animation: eco-cycle 20.4s linear infinite;
   animation-delay: calc(var(--i) * 3.4s);
 }
@@ -534,21 +438,15 @@ html {
 /* While a layout that MOVES its nodes is settling, the nodes that are not
    selected stop accepting the pointer — otherwise whichever one slides under
    the cursor fires its own mouseenter and takes the selection, which moves
-   the wheel again. Only the variant that turns its wheel sets this flag; see
-   useEcosystem's `guardMovingLayout`. */
+   the layout again. */
 .eco-stage[data-settling="true"] .eco-node:not([data-active="true"]) {
   pointer-events: none;
 }
 
 /* ── CONNECTORS ───────────────────────────────────────────────────────
-   The reference draws its connectors on, staggered, when the section
-   scrolls in — its lines carry fractional `stroke-dasharray` values with no
-   CSS animation, which is the signature of a pathLength-normalised draw.
-   Ours is the same effect keyed to this site's own reveal observer: the SVG
-   carries [data-reveal], and `is-in` releases the dash.
-
-   `pathLength="1"` on the line makes the dash unit-independent, so one rule
-   works for connectors of six different lengths. */
+   Drawn on when the section reveals: the SVG carries [data-reveal] and
+   `is-in` releases the dash. `pathLength="1"` on each line makes the dash
+   unit-independent, so one rule works at every length. */
 .eco-line {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
@@ -571,8 +469,7 @@ html {
 /* ── LEVEL 2 AND 3 ────────────────────────────────────────────────────
    Groups and technologies fade+rise into place, staggered outward from the
    service so the eye follows the branch growing rather than a block
-   appearing. 260ms is inside DS §13.3's 300ms workhorse band; the stagger
-   is what carries the sense of sequence, not the duration. */
+   appearing. */
 .eco-grow {
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.82);
@@ -589,11 +486,9 @@ html {
 }
 
 /* ── REDUCED MOTION ───────────────────────────────────────────────────
-   The global block at the end of this file already flattens durations, but
-   it cannot express "and the resting cycle should simply not exist". These
-   rules say that explicitly, at the component level, which is the standard
-   CLAUDE.md rule 7 sets. The map stays fully usable: selection still works,
-   the branch still appears — it just appears rather than grows. */
+   The global block at the end of this file flattens durations but cannot
+   remove the resting cycle, so it is switched off here explicitly. Selection
+   still works; branches appear rather than grow. */
 @media (prefers-reduced-motion: reduce) {
   .eco-node {
     animation: none;
@@ -613,31 +508,14 @@ html {
 }
 
 /* ── LEVEL 2 AS A CIRCLE ──────────────────────────────────────────────
-   The user's own sketch: a group is a round node with its name wrapped
-   inside, rather than a lozenge with the name on one line. It reads as the
-   middle member of a family — core, service, group, technology, all discs at
-   four sizes — where a pill reads as a caption that happens to sit there.
-
-   A page-scoped modifier, not a prop: `.eco-circles` on an ancestor restyles
-   every group label in every variant at once, so the two treatments can be
-   compared from one codebase. Remove the class and the pills come back.
-
-   `width` and `height` are fixed and equal, which is what makes it a circle
-   and not an ellipse — the label length varies from "Databases" to
-   "Containers & orchestration" and an intrinsic width would give twenty
-   different shapes. The long ones wrap and, past three lines, clip: the
-   circle is the constraint, and a name that cannot fit it is a signal that
-   the label is too long rather than a reason to distort the node. */
+   `.eco-circles` on an ancestor renders each group as a disc with its name
+   wrapped inside. Width and height are fixed and equal so every label length
+   gives the same circle; long names wrap and clip rather than distort it. */
 .eco-circles .eco-group {
   display: grid;
   place-items: center;
-  /* 6.75rem. The label was pushed to a 10px floor on request, and 10px needs
-     more room than 8.5px did - the disc has to grow with the type or the
-     longest labels lose a line. */
-  /* 6.25rem. 6.75 fitted the 10px label comfortably but the extra 12px of
-     radius put a group circle into the open service's label in the bloom
-     layout - measured. At 6.25rem with tighter padding the inner disc is
-     still 84px, and the longest word in the data measures ~72px at 10px. */
+  /* Large enough for the longest word at 10px, small enough not to collide
+     with the open service's label. */
   width: 6.25rem;
   height: 6.25rem;
   padding: 0.5rem;
@@ -645,9 +523,8 @@ html {
   white-space: normal;
   overflow: hidden;
   text-align: center;
-  /* 10px is the floor the user set. At 0.02em tracking the longest word in
-     the data - DEVELOPMENT, 11 characters - measures just inside the 6.75rem
-     disc. Do not raise the tracking without re-measuring that word. */
+  /* 10px is the minimum label size. Do not raise the tracking without
+     re-checking that the longest word still fits the disc. */
   font-size: 10px;
   line-height: 1.25;
   letter-spacing: 0.02em;
@@ -656,37 +533,14 @@ html {
 }
 
 /* ── THE TRAVELLING DOT ───────────────────────────────────────────────
-   A short dash running along the open branch, from the core outward, so the
-   diagram says which way the relationship points rather than only that one
-   exists. It rides the SAME `pathLength=1` normalisation the draw-on uses, so
-   one rule covers straight connectors, bezier limbs and radial links at every
-   length: a 5% dash in a 95% gap, offset animated one full length.
+   Dots flowing along the open branch, core outward, showing direction. Only
+   on the open branch. It overrides the draw-on dasharray, which has finished
+   by the time a branch opens.
 
-   It runs ONLY on the open branch (`[data-on="true"]`, or inside an open
-   `.eco-branch`). Sixty-two lines all pulsing at once would be a fairground.
-
-   It deliberately overrides the draw-on dasharray, which has finished by the
-   time a branch is opened - the two never animate the same line at once. */
-/* A CONVEYOR, NOT A PULSE.
-
-   The pattern below is one THIRD of the path, so it tiles the edge exactly
-   three times: three dots, evenly spaced, always there. One cycle slides the
-   pattern by exactly one period, which makes the loop seamless - a dot
-   leaving the far end is replaced by the next arriving at the near end, and
-   an edge is never empty. A dot therefore crosses a whole edge in 3 x 0.8s.
-
-   THE HANDOFF. Every edge in the diagram shares this one period and this one
-   phase, and `pathLength=1` normalises a 110-unit link and a 592-unit one to
-   the same 1 - so at every multiple of 0.8s a dot sits at the far end of a
-   parent edge at the same instant another sits at the near end of its child.
-   The pulse appears to pass THROUGH a node instead of stopping at it, which
-   is the ordering the staged relay was reaching for, without the dead time
-   that made the diagram look switched off between hops.
-
-   `linear` IS MANDATORY. The pattern restarts three times per traversal, and
-   an eased curve would show that seam as a stutter three times an edge - the
-   one place where the easing that suits a single travelling dot is exactly
-   wrong. */
+   The dash pattern is one third of the (pathLength=1) edge, and each cycle
+   slides it by exactly one period, so the loop is seamless and every edge
+   shares one phase: dots appear to pass through nodes. `linear` is mandatory;
+   easing would show the pattern restart as a stutter. */
 @keyframes eco-travel {
   from {
     stroke-dashoffset: 0.33333;
@@ -697,33 +551,18 @@ html {
 }
 
 .eco-dot {
-  /* 0.008 dash + 0.32533 gap = 0.33333, one third of the path. Both halves
-     have to move together: the sum IS the period, and a sum that is not
-     exactly 1/n leaves a short pattern at the end of the edge that stutters
-     once per cycle. The dash stays small because a round cap already adds a
-     stroke-width of length - at 0.008 the widest layer is round on a short
-     link and only slightly oblong on the longest one in the set. */
+  /* 0.008 dash + 0.32533 gap = 0.33333. The sum is the period and must be
+     exactly 1/n, or the edge ends in a partial pattern that stutters. The dash
+     is tiny because the round cap already adds a stroke-width of length. */
   stroke-dasharray: 0.008 0.32533;
   stroke-linecap: round;
   animation: eco-travel 0.8s linear infinite;
 }
 
-/* THE BEADS ARRIVE LAST, and it has to be an ANIMATION.
-
-   A transition needs a change to fire. These <g>s MOUNT when a branch opens —
-   already inside an `.is-in` wrapper — so a transition never ran and they
-   rendered at full opacity immediately: beads on edges that had not been
-   drawn, beside nodes that had not appeared. An animation runs on mount,
-   which is the only way to hold something back that arrives already correct.
-
-   1.15s clears both openings, and they are deliberately the same number:
-   `.eco-line`'s draw on scroll-in takes 1.1s, and a branch's last mark plate
-   lands at ~0.9s with its edge drawn by ~1.2s. The flow is the last thing to
-   appear either way, which is the right order — it annotates a diagram, so
-   the diagram has to exist first.
-
-   Opacity lives on this wrapper and not on `.eco-dot`, because each layer of
-   the bead already carries its own. */
+/* Beads fade in last, via an animation rather than a transition: these <g>s
+   mount already inside `.is-in`, so a transition would never fire. The 1.15s
+   delay lets edges and nodes finish drawing first. Opacity lives on this
+   wrapper because each bead layer carries its own. */
 @keyframes eco-train-in {
   from {
     opacity: 0;
@@ -740,30 +579,11 @@ html {
   animation: eco-train-in 0.4s ease-out 1.15s both;
 }
 
-/* THE GLOW. A blur on the widest layer only. The ring underneath it has to
-   stay a hard edge and the hole has to stay clean, so neither gets a filter -
-   a bloom on all three just fogs the bead.
-
-   `--accent` and not `--brand`: a glow has to read as light, and brand is the
-   ink value in this palette - blurring it on a pale ground makes a smudge,
-   which is exactly what the first attempt did. Both tokens flip with the
-   theme, so this needs no dark-mode branch. */
+/* Glow on the widest bead layer only, so the ring stays crisp. `--accent`,
+   not `--brand`: a blurred brand reads as a smudge on a pale ground. The
+   token flips with the theme, so no dark branch is needed. */
 .eco-dot-glow {
   filter: drop-shadow(0 0 8px var(--accent));
-}
-
-/* STILL. `flow={false}` on an EcosystemSection puts this on the same wrapper
-   that carries `eco-circles`, and it stops the beads everywhere inside at
-   once - the same trick, and for the same reason: eight layouts build their
-   edges eight different ways, and a prop threaded through all of them to
-   reach one <g> would be eight places to forget.
-
-   /services ships still. Its `branch` diagram has no level-2 or level-3
-   edges at all - only the six short core spokes - so the beads had nowhere
-   to travel and read as decoration sitting on the lines rather than as flow.
-   The variants with a real depth of edges keep it. */
-.eco-still .eco-train {
-  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -775,26 +595,9 @@ html {
 }
 
 /* ── THE PAGE SHELL ────────────────────────────────────────────────────
-   Every section's content column. Replaces `mx-auto max-w-7xl px-6`, which
-   was written out by hand in thirty-eight places — so "how wide is the page"
-   had thirty-eight answers and no way to change any of them at once.
-
-   FLUID, CAPPED AT 1600. `max-w-7xl` is 1280px, which on a 1920 monitor left
-   a third of the screen empty and on a 2560 left half. The cap is 1600
-   because past that a full-width row stops reading as a row and starts
-   reading as scattered items.
-
-   THE INSET IS THE SHELL'S OWN PADDING, clamped, not a `px-6` outside it. A
-   bare percentage width would have taken 31px off a 390px phone — a
-   regression paid by the readers with the least room to spare. Clamped, the
-   gutter is 24px on a phone (exactly what it was), grows with the viewport,
-   and stops at 64px:
-
-     390 → 342 content (unchanged)   1440 → 1325 (+93)
-    1280 → 1178                      1920 → 1472 (+240, +19%)
-
-   Not the Nav: its `max-w-7xl` is the DS §6.1 morphing pill, a component
-   dimension that animates to 6xl on scroll, not a page container. */
+   Every section's content column: fluid, capped at 1600px, with a clamped
+   gutter (24px on phones up to 64px). Use this instead of ad-hoc
+   `mx-auto max-w-* px-*` wrappers. */
 .shell {
   width: 100%;
   max-width: 1600px;
@@ -802,43 +605,14 @@ html {
   padding-inline: clamp(1.5rem, 4vw, 4rem);
 }
 
-/* Placeholder outliner — every prototype ships one (HANDOFF §8). */
-body.show-ph [data-placeholder] {
-  outline: 2px dashed #e11d48;
-  outline-offset: 4px;
-  position: relative;
-}
-body.show-ph [data-placeholder]::after {
-  content: attr(data-placeholder);
-  position: absolute;
-  top: -0.5rem;
-  left: 0;
-  transform: translateY(-100%);
-  background: #e11d48;
-  color: #fff;
-  font:
-    700 10px/1.4 ui-monospace,
-    monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 4px;
-  white-space: nowrap;
-  z-index: 60;
-  pointer-events: none;
-}
-
 /* ======================================================================
-   HERO STAGE — the WebGL mark (hero-logo.js + logo-points.json).
-   Replaces the orb/dot-grid hero. Light-first like the rest of the page;
-   `.dark` on <html> opts in and is a real, shipping mode here.
+   HERO STAGE — the WebGL mark (HeroScatter.tsx + logo-points.json).
 
    --hero-bg is the one knob: the fallback, the scrim and the bottom fade
    all read it, so the two themes differ by a single declaration.
    ====================================================================== */
-/* The CTA slab's CSS particles are the fallback for CtaStage. They stay put
-   until the canvas has drawn a frame, then cross-fade out, so a failed or slow
-   WebGL boot leaves a field on screen rather than an empty slab. */
+/* The CTA slab's CSS particles stay until the canvas has drawn a frame, then
+   cross-fade out, so a failed or slow WebGL boot never leaves an empty slab. */
 [data-cta-fallback] {
   transition: opacity 0.8s ease-out;
 }
@@ -898,13 +672,9 @@ html.dark .hero-fallback {
     var(--hero-bg);
 }
 
-/* The scrim is what keeps the copy readable over the cloud. Light is the
-   harder case — dark particles on a pale ground compete with dark text —
-   so the light scrim is wider and more opaque, not the same ramp. */
 /* Where the hero's words end, in px from the section's left edge. HeroScatter
-   measures it from the rendered text and overwrites this inline on #home; the
-   default only stands in before that runs (or without WebGL, where there is no
-   field for the scrim to veil anyway). */
+   measures the rendered text and overwrites this inline; the default stands in
+   before that runs or without WebGL. */
 #home {
   --copy-end: 52%;
 }
@@ -914,22 +684,14 @@ html.dark .hero-fallback {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  /* TWO layers, and both are load-bearing.
-
-     1. The top cap. The 90deg ramp below only protects the LEFT, where
-        the copy is — but the nav is full-width and transparent at rest,
-        so its right-hand controls (theme toggle, "Let's talk") sat over
-        the densest part of the cloud with nothing behind them. Stops are
-        in px, not %, because what has to be covered is the nav's fixed
-        height, not a fraction of the section. Solid through 78px covers
-        the pill (24–80px); the fade is spent by 170px, and the mark's
-        own top edge is at ~144px, so it is grazed, not clipped.
-     2. The 90deg ramp that keeps the copy readable over the cloud. Keyed to
-        --copy-end, the px where the words actually end. It used to run in %
-        of the section width, tuned at 1440 — at every other width those stops
-        landed on the mark's LEFT HALF and veiled it, in both themes. It now
-        fades out 3rem past the words, and the mark starts COPY_GAP_PX (56px)
-        past them, so the two can no longer overlap. */
+  /* Keeps the copy readable over the cloud. Two layers, both load-bearing:
+     1. A top cap behind the transparent nav's controls. Stops are in px
+        because they cover the nav's fixed height, not a fraction of the
+        section.
+     2. A horizontal ramp keyed to --copy-end. It fades out 3rem past the
+        words, and the mark starts COPY_GAP_PX past them, so they never
+        overlap. Light is wider and more opaque: dark particles on a pale
+        ground compete with dark text. */
   background:
     linear-gradient(
       180deg,
@@ -966,48 +728,26 @@ html.dark .scrim {
     );
 }
 
-/* Below 900px hero-logo.js moves the mark to a band across the TOP and
-   the copy stacks under it. A horizontal scrim protects nothing in that
-   arrangement, and vertically-centred copy fought the mark for the same
-   pixels — so: align to the top, clear 40vh, and run the ramp downward. */
+/* Below 900px the mark sits in a band across the top and the copy stacks
+   under it, so the copy aligns to the top and the scrim ramps downward. */
 @media (max-width: 899px) {
   #home {
     align-items: flex-start;
-    /* This number is bought and paid for by hero copy length — it has
-       been 40 / 36 / 28 / 36 across four copy passes, tracking the lead
-       up and down. Round 10's lead is 32 words, so the mark gets its
-       band back. The scrim ramp below and the hero mark's SCALE cap both
-       key off this value; change it and re-check the CTA's bottom edge
-       against the viewport. (.verify-index.mjs, named here previously, is
-       no longer in the tree.)
-
-       The px floor is for SHORT viewports. At 320x544, 36vh is only 196px
-       and the nav owns the first ~70px of it, leaving too little for the
-       mark to resolve into anything legible. The floor only engages below
-       ~722px tall, where the CTA is already far under the fold, so the
-       calibrated 36vh is untouched everywhere it already works. */
+    /* Tuned to the hero copy length. The scrim ramp and HeroScatter's mark
+       size both key off this value; if it changes, re-check the CTA's
+       position against the viewport. The px floor keeps the mark legible on
+       short viewports, where the nav eats much of 36vh. */
     --hero-band: max(36vh, 260px);
     padding-top: var(--hero-band);
     padding-bottom: 5rem;
   }
-  /* Two layers. The second is the main downward ramp that clears the copy;
-     the first is a cap over the nav, which is transparent at rest and had the
-     cloud running straight through the wordmark — badly in light, where both
-     are dark on pale.
-
-     BOTH ARE KEYED IN PIXELS, not in percentages of the section. The section
-     is ~1146px tall on a 320x544 phone while the mark occupies 86-244px, so
-     the old percentage stops (a cap to 13% = 149px, and a ramp opening at
-     17% = 195px) veiled the mark's top AND bottom — it read as a washed-out,
-     half-opacity logo. The nav is ~70px whatever the section height, and the
-     copy starts exactly at --hero-band, so both stops belong in those terms.
-     The mark is laid out to end one margin above the band, so the ramp
-     starting there cannot touch it at any width. */
-  /* `html.dark .scrim` is listed too because the desktop dark rule above
-     out-ranks a bare `.scrim` (0,2,1 vs 0,1,0) even inside this media query.
-     Without it, phones in dark mode got the DESKTOP horizontal ramp, which
-     veiled the whole left half of the mark 88%->40% — more than the palette,
-     that is why the blue side of the mark read so dim on dark mobile. */
+  /* Two layers: a cap over the transparent nav, and a downward ramp that
+     clears the copy. Both are keyed in px (nav height, --hero-band), not
+     percentages: the section is far taller than the screen on phones, and
+     percentage stops would veil the mark itself. The mark ends one margin
+     above the band, so the ramp cannot touch it.
+     `html.dark .scrim` is listed because the desktop dark rule out-ranks a
+     bare `.scrim` (0,2,1 vs 0,1,0) even inside this media query. */
   .scrim,
   html.dark .scrim {
     background:
@@ -1027,18 +767,15 @@ html.dark .scrim {
   }
 }
 
-/* Only two hero-local tokens are needed; everything else is a theme.css
-   semantic token, so it flips with `.dark` for free. §5.8: #289dbe is
-   3.15:1 on white, so light uses --brand for the display line. */
-/* The cue sits bottom-centre; on a short viewport the CTA row is already
-   down there and the two collide (seen at 1280x720). It is an affordance,
-   not content — drop it rather than move the buttons. */
+/* On short viewports the scroll cue collides with the CTA row. It is an
+   affordance, not content, so drop it rather than move the buttons. */
 @media (max-height: 780px) {
   .scroll-cue {
     display: none !important;
   }
 }
 
+/* --accent is only 3.15:1 on light grounds, so light uses --brand. */
 .t-accent {
   color: var(--brand);
 }
@@ -1052,10 +789,8 @@ html.dark .hero-rule {
   border-color: rgb(255 255 255 / 0.14);
 }
 
-/* ── /stack-lab only: the "marquee rails" specimen ────────────────────
-   -50% and not -100%: each rail renders its marks TWICE, so travelling half
-   the track lands the second copy exactly where the first began and the loop
-   has no seam to hide. DELETE with the lab if that variant does not win. */
+/* Marquee rails: -50%, not -100%, because each rail renders its marks twice,
+   so half the track lands the second copy where the first began. */
 @keyframes stack-marquee {
   from {
     transform: translate3d(0, 0, 0);
@@ -1067,19 +802,14 @@ html.dark .hero-rule {
 
 /* ── THE VERIFIED-CLAIM MARK ─ Icon `check-circle` ──────────────────────
    The ring scales up and the tick strokes on as each claim scroll-reveals.
-   Chosen from /check-lab on 2026-09-12.
 
-    THE DEFAULT STATE IS "ALREADY DRAWN", AND THAT IS THE WHOLE SAFETY
-   PROPERTY. The animation is keyed off an ancestor [data-reveal] gaining
-   `is-in`, i.e. off Reveal.tsx's observer. A mark placed outside a reveal
-   node — or inside one the observer never reaches — therefore falls through
-   to a plain, fully painted circle-check rather than to an invisible tick.
-   Never invert these two rules "to save a line": hiding by default means any
-   mark that fails to reveal disappears silently.
+   The default state is "already drawn": the animation is keyed off an
+   ancestor [data-reveal] gaining `is-in`, so a mark outside a reveal node
+   falls through to a fully painted check. Never hide by default, or a mark
+   that fails to reveal disappears silently.
 
-   The delay inherits `--delay`, which the reveal vocabulary already sets per
-   element, so lists whose items each carry their own reveal delay stagger for
-   free. `nth-child` adds a small cascade for lists that do not. */
+   The delay inherits the reveal's `--delay`; `nth-child` adds a small cascade
+   for lists without per-item delays. */
 .check-tick {
   stroke-dasharray: 1;
   stroke-dashoffset: 0;
@@ -1140,12 +870,9 @@ li:nth-child(n + 5) .check-tick {
   html {
     scroll-behavior: auto;
   }
-  /* The drawn tick must still BE a tick when motion is off. The blanket
-     `animation-duration: 0.01ms` below would leave these `both`-filled
-     animations parked on their START frame — a transparent ring and an
-     undrawn tick — so they are cancelled outright and the finished state is
-     restated here. Reveal.tsx adds `is-in` to everything immediately under
-     reduced motion, which is what makes this path the one that runs. */
+  /* The blanket 0.01ms duration below can leave these `both`-filled
+     animations on their start frame (invisible ring, undrawn tick), so they
+     are cancelled and the finished state is restated. */
   [data-reveal] .check-ring,
   [data-reveal].is-in .check-ring,
   .check-armed .check-ring {
@@ -1166,7 +893,7 @@ li:nth-child(n + 5) .check-tick {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  [data-reveal] {
+  .js [data-reveal] {
     opacity: 1;
     transform: none;
   }

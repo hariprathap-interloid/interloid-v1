@@ -2,17 +2,13 @@
 
 import { useEffect } from "react";
 
-/* Scroll reveals — DS §13.1. Mounted once; observes every [data-reveal] and
-   [data-rail] on the page and adds `is-in`, exactly as the prototype did. The
-   transition vocabulary itself stays in globals.css because it is driven by a
-   per-element `var(--delay)`, which utilities cannot express
-   (TAILWIND-MAP §3).
+/* Scroll reveals. Mounted once per page; adds `is-in` to every [data-reveal]
+   and [data-rail] as it enters view, or immediately under reduced motion. The
+   transitions live in globals.css because they use a per-element
+   `var(--delay)`.
 
    threshold 0 + rootMargin, never a fractional threshold: a tall element
-   cannot reach 12% of a shrunken root at 400% zoom (HANDOFF §5.6).
-
-   The observer is disconnected on unmount. Without that, hot reload stacks a
-   fresh observer on every edit (TAILWIND-MAP §4). */
+   cannot reach a fraction of a shrunken root at 400% zoom. */
 export default function Reveal() {
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(

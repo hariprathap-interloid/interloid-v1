@@ -1,20 +1,12 @@
 import SectionHeading from "./SectionHeading";
 import { ANSWERS } from "@/content/site";
 
-/* "Straight answers to the awkward questions" — prototype2-archive's
-   `.answers` / `.answer`.
+/* "Straight answers to the awkward questions".
 
-   ── NO ACCORDION, DELIBERATELY ────────────────────────────────────────────
-   The archive's own note says "All open, no accordion", and it is not a layout
-   preference. The section's argument is that these are the things buyers
-   normally have to sit through a pitch to hear; putting them behind a click
-   would be the same withholding in a smaller form. The home page's FAQ is an
-   accordion because it is long and browsable — this is four answers and they
-   are the point, so they are simply on the page.
-
-   That is also why this does NOT reuse Faq.tsx: same shape of content, opposite
-   behaviour. Sharing the component would mean adding an `open` prop whose only
-   job is to disable the component's reason for existing. */
+   No accordion, deliberately: the section's argument is that nothing is
+   withheld, and hiding the answers behind a click would undercut it. That is
+   also why this does not reuse Faq.tsx — same shape of content, opposite
+   behaviour. */
 export default function Answers() {
   return (
     <section

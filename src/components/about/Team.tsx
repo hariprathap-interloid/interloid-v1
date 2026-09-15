@@ -126,7 +126,7 @@ export default function Team() {
                         >
                           {m.initials}
                         </span>
-                        {/* Senior status indicator */}
+                        {/* Status indicator */}
                         <span className="absolute -bottom-1 -right-1 flex size-4 items-center justify-center">
                           <span className="absolute inline-flex size-3 animate-ping rounded-full bg-emerald-400 opacity-60" />
                           <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
@@ -134,19 +134,12 @@ export default function Team() {
                       </div>
 
                       {/* LinkedIn badge straddling bottom edge */}
+                      {m.linkedin && m.linkedin !== "#" && (
                       <a
-                        href={m.linkedin || "#"}
-                        target={
-                          m.linkedin && m.linkedin !== "#"
-                            ? "_blank"
-                            : undefined
-                        }
-                        rel={
-                          m.linkedin && m.linkedin !== "#"
-                            ? "noopener noreferrer"
-                            : undefined
-                        }
-                        aria-label={`${m.name} profile`}
+                        href={m.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${m.name} on LinkedIn`}
                         className="absolute bottom-0 right-5  z-50! translate-y-1/2 grid size-9 place-items-center rounded-full border border-border bg-card text-[#0A66C2] shadow-md ring-2 ring-card transition-all duration-300 hover:scale-110 hover:bg-[#0A66C2] hover:text-white"
                       >
                         <svg
@@ -158,6 +151,7 @@ export default function Team() {
                           <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3zM10 9h3.8v1.7h.05a4.2 4.2 0 0 1 3.75-2c4 0 4.75 2.6 4.75 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2.05 1.4-2.05 2.8V21h-4z" />
                         </svg>
                       </a>
+                      )}
                     </div>
 
                     {/* Caption */}

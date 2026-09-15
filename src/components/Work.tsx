@@ -3,22 +3,16 @@ import SectionHeading from "./SectionHeading";
 import WorkCard from "./WorkCard";
 import { CASES, HUE } from "@/content/site";
 
-/* DS §8.3 article cards. EVERY card is a placeholder — HANDOFF §7 makes three
-   real, anonymised case studies a P0 launch blocker, and the hero's "See the
-   proof" CTA now points here, which makes that P0 a hero-level promise.
-   Do not un-flag these.
+/* Selected work cards. A Server Component: the card shell (WorkCard) is client
+   for the cursor-lit border, and everything inside it is rendered here and
+   passed through as children. Read WorkCard's note before changing the hover.
 
-   Still a Server Component. The card SHELL moved to WorkCard (client) on
-   2026-09-07 for the cursor-lit border; everything inside it is rendered here
-   and passed through as children, so none of the card's content ships to the
-   browser. Read WorkCard's note before changing the hover — the previous
-   `transition-all` is explained there and should not come back.
+   The hover reads across three surfaces: the lit ring on the shell, the plate
+   tint + icon shadow here, and the CTA colour. `group-*` works from here even
+   though the `group` is on WorkCard's <article> — that is plain CSS, so these
+   children stay server-rendered.
 
-   The hover reads across three surfaces on purpose, because the lift alone
-   measured as invisible (WorkCard's note has the pixel diff): the lit ring on
-   the shell, the plate tint + icon lift here, and the CTA colour. `group-*`
-   works from here even though the `group` is on WorkCard's <article> — that is
-   plain CSS, so these children stay server-rendered. */
+   Copy marked data-placeholder is unverified; confirm before public launch. */
 export default function Work() {
   return (
     <section

@@ -10,38 +10,10 @@ import {
   useSyncExternalStore,
 } from "react";
 
-/* DS §6.1 morphing pill: width (max-w-7xl→6xl), surface (transparent→glass)
-   and radius (0→rounded-full) animate together over 300ms.
-   HANDOFF §4 said 8 links; it is 6 since 2026-09-08. Stack and Process were
-   removed on request and Commitments became "Why us" — the two removed
-   SECTIONS still exist (StackMarquee on /services, Process on home) and are
-   reachable by scrolling; only their nav shortcuts are gone.
-
-   Desktop pill at `lg:` (1024px); below that the mobile menu. It moved down
-   from `xl:` (1280px) on 2026-09-11 — measured with the pill forced on, all six
-   links sit on one row at 1024 with 67px clear either side at rest and 42px
-   once scrolled into the narrower PILL, so the 1024–1279 band was showing a
-   hamburger on a header with room to spare. Re-measure if a link is added.
-
-   EVERY LINK IS `next/link` FROM 2026-09-12, logo included. They were plain
-   `<a>`, so each one was a full document reload — the nav lint names the
-   logo specifically (no-html-link-for-pages), but the cost was the same on
-   all of them. Link keeps the `onClick={() => setOpen(false)}` the mobile
-   rows need, and the scrollspy still reads `l.href` from LINKS rather than
-   from the DOM, so nothing below changed with it.
-
-   ACTIVE STATE FOLLOWS THE ROUTE FROM 2026-09-14. It used to come ONLY from
-   the scrollspy, which watches `/#id` fragments — and five of the seven
-   links are pages now, so on /services, /about, /careers, /why-choose-us and
-   /contact nothing was ever marked current. The route decides first
-   (`usePathname`, exact or nested match); the scrollspy only runs on `/`,
-   where it still splits Home from Work. See `activeHref` below.
-
-   Every link
-   resolves: `/careers` shipped 2026-09-07 and `/about` 2026-09-08, so the
-   `data-placeholder` flags this list used to carry are both gone. If a link
-   is ever added before its route exists, flag it here rather than hiding it —
-   the toggle counting a dead link is the point. */
+/* Morphing header: a full-width transparent bar at rest becomes a narrower
+   glass pill once scrolled. Desktop links show from `lg:` (1024px); below that
+   the mobile menu is the only navigation. Re-check the 1024px fit if a link is
+   added. A link added before its route exists should carry `placeholder`. */
 const LINKS = [
   { href: "/#home", label: "Home" },
   { href: "/services", label: "Services" },
@@ -60,8 +32,8 @@ const SECTION_LINKS = LINKS.filter(
 
 /* The route decides; the scrollspy only breaks the tie on `/`. A nested
    match counts (`/services/x` lights Services) so a future sub-page does not
-   silently fall back to nothing lit. Returns null for a route with no link —
-   the labs and previews — rather than guessing one. */
+   silently fall back to nothing lit. Returns null for a route with no link
+   rather than guessing one. */
 function activeHref(pathname: string, homeSection: string): string | null {
   if (pathname === "/") return homeSection;
   const hit = LINKS.find(
@@ -79,16 +51,11 @@ function ariaCurrent(href: string, active: string | null) {
   return SECTION_LINKS.some((l) => l.href === href) ? "location" : "page";
 }
 
-/* THEME AS EXTERNAL STATE.
-   `.dark` on <html> is not React's to own: the inline script in layout.tsx
-   writes it before hydration, and HeroStage reads it too. Mirroring it into
-   useState meant a setState inside an effect — which the react-hooks lint
-   correctly rejects, because that is a cascading render on every mount.
-   useSyncExternalStore is the right shape: React subscribes to the DOM.
-
-   getServerSnapshot returns false because the page is light-first; the inline
-   script corrects it before first paint, and useSyncExternalStore re-reads
-   after hydration without a mismatch warning. */
+/* Theme as external state. `.dark` on <html> is not React's to own: the
+   inline script in layout.tsx writes it before hydration. useSyncExternalStore
+   subscribes to the DOM instead of mirroring it with setState in an effect.
+   The server snapshot is false (light-first); the client re-reads after
+   hydration without a mismatch warning. */
 const subscribeTheme = (onChange: () => void) => {
   const obs = new MutationObserver(onChange);
   obs.observe(document.documentElement, {
@@ -100,25 +67,14 @@ const subscribeTheme = (onChange: () => void) => {
 const getTheme = () => document.documentElement.classList.contains("dark");
 const getServerTheme = () => false;
 
-/* The two states of DS §6.1's morph, now expressed INSIDE the shell rather
-   than as page widths of their own. `max-w-full` at rest is what makes the
-   bar fill the content column exactly; `max-w-6xl` scrolled is the same
-   1152px pill it has always been, centred by `mx-auto`.
+/* The two morph states, inside the shell. `max-w-full` at rest fills the
+   content column; `max-w-6xl` scrolled is the pill, centred by `mx-auto`.
 
-   ── WHY THE MORPH USED TO SNAP (fixed 2026-09-14) ───────────────────────
-   It had `transition-all` and still read as one bar being hidden and another
-   appearing, because nearly every property had NO VALUE TO TWEEN FROM:
-     · `max-w-none` → `max-w-6xl`. `none` is not a length; the browser cannot
-       interpolate it and jumps straight to 1152px. `max-w-full` (100%) can.
-     · `rounded-full` is an infinite radius, so 0 → ∞ is "fully round" on the
-       first frame. The radius is now CONSTANT (MORPH below) — at rest the
-       bar is transparent and borderless, so its corners are invisible.
-     · background, shadow and blur existed only in PILL. Each now has an
-       explicit zero in REST of the same shape: `bg-card/0`, `shadow-none`
-       (same composed shadow list as `shadow-lg`, just zeroed), and
-       `blur(0px)` as a literal filter so both ends are a `blur()` function.
-   Every REST class must keep a tweenable counterpart in PILL. Adding a
-   property to only one side brings the snap back. */
+   Every property must have a tweenable value at BOTH ends or the morph snaps:
+   `max-w-none` is not a length (hence `max-w-full`), `rounded-full` is an
+   infinite radius (hence a constant radius in MORPH; corners are invisible at
+   rest), and background, shadow and blur need explicit zeros of the same shape
+   (`bg-card/0`, `shadow-none`, `blur(0px)`). */
 const REST =
   "max-w-full px-0 py-0 border-transparent bg-card/0 shadow-none [-webkit-backdrop-filter:blur(0px)] [backdrop-filter:blur(0px)]";
 const PILL =
@@ -126,10 +82,8 @@ const PILL =
 
 /* One duration and one curve for the bar AND the <nav>'s own padding, so the
    height change and the width change land on the same frame. Properties are
-   listed rather than `all`: `all` also animated the text colour of every
-   child link on each theme toggle. The curve is an ease-out — the bar
-   responds immediately to the scroll and settles, where ease-in-out held
-   still for the first ~80ms and then lurched. */
+   listed rather than `all`, which would also animate every child link's text
+   colour on theme toggle. Ease-out so the bar responds to the scroll at once. */
 const EASE = "duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]";
 const MORPH = `rounded-[2.5rem] transition-[max-width,padding,background-color,border-color,box-shadow,backdrop-filter,-webkit-backdrop-filter] ${EASE}`;
 
@@ -144,14 +98,11 @@ export default function Nav() {
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  /* ---- scroll -------------------------------------------------------------
-     Passive listener, and it must be removed on unmount: without a cleanup,
-     hot reload stacks a fresh listener on every edit (TAILWIND-MAP §4). This
-     is a failure mode the static prototype could not have. */
+  /* ---- scroll ----------------------------------------------------------- */
   useEffect(() => {
-    /* Hysteresis: morph at 64px, un-morph only back under 24px. One 50px
-       line flipped the bar on every small wheel tick near the top, so a
-       500ms morph kept being reversed halfway and never finished. */
+    /* Hysteresis: morph at 64px, un-morph only back under 24px. A single
+       threshold flips the bar on small wheel ticks near it, reversing the
+       500ms morph before it finishes. */
     const onScroll = () =>
       setScrolled((s) => (s ? window.scrollY > 24 : window.scrollY > 64));
     onScroll();
@@ -159,9 +110,8 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* Writing the class IS the state update — the store above picks it up.
-     HeroStage observes the same class rather than owning it; two owners is a
-     race (HANDOFF §5.19). */
+  /* Writing the class IS the state update; the store above picks it up.
+     Other readers observe the class rather than owning it. */
   const toggleTheme = useCallback(() => {
     const next = !document.documentElement.classList.contains("dark");
     document.documentElement.classList.toggle("dark", next);
@@ -175,16 +125,13 @@ export default function Nav() {
      "-45% 0px -50%" leaves a thin strip across the middle of the viewport, so
      a section counts as current only while it is actually being read.
 
-     threshold 0, never a fraction — HANDOFF §5.6: a tall element cannot reach
-     a fractional threshold of a shrunken root at 400% zoom, and every section
-     here is taller than the strip. */
+     threshold 0, never a fraction: a tall element cannot reach a fractional
+     threshold of a shrunken root at 400% zoom. */
   useEffect(() => {
-    /* Home only. Every other link is a page and the route answers for it.
-       Home itself is not observed: it is the DEFAULT, so the stretch between
-       the hero and #work (Advantage, Process) and everything after it reads
-       as "Home" rather than leaving Work lit on the FAQ. Leaving a section's
-       band hands the mark back to Home, but only if that section still holds
-       it — two adjacent sections can report in either order. */
+    /* Home only; elsewhere the route decides. Home itself is not observed: it
+       is the default. Leaving a section's band hands the mark back to Home
+       only if that section still holds it, since adjacent sections can report
+       in either order. */
     if (pathname !== "/") return;
     const targets = SECTION_LINKS.map((l) =>
       document.getElementById(l.href.slice(2)),
@@ -231,8 +178,7 @@ export default function Nav() {
     /* MUST match the pill's breakpoint exactly (`lg:`, 1024px). Below it the
        mobile menu is the ONLY navigation, so the menu may auto-close only at
        the width where the pill takes over: any earlier shuts the menu on a
-       viewport with no other nav (the prototype's bug), any later leaves both
-       showing at once. */
+       viewport with no other nav, any later leaves both showing at once. */
     const mq = window.matchMedia("(min-width: 1024px)");
     const onBreak = (e: MediaQueryListEvent) => {
       if (e.matches) setOpen(false);
@@ -249,9 +195,7 @@ export default function Nav() {
   }, [open]);
 
   const linkClass = (href: string) =>
-    /* nowrap + px-3 below `xl:`: with the seventh link ("Contact",
-       2026-09-11) the labels at 1024px wrapped — "Why / us", "About / us" —
-       inside a pill that still measured clear of the CTA. */
+    /* nowrap + px-3 below `xl:`: otherwise two-word labels wrap at 1024px. */
     `nav-link whitespace-nowrap rounded-full px-3 py-2 text-sm transition-all hover:bg-card hover:text-primary xl:px-4 ${active === href
       /* Shadow from a token, not `shadow-sm`: the dark value has to be a
          different COLOUR — see --nav-active-shadow in globals.css. Light
@@ -265,20 +209,13 @@ export default function Nav() {
       <nav
         id="nav"
         aria-label="Primary"
-        /* No `px-4` here any more: the gutter is the shell's, so the logo
-           starts exactly where the page's first line of text starts. Adding
-           one back would offset the header from the page by 16px at every
-           width — which is how this was wrong before. */
+        /* No horizontal padding: the shell owns the gutter, so the logo
+           aligns with the page's text column. */
         className={`fixed left-0 right-0 top-0 z-50 transition-[padding] ${EASE} ${scrolled ? "py-3" : "py-6"
           }`}
       >
         <div className="shell">
           <div
-            /* A STABLE HOOK. `.verify.mjs` addressed this element as
-               `#nav > div`, which broke the moment the shell wrapper went in
-               between — the morph still worked, the check just pointed at the
-               wrong node. An attribute survives markup changes; a position
-               does not. */
             data-navbar
             className={`relative mx-auto flex w-full items-center justify-between gap-6 border ${MORPH} ${scrolled ? PILL : REST
               }`}
@@ -311,7 +248,6 @@ export default function Nav() {
               </span>
             </Link>
 
-            {/* §6.2 a pill inside a pill */}
             <div className="hidden items-center gap-1 rounded-full border border-(--nav-pill-border) bg-card/80 px-3 py-2 p-1 shadow-sm backdrop-blur-sm lg:flex">
               {LINKS.map((l) => (
                 <Link
@@ -329,14 +265,11 @@ export default function Nav() {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Two SVGs toggled by class, never innerHTML — HANDOFF §5.3:
-                replacing a button's contents detaches the click's original
-                target. React keeps the node stable, but rendering both and
-                hiding one means the bug cannot come back by refactor. */}
+              {/* Both icons rendered and toggled by class: swapping a button's
+                  contents can detach the click's original target. */}
               <button
                 type="button"
                 onClick={toggleTheme}
-                aria-pressed={dark}
                 aria-label={
                   dark ? "Switch to light theme" : "Switch to dark theme"
                 }
@@ -371,10 +304,6 @@ export default function Nav() {
                 </svg>
               </button>
 
-              {/* /contact — the "tell us your story" enquiry — since
-                  2026-09-11. It was "/#contact", home's closing slab, whose own
-                  button now leads to /contact too; linking straight there
-                  saves every page a scroll-and-click. */}
               <Link
                 href="/contact#story"
                 className="hidden whitespace-nowrap rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-brand-light hover:shadow-primary/40 active:scale-95 lg:inline-flex"
@@ -427,8 +356,8 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* HANDOFF §5.4: a closed menu hidden only with opacity/pointer-events
-          keeps its links in the tab order. `invisible` is load-bearing. */}
+      {/* A closed menu hidden only with opacity/pointer-events keeps its links
+          in the tab order. `invisible` is load-bearing. */}
       <div
         ref={menuRef}
         id="mobileMenu"
@@ -444,9 +373,7 @@ export default function Nav() {
               href={l.href}
               onClick={() => setOpen(false)}
               aria-current={ariaCurrent(l.href, active)}
-              /* The menu had no current state at all. Below `lg` it is the
-                 only navigation, so it needs the plainest one: a tinted row
-                 and a gradient bar on the leading edge. */
+              /* Current page: tinted row plus a gradient bar on the leading edge. */
               className={`relative flex items-center justify-between rounded-xl px-4 py-3.5 font-display text-lg font-semibold transition-colors ${active === l.href
                 ? "bg-primary/10 text-primary"
                 : "text-foreground hover:bg-muted hover:text-primary"

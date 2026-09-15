@@ -4,23 +4,20 @@ import TechLogo from "./service/TechLogo";
 import { HUE, ROLES, TERMS } from "@/content/site";
 
 /* ── HOVER: ONE RULE, FOUR SIGNATURES ─────────────────────────────────────
-   THE RULE, everywhere on this page: hover changes COLOUR, ELEVATION and the
-   state of CHILDREN. It never moves or resizes the hovered element. WorkCard.tsx
-   documents why — a translate on the hovered element moves its own hit box out
-   from under a pointer resting near the edge, `:hover` drops, it moves back, and
-   it oscillates at frame rate. Padding, margin and size are the same trap.
-   `box-shadow` and `ring` are safe because a shadow is not hit-tested, and so is
-   anything on an absolutely-positioned child, whose size cannot alter its
-   parent's bounds.
+   The rule, everywhere on /careers: hover changes colour, elevation and the
+   state of children. It never moves or resizes the hovered element — a
+   translate moves its own hit box out from under a pointer resting near the
+   edge, `:hover` drops, it moves back, and it oscillates at frame rate.
+   Padding, margin and size are the same trap. `box-shadow` and `ring` are
+   safe because a shadow is not hit-tested, and so is anything on an
+   absolutely-positioned child, whose size cannot alter its parent's bounds.
 
    (Tailwind v4 compiles `-translate-y-*`/`scale-*` to the standalone
-   `translate`/`scale` properties, NOT to `transform` — so a
-   `transition-[...,transform]` eases a property that never changes and the
-   motion snaps. `.careers.mjs` reads all three.)
+   `translate`/`scale` properties, not to `transform`, so a
+   `transition-[...,transform]` eases a property that never changes.)
 
-   THE SIGNATURE, different in each section, because four sections that all
-   wipe a bar across the top is one effect repeated rather than a page with a
-   rhythm. Each one lights up whatever that section is actually about:
+   The signature differs per section so the page has a rhythm. Each lights
+   up whatever that section is about:
 
      Roles       the card floods with the ROLE'S OWN hue and the tech marks
                  ring up — the thing a candidate is scanning the card for
@@ -35,39 +32,17 @@ import { HUE, ROLES, TERMS } from "@/content/site";
    page still feels like one page. */
 
 /* ==========================================================================
-   OPEN ROLES — four trainee positions.
+   OPEN ROLES — four trainee positions. A server component: four roles need
+   no filter or disclosure, so there is no client state.
 
-   ── REWRITTEN 2026-09-08, AND IT IS NOW A SERVER COMPONENT ───────────────
-   The senior version was a client component: a discipline filter over six
-   roles, plus a disclosure that opened the full job description in place.
-   Both are gone, and both for the same reason — four roles do not need them.
-   A filter over four items is a control that costs a click and saves nothing,
-   and once the terms live in PROGRAMME there is no per-role description long
-   enough to be worth hiding. Removing `useState` removed the whole client
-   bundle for this section, and with it every one of the Reveal-vs-React
-   `className` hazards the old banner had to warn about. Simpler page, less
-   JavaScript, same information.
+   The stack renders through `service/TechLogo`, the same component /services
+   uses, so a technology is never shown two different ways. TechLogo carries
+   the plate, the accessible name and the tooltip.
 
-   ── THE STACK IS ICONS, NOT WORDS ────────────────────────────────────────
-   On request. This renders `service/TechLogo`, which draws the real published
-   marks out of `public/tech/` — the SAME component /services uses, so the two
-   pages cannot drift into showing a technology two different ways.
+   No salary on the card: every role has identical terms, stated once in
+   PROGRAMME from TERMS, so there is one place to correct them.
 
-   It replaced nine SVGs hand-authored here on 2026-09-08, which were deleted
-   the moment the logo set turned out to already exist. Two of them were not
-   the right mark at all (Postgres as a cylinder, Docker as stacked boxes), and
-   the drawings had no chance of staying in step with /services. Reaching for
-   the existing component was the whole fix.
-
-   TechLogo carries the white plate, the accessible name and the tooltip, and
-   its own file explains why the plate stays white in both themes.
-
-   NO SALARY ON THE CARD. Every role here has identical terms, so they live in
-   TERMS and are stated once, in PROGRAMME. Repeating them per card would be
-   four places to correct instead of one — and these are the numbers most
-   likely to change.
-
-   ⚠ Whether these four are open is unverified; the grid is data-placeholder.
+   Copy marked data-placeholder is unverified; confirm before public launch.
    ========================================================================== */
 export default function Roles() {
   return (
@@ -103,12 +78,9 @@ export default function Roles() {
                 className="h-full"
               >
                 <article className="group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card p-6 shadow-sm sm:p-8 transition-[border-color,box-shadow] duration-300 ease-out hover:border-accent/40 hover:shadow-lg">
-                  {/* SIGNATURE — the role's own hue floods the card. Bigger
-                      and softer than a corner accent so it reads as the card
-                      warming up rather than as a light in the corner, and it is
-                      `h.glow`, so each of the four cards lights a different
-                      colour. Absolutely positioned: its size cannot touch the
-                      card's bounds. */}
+                  {/* Signature: the role's own hue (`h.glow`) floods the
+                      card. Absolutely positioned, so its size cannot touch
+                      the card's bounds. */}
                   <div
                     className={`pointer-events-none absolute -right-24 -top-24 size-64 rounded-full opacity-0 blur-[80px] transition-opacity duration-500 ease-out group-hover:opacity-100 ${h.glow}`}
                     aria-hidden="true"
@@ -141,23 +113,17 @@ export default function Roles() {
                   </ul>
 
                   {/* mt-auto pins this row to the bottom of every card, so the
-                      marks line up across a row whose summaries differ in
-                      length. Without it the grid reads as ragged. */}
-                  {/* flex-wrap: four marks plus Apply need ~276px, and a
-                      360px phone leaves the card ~264px, so Apply drops to its
-                      own line there instead of pushing the card off-screen. */}
+                      marks line up across cards whose summaries differ in
+                      length. flex-wrap lets Apply drop to its own line on
+                      narrow phones instead of overflowing the card. */}
                   <div className="relative mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-6">
                     <ul className="flex items-center gap-2">
                       {r.tech.map((t) => (
-                        /* TechLogo IS the plate — it renders its own
-                           `size-9 rounded-xl bg-white ring-1` wrapper, so this
-                           <li> must not draw a second one around it. */
-                        /* SIGNATURE, part two: the marks ring up in the
-                           role's hue. `ring-0` at rest with the colour already
-                           set, so only the WIDTH animates — and a ring is a
-                           box-shadow, so nothing here is hit-tested or moves.
-                           TechLogo draws its own plate; this ring sits outside
-                           it, which is why the li is `rounded-xl` too. */
+                        /* TechLogo renders its own plate, so this <li> only
+                           adds the hover ring in the role's hue. `ring-0` at
+                           rest with the colour already set, so only the width
+                           animates; a ring is a box-shadow, so nothing moves.
+                           `rounded-xl` matches the plate. */
                         <li
                           key={t.name}
                           className={`flex rounded-xl ring-0 transition-[box-shadow] duration-300 ease-out group-hover:ring-2 ${h.ring}`}
@@ -167,14 +133,10 @@ export default function Roles() {
                       ))}
                     </ul>
                     <a
-                      /* The application page, with this role preselected
-                         (2026-09-14). It was a mailto:, which fails silently
-                         with no mail client and carried no CV. */
+                      /* The application page, with this role preselected. */
                       href={`/careers/apply?role=${r.id}`}
-                      /* No arrow slide. `group-hover:translate-x-1` is the
-                         same hover-geometry rule one level down, and with the
-                         cards' lift gone it was the only thing still moving on
-                         the page. Background and shadow carry the state. */
+                      /* No arrow slide: per the hover rule, background and
+                         shadow carry the state. */
                       className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-[background-color,box-shadow] duration-300 hover:bg-brand-light hover:shadow-primary/40 active:scale-95"
                     >
                       Apply
@@ -187,11 +149,9 @@ export default function Roles() {
           })}
         </ul>
 
-        {/* SENIOR HIRING, STATED RATHER THAN IMPLIED. The senior set is parked
-            in site.ts as SENIOR_ROLES and rendered nowhere — this line is what
-            replaces it. Saying "not right now" is worth more than silence: a
-            senior reader who finds only trainee roles otherwise concludes we
-            do not employ seniors, which contradicts every client page. */}
+        {/* Senior hiring, stated rather than implied: without this line a
+            senior reader who finds only trainee roles would conclude we do
+            not employ seniors. */}
         <p
           data-reveal
           style={{ "--delay": "360ms" } as React.CSSProperties}
@@ -200,14 +160,13 @@ export default function Roles() {
           <span className="mt-1.25 shrink-0 text-accent-strong">
             <Icon name="clock" className="size-4" />
           </span>
-          {/* ONE flex item for the whole sentence. As loose children of the
-              flex row, the link and its full stop were separate items, and
-              the row's gap rendered as "tell you when ." */}
+          {/* One flex item for the whole sentence: as loose flex children,
+              the link and its full stop would be split by the row's gap. */}
           <span>
             Hiring experienced or senior engineers is closed at the moment.
             When it reopens it will be posted here first;{" "}
             <a
-              href="mailto:hello@interloid.com?subject=Tell%20me%20when%20senior%20roles%20open"
+              href="mailto:connect@interloid.com?subject=Tell%20me%20when%20senior%20roles%20open"
               className="font-semibold text-primary underline underline-offset-4"
             >
               ask us to tell you when

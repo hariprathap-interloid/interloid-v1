@@ -3,63 +3,29 @@ import SectionHeading from "./SectionHeading";
 import { PROGRAMME, PROGRAMME_META } from "@/content/site";
 
 /* ==========================================================================
-   THE PROGRAMME — the two years, in order.
-
-   Replaces THREE sections from the 2026-09-07 page (the six commitment tiles,
-   the grouped stack grid, and "your first 90 days"), which is most of how the
-   page got shorter. For a senior hire the interesting question was what the
-   company promises; for somebody signing a two-year agreement out of college
-   it is what the two years actually contain, in sequence — so a timeline says
-   more here than nine tiles did.
-
-   ── REFACTORED 2026-09-08 ────────────────────────────────────────────────
-   The first cut centred everything and hung a hairline rail behind it. Three
-   things were wrong and the user pointed at all of them at once:
-
-     1. CENTRED BODY COPY. Four and five line paragraphs, ragged on both
-        edges, in three tall cards. Centred text is for a line or two; at this
-        length it is measurably harder to read and it left the cards looking
-        empty at the shoulders. Everything is left-aligned now.
-
-     2. THE RAIL WAS INVISIBLE. `h-px` at `via-accent/40` between two /10
-        stops — at 1440 that is a one-pixel line at roughly 40% alpha for a
-        third of its length. It carried the whole "this is a sequence"
-        message and could not be seen. It is now `h-0.5`, opaque at the
-        middle, and it runs between numbered nodes rather than behind
-        decorative icons.
-
-     3. NOTHING SAID *ORDER*. Three identical cards with three different
-        icons read as three parallel things. The nodes are NUMBERED now, and
-        phase one — the hard one — carries the accent the way WeekStrip marks
-        Friday, so the row has a shape instead of three equal beats.
+   THE PROGRAMME — the two years, in order, as a left-aligned timeline of
+   numbered nodes joined by a rail. The hardest phase comes first on purpose:
+   it is the fact most likely to make somebody withdraw, and the cheapest
+   place to do that is here.
 
    ── THE RAIL'S GEOMETRY IS DERIVED, NOT EYEBALLED ────────────────────────
-   It has now been wrong twice from guessing, so the arithmetic is written
-   out. Nodes are LEFT-aligned inside each card (they were centred before, and
-   the insets are different):
+   Nodes are left-aligned inside each card:
 
      x-start  1px card border + 2rem of p-8 + half of a size-14 node
               = 1 + 32 + 28 = 61px from the grid's left edge.
-     x-end    the last node sits 61px into the LAST column, so the right
+     x-end    the last node sits 61px into the last column, so the right
               inset is one column minus 61px. A column in a 3-up grid with a
               1.5rem gap is (100% - 3rem)/3.
      y        the same 61px, measured down.
 
-   `hidden lg:block`: stacked, the cards are already adjacent and a rail
-   through them would cross their text (HANDOFF §5.7 in miniature).
+   `hidden lg:block`: stacked, a rail through the cards would cross their
+   text.
 
-   THE HARD PART IS FIRST, ON PURPOSE. Twelve-hour days are the single fact
-   most likely to make somebody withdraw, and the cheapest place for them to
-   do that is here rather than in month two. Every phase carries its own
-   data-placeholder because none of these terms is confirmed — see site.ts's
-   TERMS banner, and the note there about the working-hours exposure. */
+   Copy marked data-placeholder is unverified; confirm before public launch. */
 
-/* The little glyph beside each phase note. Presentation, so it stays here —
-   unlike the note itself, which is copy and lives in site.ts. Same reasoning
-   for the accent: phase one is highlighted by INDEX, not by a flag in the
-   content, because it is a decision about the first item. Reorder PROGRAMME
-   and the accent moves with the position rather than stranding on a phase that
-   is no longer first. */
+/* The glyph beside each phase note. Presentation, so it stays here rather
+   than in site.ts. Likewise the accent is chosen by index, not a content
+   flag, so reordering PROGRAMME keeps it on whichever phase is first. */
 const NODE_ICON = ["zap", "code", "user-check"];
 
 export default function Programme() {
@@ -107,20 +73,17 @@ export default function Programme() {
                     {...(p.ph ? { "data-placeholder": p.ph } : {})}
                   >
                     {/* The node and the phase chip share a row, so the rail
-                        passes through the node and the label sits beside it
-                        rather than under it — which is what makes the row read
-                        left-to-right instead of as three stacked cards.
+                        passes through the node and the label sits beside it,
+                        reading left-to-right.
 
                         `border-4 border-card` punches the rail out from behind
-                        the node; the same trick Process uses on its 80px one. */}
+                        the node. */}
                     <div className="mb-5 flex items-center gap-4">
                       <span
-                        /* SIGNATURE — the node ignites. This section is a
-                           timeline, so the node is the thing that should
-                           answer the cursor: it fills, and a ring blooms
-                           around it. `ring-0 → ring-8` is a box-shadow, so it
-                           paints OVER the rail and the neighbouring card
-                           without displacing either.
+                        /* Signature: the node fills and a ring blooms around
+                           it. `ring-0 → ring-8` is a box-shadow, so it paints
+                           over the rail and the neighbouring card without
+                           displacing either.
 
                            `transition-[background-color,color,box-shadow]`,
                            not `transition-colors`: the ring is a shadow, and
@@ -133,10 +96,9 @@ export default function Programme() {
                         }`}
                         aria-hidden="true"
                       >
-                        {/* The numeral IS the node — an icon here would say
-                            "category" where the whole section says "order".
-                            aria-hidden because the <ol> already numbers these
-                            for a screen reader. */}
+                        {/* A numeral rather than an icon, because the section
+                            is about order. aria-hidden because the <ol>
+                            already numbers these for a screen reader. */}
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className="flex flex-col gap-1.5">
@@ -172,30 +134,14 @@ export default function Programme() {
           </ol>
         </div>
 
-        {/* ── THE SUMMARY ROW (rebuilt 2026-09-08) ─────────────────
-            It was four ticked sentences on a `bg-secondary` bar with `mt-8`,
-            and the user read it as a separate component that had drifted into
-            the section. Both halves of that were true:
+        {/* ── THE SUMMARY ROW ───────────────────────────────────────
+            Same surface as the cards and `mt-6` (the grid's own gap), so it
+            reads as the last row of the group. Figure-over-label scans in one
+            pass.
 
-              GROUND. Every other object in this section is `bg-card` on a
-              `bg-background` section. The strip was the only `bg-secondary`
-              thing on the page outside a section ground, so it did not belong
-              to the card group visually. It now takes the cards' exact
-              surface — same border, same radius, same shadow — and `mt-6`,
-              the grid's own gap, so it reads as the last row of the group
-              rather than an object sitting under it.
-
-              SCANNING. A tick plus a sentence is a list: the eye has to read
-              all four to find the number it wants. Figure-over-label is read
-              in one pass, which is the entire job of a summary. It also stops
-              the strip competing with the hero band, which states the same
-              four facts as icon + label + body — context up there, recall
-              down here.
-
-            DIVIDERS, and `divide-x` is safe here for the reason it was NOT in
-            the hero: this is a 1-D flex that goes column → row, so the rule is
-            always between neighbours. On a wrapping grid it would draw down
-            the left of a cell sitting in column one. */}
+            `divide-x` is safe because this is a 1-D flex that goes column →
+            row, so the rule is always between neighbours. On a wrapping grid
+            it would draw down the left of a cell sitting in column one. */}
         <div
           data-reveal
           style={{ "--delay": "400ms" } as React.CSSProperties}
@@ -208,12 +154,9 @@ export default function Programme() {
                 className="flex-1 px-6 py-6 text-center"
                 {...(m.ph ? { "data-placeholder": m.ph } : {})}
               >
-                {/* <dt> is the FIGURE, <dd> the label. A description list is
-                    the right element for figure/caption pairs, and this way
-                    round is the one that reads correctly aloud: a screen
-                    reader announces the term then its definition — "6 months,
-                    of training" — where the reverse announces a caption
-                    orphaned from its number. */}
+                {/* <dt> is the figure, <dd> the label: a screen reader
+                    announces the term then its definition ("6 months, of
+                    training"), which the reverse order would garble. */}
                 <dt className="font-display text-[26px] font-bold leading-none tracking-[-0.02em] text-foreground">
                   {m.figure}
                 </dt>

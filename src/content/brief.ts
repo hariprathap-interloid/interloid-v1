@@ -1,42 +1,22 @@
 /* ==========================================================================
-   /contact — "Tell us your story". Added 2026-09-11.
+   /contact — "Tell us your story".
    ==========================================================================
-   Every word of the project-enquiry page lives here: the hero, the story
-   the visitor writes, the letter it becomes, the send, and the thank-you.
-   The components (brief/*) hold no copy of their own — BRIEF_UI carries the
-   small interface labels they used to hard-code.
+   All copy for the project-enquiry page, including the small interface
+   labels (BRIEF_UI); the brief/* components hold no copy of their own.
 
-   ── THE VOICE (rewritten 2026-09-11, at the user's request) ─────────────
-   "More informative, attractive, easy to read and client friendly" — e.g.
-   "We value your time" instead of "How much time do you have?". So:
-     · short sentences, plain words, no jargon
-     · talk TO the client ("you", "your idea"), and let them talk in the
-       first person on their buttons ("Send my story")
-     · every line either reassures or says what happens next
-   A good part of the audience reads English as a second language; idioms
-   are avoided on purpose.
+   Voice: short sentences, plain words, no idioms (much of the audience reads
+   English as a second language). Address the client as "you"; buttons speak
+   in the first person ("Send my story").
 
-   ── TWO VERSIONS, ONE SET OF ANSWERS ─────────────────────────────────────
-     quick   three blanks: who, what you need, how to reach you
-     full    four short chapters, about nine blanks
-   Both use the SAME field names, so switching keeps everything already
-   typed. The action reads `version` to know which letter's fields to accept.
+   The quick and full versions use the SAME field names, so switching keeps
+   typed answers. The action reads `version` to know which fields to accept.
+   Every blank is free text; `suggestions` only offer one-tap fills.
 
-   ── NOTHING IS A FORCED CHOICE ───────────────────────────────────────────
-   Every blank is typed; `suggestions` only offer a one-tap way to fill it.
+   Required in either version: a name, what they need, and one way to reach
+   them (email OR phone, see BRIEF_REACH).
 
-   ── REQUIRED ─────────────────────────────────────────────────────────────
-   Only three things, in either version: a name, what they need, and ONE way
-   to reach them (email OR phone — see BRIEF_REACH).
-
-   ── CLAIMS ───────────────────────────────────────────────────────────────
-   Everything promised here is on site.ts's allowed list: the free 30-minute
-   consult, the written scope and price within 48 hours, a fixed price or
-   transparent hourly rate, and "no account manager" (about.ts, unflagged).
-   The $25k–$90k suggestion is the verified FAQ range. Deliberately NOT said,
-   because they are unconfirmed: a reply time, "no sales team" (about.ts P1)
-   and "we only use your details to reply" (there is no privacy policy yet —
-   Footer P0).
+   Only confirmed claims are made here. Do not promise a reply time, "no
+   sales team", or data-use terms until confirmed and a privacy policy exists.
    ========================================================================== */
 
 type Base = {
@@ -121,8 +101,8 @@ export const BRIEF_HERO = {
   lead: "Write to us the way you’d explain it to a friend. Short on time? Three quick blanks are enough. Have a few minutes? Tell us the whole story, and watch it become a letter as you type.",
 } as const;
 
-/* The way round the letter, beside it. Same address and number as the
-   footer and /about — connect@, not the hello@ some mailto links used. */
+/* Contact details beside the letter. Keep in sync with the footer and
+   /about. */
 export const BRIEF_DIRECT = {
   title: "Prefer to talk?",
   body: "Email or call. You’ll reach the same engineers either way.",
@@ -137,20 +117,16 @@ export const BRIEF_FACTS = [
     k: "clock",
     label: "Quick or detailed, your choice",
     body: "30 seconds for the essentials, or about 3 minutes for the full picture.",
-    /* `short` — the one line a phone shows in BriefHero's "list" sample. */
-    short: "30 seconds or 3 minutes, your choice",
   },
   {
     k: "user-check",
     label: "Read by a real engineer",
     body: "The person who would build it reads every word, with no account manager in between.",
-    short: "Read by the engineer who’d build it",
   },
   {
     k: "receipt",
     label: "A clear next step",
     body: "A free 30-minute call, then a written scope and price within 48 hours.",
-    short: "Free call, then a written price in 48 hours",
   },
 ] as const;
 
@@ -304,9 +280,7 @@ export const BRIEF_DONE = {
   back: "Back to home",
 } as const;
 
-/* ── THE SMALL INTERFACE LABELS ────────────────────────────────────────
-   Moved out of LetterComposer and parts.tsx 2026-09-11 with the rewrite —
-   they are copy, and CLAUDE.md §2 keeps copy in src/content/. */
+/* ── INTERFACE LABELS ──────────────────────────────────────────────────── */
 export const BRIEF_UI = {
   letterTo: "To the Interloid team",
   answered: (n: number, total: number) => `${n} of ${total} answered`,
@@ -315,9 +289,6 @@ export const BRIEF_UI = {
   previewAction: "View",
   sheetTitle: "Your letter so far",
   sheetClose: "Close",
-  /** The tabs design (kept for the phase-2 review). */
-  writeTab: "Write",
-  letterTab: "Your letter",
   suggestionsOr: "or write your own",
   /** The key to the `*` beside required blanks, under the version toggle. */
   requiredNote: "marks what we need to reply; everything else is optional.",

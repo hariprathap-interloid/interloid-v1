@@ -2,37 +2,15 @@ import Icon from "../Icon";
 import SectionHeading from "../SectionHeading";
 import { PEOPLE } from "@/content/about";
 
-/* "Who you work with" — the section that stands where a team page would.
+/* "Who you work with" — answered with things that are true and checkable
+   rather than invented people or stock portraits.
 
-   ── THIS IS THE ONE THAT MATTERS ─────────────────────────────────────────
-   The reference page (conversedatasolutions.com/about) answers "who will I
-   work with?" with sixteen named colleagues and photographs, in a carousel.
-   It is the centre of gravity of their page and it is the single thing this
-   site cannot answer in kind: HANDOFF §7 P1 is explicit — do not launch with
-   invented people. Sixteen stock portraits with invented names would be the
-   exact failure the review names, and worse than a fabricated testimonial,
-   because a person is far easier to check than a quote.
+   Layout 7/5: the points are rows, not a 2×2 grid, because they are one
+   argument read in order. The commitment card sits beside them as a
+   distinct object.
 
-   So the question gets answered with the four things that ARE true and
-   checkable — named in the proposal, the same people throughout, in the room
-   every Friday, reachable directly — and then the gap is stated out loud
-   rather than left as a silence a reader fills in for themselves.
-
-   ── LAYOUT: 7/5, THE ANSWERS AND THE ADMISSION ───────────────────────────
-   The four points are rows, not a 2×2 grid: they are a single argument read
-   in order, and a grid would invite the eye to sample them. The admission
-   sits beside them as a distinct object — dashed border, page ground rather
-   than card — so it reads as a note, not as a fifth claim.
-
-   HOVER SIGNATURE — the numbered rail. Each row carries a small index plate;
-   on hover the whole row's plate and rule light in the accent, so the list
-   reads as a sequence rather than four cards. Colour only, and the shared
-   rule holds: nothing on this page moves under the cursor.
-
-   ⚠ The admission is `data-placeholder`, and the flag runs the OPPOSITE way
-   from most on this project: this copy should be DELETED the day real bios
-   and permissioned photographs exist, not confirmed. Do not soften it into
-   "our team is growing". */
+   Hover is colour-only: each row's icon plate lights in the accent. Nothing
+   moves under the cursor. */
 export default function People() {
   return (
     <section
@@ -62,10 +40,9 @@ export default function People() {
                 data-reveal
                 style={{ "--delay": `${i * 90}ms` } as React.CSSProperties}
               >
-                {/* The rule lives on the item, not as a `divide-y` on the
-                    list: divide utilities key off DOM order and would put a
-                    rule above the first item if the list ever gained a header.
-                    `last:border-0` closes the run. */}
+                {/* The rule lives on the item, not as `divide-y` on the list:
+                    divide utilities key off DOM order and would misplace a
+                    rule if the list gained a header. */}
                 <div className="group flex gap-5 border-b border-hairline py-6 transition-colors duration-300 last:border-0">
                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-secondary text-muted-foreground ring-1 ring-border transition-[background-color,color,box-shadow] duration-300 ease-out group-hover:bg-accent group-hover:text-white group-hover:ring-accent/30">
                     <Icon name={pt.k} className="size-5" />

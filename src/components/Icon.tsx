@@ -1,6 +1,5 @@
-/* Lucide 24×24 paths, stroke-width 2, currentColor.
-   HANDOFF §8: inline Lucide-style SVG only — no emoji. The live site uses
-   emoji as iconography and the review flags it as the most visible unpolish. */
+/* Lucide 24×24 paths, stroke-width 2, currentColor. Inline SVG only — no
+   emoji as iconography. */
 
 export const ICONS = {
   code: (
@@ -18,34 +17,10 @@ export const ICONS = {
       <path d="M8 17v-3" />
     </>
   ),
-  /* CLOUD INFRASTRUCTURE & DEVOPS.
-     Replaced 2026-09-12. What was here was Lucide `cloud-download` — a cloud
-     with an arrow pointing down THROUGH it — which reads as "download", not as
-     infrastructure, and that is the wrong verb for the one capability whose
-     whole claim is that your team OPERATES the thing.
-
-     This is Lucide `cloud`, plain, and the plainness is the finding rather
-     than a shortcut. Four compositions were rendered at 16/20/24/40/96px and
-     compared at the sizes this icon is actually used — the capability index
-     chip and the section tile, both under 24px:
-
-       cloud + gear inside (`cloud-cog`)  gear became a blob and broke the
-                                          cloud's own silhouette
-       cloud + gear as a corner badge     read as two small objects, not one
-       cloud + up arrow                   held well, and "provision up into
-                                          the cloud" is the right verb
-       plain cloud                        legible at every size, unmistakable
-
-   Detail that survives 96px but not 16px is not detail, it is noise, and the
-   five siblings are all single-concept nouns too (code, smartphone, server,
-   sparkle, users) — the label already says DevOps, so the glyph need not.
-   The up-arrow version is the alternative if a verb is ever wanted here:
-   `<path d="M12 13v8"/><path d="m8 17 4-4 4 4"/><path d="M4.4 14.9A5 5 0 0 1
-   7 5.5a6.5 6.5 0 0 1 12 1 4.5 4.5 0 0 1 .6 8.4"/>`.
-
-   A vendor mark from the Desktop icons folder would have been wrong twice
-   over: off-family, and implying one cloud when the stack row directly
-   beneath already shows AWS, Azure and Google Cloud together. */
+  /* Cloud infrastructure & DevOps: plain Lucide `cloud`. It is used below
+     24px, where composite glyphs (gear, arrows) turn to noise, and its
+     siblings are single-concept nouns too. Not a vendor mark: the service
+     spans several clouds. */
   cloud: <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />,
   sparkle: (
     <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
@@ -71,9 +46,7 @@ export const ICONS = {
     </>
   ),
   check: <path d="M20 6 9 17l-5-5" />,
-  /* THE SITE'S VERIFIED-CLAIM MARK. Chosen from /check-lab on 2026-09-12 over
-     the bare tick, which appeared in eleven components and at that density had
-     stopped reading as "verified" and started reading as texture.
+  /* THE SITE'S VERIFIED-CLAIM MARK.
 
      The two children are CLASSED because globals.css animates them: the ring
      scales up and the tick strokes on when the row scroll-reveals. Both are
@@ -82,10 +55,8 @@ export const ICONS = {
      normalises the dash maths so the keyframes do not depend on this path's
      real length; change the `d` freely, the animation still works.
 
-     `check` itself is KEPT and still used where a tick means something other
-     than a verified claim: the selected-mode confirmation in ModeContext and
-     the "What you get" heading glyph in CapabilityShowcase. Neither is a
-     claim, and neither should animate on scroll. */
+     Use plain `check` where a tick means something other than a verified
+     claim and should not animate on scroll. */
   "check-circle": (
     <>
       <circle
@@ -125,15 +96,9 @@ export const ICONS = {
       <circle cx="7.5" cy="15.5" r="5.5" />
     </>
   ),
-  /* Set 2, "literal" — chosen in why-interloid-lab.html on 2026-09-07 over the
-     first set, whose problems were specific: `zap` for "direct line" means
-     fast, not reachable; `handshake` for "we tell you to walk away" says deal,
-     the opposite of the tile; `users` for "senior engineers" says people but
-     not SENIOR; `lock` for ownership says security, not title. These name the
-     right noun instead. `lock`, `wallet`, `handshake` and `zap` are kept below
-     in case another section wants them. */
-  /* `key` was already taken by the diagonal Lucide key; this is `key-round`,
-     which reads better at 24px inside the plate. */
+  /* Commitment icons: each names the tile's literal noun (ownership is a key,
+     not a lock; seniority is a checked user, not a crowd). `key-round` reads
+     better at 24px inside the plate than the diagonal `key`. */
   "key-round": (
     <>
       <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" />
@@ -223,8 +188,7 @@ export const ICONS = {
       <path d="m21 21-4.3-4.3" />
     </>
   ),
-  /* Lucide `circle-alert`. Added 2026-09-11 for a required blank still
-     missing after a send — see `Needed` in brief/parts.tsx. */
+  /* Lucide `circle-alert`: a required field still missing. */
   alert: (
     <>
       <circle cx="12" cy="12" r="10" />
@@ -233,9 +197,8 @@ export const ICONS = {
     </>
   ),
   /* ── SERVICE MARKS ───────────────────────────────────────────────────
-     Added 2026-09-08 for two of the six services whose marks said the wrong
-     thing: `phone` is a telephone receiver ("call us") and `layers` is the
-     Interloid logo itself, worn by the core of the ecosystem wheel. */
+     `smartphone`, not `phone` (a receiver, which says "call us"). `layers` is
+     the Interloid logo mark. */
   smartphone: (
     <>
       <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
@@ -257,10 +220,8 @@ export const ICONS = {
       <path d="m2 12 10 5 10-5" />
     </>
   ),
-  /* The QUOTATION MARK, from prototype2-archive's `.pullquote__mark`. Not to
-     be confused with `quote` below, which is the speech-bubble the Client
-     feedback badge uses — two different glyphs doing two different jobs, and
-     the names are one letter apart on purpose so a wrong import is visible. */
+  /* The QUOTATION MARK. Not to be confused with `quote` below, the speech
+     bubble used as a badge icon — two glyphs doing two different jobs. */
   "quote-mark": (
     <>
       <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2-2-2H4c-1.25 0-2 .75-2 2v7c0 1.25.75 2 2 2h3" />
@@ -278,9 +239,8 @@ export const ICONS = {
     <path d="m12 3 2.09 6.26L20 11.27l-5 3.64L16.18 21 12 17.77 7.82 21 9 14.91l-5-3.64 5.91-2.01L12 3Z" />
   ),
   chevron: <path d="m6 9 6 6 6-6" />,
-  /* Lucide `image`. Added 2026-09-08 for the gallery's waiting state — a
-     quote-mark stood in first and reads as a pull-quote, not as a photograph
-     that has not arrived. */
+  /* Lucide `image`: the gallery's waiting state for a photograph that has not
+     loaded. */
   image: (
     <>
       <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />

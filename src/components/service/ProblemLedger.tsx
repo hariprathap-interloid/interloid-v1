@@ -5,33 +5,19 @@ import Icon from "../Icon";
 import SectionHeading from "../SectionHeading";
 import { CAPABILITIES, SERVICE_PROBLEMS } from "@/content/service";
 
-/* ==========================================================================
-   WHERE TEAMS GET STUCK — the problem section, as a ledger of rows.
-   ==========================================================================
-   Rows rather than cards, deliberately: this page already spends its card
-   budget on the hero switch and the engagement panel, and a fifth grid of
-   cards is exactly the "repetitive grid" the brief rules out. A ledger also
-   suits the content — these are five sentences a client says out loud, and
-   they read as a list of sentences, not as five products.
+/* The problem section: a ledger of rows, each a client's sentence that
+   discloses our answer on click.
 
-   PROGRESSIVE DISCLOSURE IS THE POINT. The client's own words are always
-   visible; our answer costs one click. A visitor scanning for themselves
-   reads five short lines instead of five paragraphs, and the one that lands
-   opens into a real answer — which is also the honest shape of the content,
-   because the answers are only interesting once you have recognised the
-   problem.
+   Three-element structure:
+     <li data-reveal>   static className — this is what the reveal observes
+       <button>         owns the open/closed classes
+       <div role=region> the disclosure, grid-rows 0fr→1fr
 
-   ── THE THREE-ELEMENT RULE (Roles.tsx / Faq.tsx) ─────────────────────────
-   <li data-reveal>   static className, forever — this is what Reveal observes
-     <button>         owns the open/closed classes
-     <div role=region> the disclosure, grid-rows 0fr→1fr
-
-   React rewrites the whole className attribute on any state change, which
-   would wipe the `is-in` Reveal.tsx wrote directly to the DOM — so nothing
+   React rewrites the whole className on any state change, which would wipe
+   the `is-in` class the reveal script writes directly to the DOM, so nothing
    state-dependent may live on the [data-reveal] node. The panel is
-   `invisible` as well as zero-height: a collapsed grid row still keeps its
-   links in the tab order otherwise (HANDOFF §5.4).
-   ========================================================================== */
+   `invisible` as well as zero-height: a collapsed grid row otherwise keeps
+   its links in the tab order. */
 export default function ProblemLedger() {
   /* First row open on load: an accordion where everything is shut reads as a
      list of unanswered complaints, which is the opposite of the intent. */
@@ -79,10 +65,8 @@ export default function ProblemLedger() {
                       onClick={() => setOpen(isOpen ? null : p.q)}
                       className="group flex w-full items-start gap-5 py-7 text-left transition-colors sm:gap-7"
                     >
-                      {/* The ghost numeral (DS §8.9's device) warms on hover
-                          and turns solid when the row is open — the cheapest
-                          possible state indicator, and it doubles as the
-                          row's index. */}
+                      {/* Ghost numeral: the row index, and its colour doubles
+                          as the open/hover state indicator. */}
                       <span
                         aria-hidden="true"
                         className={`shrink-0 font-display text-2xl font-bold tabular-nums transition-colors duration-300 ${
@@ -116,8 +100,7 @@ export default function ProblemLedger() {
                   </h3>
 
                   {/* 0fr → 1fr animates to the content's real height, where a
-                      max-height needs a magic number that is wrong for every
-                      panel (Faq.tsx's note). */}
+                      max-height would need a magic number per panel. */}
                   <div
                     id={`problem-${i}`}
                     role="region"

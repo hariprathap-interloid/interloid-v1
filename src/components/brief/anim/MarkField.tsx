@@ -2,38 +2,36 @@
 
 import { useEffect, useRef } from "react";
 
-/* ==========================================================================
-   MarkField — the Interloid mark, assembling as the story is told.
-   ==========================================================================
-   The same 3898-point lattice HeroScatter draws (logo-points.json, generated
-   from interloid-logo.svg), starting as a loose cloud. Each point has a GATE
-   between 0 and 1 and flies home once `progress` passes it — so the mark
-   fills in as a clockwise sweep, one arc per answered blank, and is whole
-   when the story is sent.
+/* MarkField — the Interloid mark, assembling from particles.
+
+   The point lattice comes from logo-points.json (generated from
+   interloid-logo.svg) and starts as a loose cloud. Each point has a gate
+   between 0 and 1 and flies home once `progress` passes it, so the mark
+   fills in as a sweep and is whole when `done`.
 
    ── ORDER, NOT NOISE ─────────────────────────────────────────────────────
-   Gates are ranked by each point's ANGLE around the mark (twelve o'clock,
-   clockwise, lightly jittered), so a new answer lands as a coherent wedge
+   Gates are ranked by each point's angle around the mark (twelve o'clock,
+   clockwise, lightly jittered), so progress lands as a coherent wedge
    rather than a random sprinkle that reads as nothing happening.
 
-   ── THE FLAT-MARK RULE (HeroScatter §THE FLAT-MARK COLLAPSE) ─────────────
-   The mark is flat (z = 0). Any rotation is multiplied by how SCATTERED the
+   ── THE FLAT-MARK RULE ───────────────────────────────────────────────────
+   The mark is flat (z = 0). Any rotation is multiplied by how scattered the
    field still is and capped near ±30°, so the forming mark can never swing
    edge-on and collapse to a line, and the finished mark sits square.
 
-   ── ui-ux-pro-max's THREE.JS RULES, AND WHERE ────────────────────────────
+   ── PERFORMANCE AND TEARDOWN ─────────────────────────────────────────────
      one renderer, pixel ratio capped at 2 ........ setPixelRatio(min(dpr, 2))
-     Points + BufferGeometry, well under 50k ...... 3898 points, one draw
+     Points + BufferGeometry ...................... one draw call
      THREE.Clock, getDelta() once per frame ....... `frame`
-     reduced motion as a LIVE listener ............ `mq`
+     reduced motion as a live listener ............ `mq`
      pause offscreen / hidden tab ................. IntersectionObserver +
                                                    visibilitychange
      dispose geometry, material, renderer ......... `cleanup`
 
-   LOADING follows HeroScatter: `three` and the point data are fetched inside
-   the effect, so they code-split out and load only where this is used.
-   Without WebGL the still logo underneath shows; the stage marks itself
-   `data-ready` on first paint to hide it. */
+   `three` and the point data are loaded inside the effect, so they are
+   code-split and fetched only where this renders. Without WebGL the still
+   logo underneath shows; the stage marks itself `data-ready` on first paint
+   to hide it. */
 
 function webglOK() {
   try {
@@ -48,10 +46,9 @@ function webglOK() {
    points — the variation is what makes a wedge land as a flock, not a slab. */
 const SPEED = 3.2;
 const STAGGER = 0.9;
-/* Half-size of the mark in world units, against a camera at z = 7 — the
-   mark fills ~70% of the panel's height. It was 1.55 (~64%); on the
-   thank-you that left the 72-row lattice too few pixels per row to read as
-   a dotted logo rather than moiré. */
+/* Half-size of the mark in world units, against a camera at z = 7: the mark
+   fills ~70% of the panel's height. Smaller, the lattice gets too few pixels
+   per row and reads as moiré rather than a dotted logo. */
 const MARK = 1.85;
 
 export default function MarkField({ progress, done }: { progress: number; done: boolean }) {

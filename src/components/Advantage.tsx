@@ -2,30 +2,15 @@ import CommitmentTile from "./CommitmentTile";
 import SectionHeading from "./SectionHeading";
 import { BENTO } from "@/content/site";
 
-/* DS §8.2 glass bento on the tinted surface, rebuilt to prototype 1's `.tile`.
+/* Glass bento on the tinted surface. A Server Component: only the cursor
+   spotlight in CommitmentTile needs the client.
 
-   A SERVER component: the cursor spotlight lives in CommitmentTile, which is
-   the only part that needs the client. Everything here is static markup and
-   ships as HTML.
+   `wide` is derived from the tile count rather than hard-coded, so the wide
+   tiles always complete the last row.
 
-   Rebuilt 2026-09-07 to prototype 1's full seven-commitment set. The wide
-   tiles are FIRST and LAST — see the count note in content/site.ts for why
-   that is the only arrangement that fills three rows. `wide` is derived from
-   the array length rather than hard-coded, so a 5-tile set falls back to
-   prototype 1's original single wide tile without an edit here.
-
-   THE ROW HEIGHT IS A MIN, NOT A TRACK — changed 2026-09-07, and it is a bug
-   fix. `lg:auto-rows-[18rem]` defined a fixed grid TRACK, and a track cannot
-   grow: between the lg breakpoint and ~1280px the three columns are narrow
-   enough that the copy wraps past 18rem, and the tile (overflow-hidden) cut
-   it. Measured on the running build: 5 of 7 tiles clipped at 1024px, up to
-   50px; 1 tile at 1180px; clean from 1280px up. Every screenshot in this
-   project had been taken at 1440, which is why it survived.
-
-   The fix is `min-h-[18rem]` on the TILE (see CommitmentTile) with auto rows
-   here: prototype 1's 18rem proportion is kept as a floor, and copy that needs
-   more room gets it. Verified clean at 1024/1180/1280/1440/1600 in
-   why-interloid-lab.html, layout G. Do not put a fixed height back. */
+   Rows are auto-sized; the 18rem height is a min-height on the tile, never a
+   fixed grid track. A track cannot grow, and between lg and ~1280px the
+   narrow columns wrap copy past 18rem, which the overflow-hidden tile clips. */
 export default function Advantage() {
   const last = BENTO.length - 1;
 
@@ -60,7 +45,7 @@ export default function Advantage() {
               item={b}
               index={i}
               /* 7 tiles: wide at both ends = 9 slots = three full rows.
-                 5 tiles: only the first is wide, prototype 1's arrangement. */
+                 5 tiles: only the first is wide = 6 slots = two rows. */
               wide={i === 0 || (BENTO.length % 3 === 1 && i === last)}
             />
           ))}

@@ -3,57 +3,28 @@
 import { useEffect, useRef } from "react";
 
 /* ==========================================================================
-   HERO MARK — a scattered field that gathers into the Interloid logo and
-   disperses again, on a loop. Owns both states.
+   HERO MARK — a scattered particle field that gathers into the Interloid logo
+   and disperses again, on a loop.
 
-   The scattered state is a faithful port of hero-order.js at progress 0:
-   particles sit on a HUGE shell (r = 8–16 world units against a camera at
-   z = 15) so the cloud swallows the whole frame, and with sizeAttenuation the
-   few particles near the camera draw as big squares while the far ones fall to
-   single specks. That size spread across a full-bleed sparse field IS the look
-   — it cannot be reached by resizing a compact cloud. The constants lifted
-   from the reference (r, the .62 y-flatten, size .085, opacity .78, the .04
-   drift, the .1 breathing) are a spec: changing one changes the match.
+   Scattered state: particles sit on a large shell (r = 8–16 world units, camera
+   at z = 15) so the cloud fills the frame, and size attenuation turns near
+   particles into big squares and far ones into specks.
 
-   ---------------------------------------------------------------------------
-   THE FLAT-MARK COLLAPSE — the one thing that must never regress.
+   Flat-mark collapse (must never regress): the logo is flat (z = 0), and a
+   rotated flat cloud collapses to a line at 90°. Rotation is therefore
+   multiplied by (1 - k) and is exactly zero at k = 1, which also makes the
+   held mark square-on and pointer-inert. Drift is accumulated incrementally
+   and frozen during the gather; deriving it from elapsed time would unwind
+   the field in a fast reverse spin.
 
-   The logo is FLAT: every home point sits at z = 0. Rotate a flat cloud and it
-   collapses to a LINE every time it passes 90°, which is what "the cloud goes
-   horizontal" was. This is HeroStage §5.15, and it survived review there three
-   times because the first cycle looks fine.
+   Clean converge: particles are paired with home points by angle (both sets
+   sorted, matched rank-to-rank) and travel in polar space, so paths never
+   cross. Far particles leave first so the mark completes together.
 
-   So rotation is multiplied by (1 - k) and reaches EXACTLY zero at k = 1. That
-   single factor does three jobs: it kills the collapse, it makes the mark
-   square-on and legible, and it makes the mark mouse-inert — pointer input is
-   live only while the field is scattered, which is the required behaviour.
-
-   Note this differs from hero-order.js on purpose. The reference damps its
-   drift to 30% (`t*.04*(1-k*.7)`), never to zero. On its lattice that is fine;
-   on a flat mark it is the bug.
-
-   The drift is also accumulated INCREMENTALLY and frozen once the gather
-   starts. Writing `rotation.y = t * .04 * (1 - k)` instead would wind the whole
-   field back to zero from wherever elapsed time had taken it — a fast reverse
-   spin that gets worse the longer the page has been open.
-   ---------------------------------------------------------------------------
-
-   CLEAN CONVERGE, NOT CHAOS. Crossing travel paths are the main reason an
-   assembly reads as noise. Particles are matched to home points by ANGLE
-   (both sets sorted, paired rank-to-rank) and then travel in POLAR space, so
-   every path is a smooth arc and no two cross. Far particles leave first so
-   the mark completes together instead of trickling in.
-
-   POINTSMATERIAL, DELIBERATELY. It draws SQUARES, which is what the reference
-   shows and what was asked for. HeroStage §5.16 avoids it for the mark alone;
-   here the same material has to serve a noise field and a legible mark, which
-   is why `size` is animated with k — one world-space size cannot do both.
-
-   LOADING and TEARDOWN follow HeroStage: `three` and the point data are
-   fetched inside the effect behind requestIdleCallback so they code-split out
-   of the initial bundle and cannot touch first paint (HANDOFF §8, FCP 364ms),
-   and every listener, observer and GPU resource is collected for cleanup
-   because React StrictMode runs this effect twice in dev.
+   Loading and teardown: `three` and the point data load inside the effect
+   after idle, so they stay out of the initial bundle and first paint. Every
+   listener, observer and GPU resource is released in cleanup (StrictMode runs
+   the effect twice in dev).
    ========================================================================== */
 
 /* Seconds. Retuning the rhythm is one line each. */
@@ -66,47 +37,27 @@ const CYCLE = SCATTER_HOLD + CONDENSE + LOGO_HOLD + DISPERSE;
 /* Fraction of the gather spent staggering departures. */
 const SPREAD = 0.3;
 
-/* Point size at each end of the cycle.
-
-   SCATTER is an absolute world size, and correctly so: the field's shell is a
-   fixed 8-16 world units at every breakpoint, so its grain does not vary.
-
-   The MARK is different — it is sized from SCALE, which shrinks hard on narrow
-   viewports. A fixed world size there made the points overlap into one solid
-   filled shape on mobile, losing the particle character entirely. So the mark's
-   size is a FRACTION of SCALE, which holds the same grain at every width. */
+/* Scatter point size, in world units: the shell is a fixed size at every
+   breakpoint. The mark's point size is derived from its on-screen lattice
+   spacing instead (see buildLattice), so its grain holds at every width. */
 const SIZE_SCATTER = 0.085;
 
-/* THE MARK IS AN EXACT GRID, GENERATED FROM THE ARTWORK.
+/* The mark is an exact grid generated from the artwork. logo-points.json is
+   built from interloid-logo.svg by scripts/build-logo-points.mjs
+   (`npm run logo:points`; `:check` to verify): the artwork is divided into
+   `grid` x `grid` cells, and each cell it covers by at least half gets one
+   point at the cell centre, coloured by its ink, with its integer cell
+   (gx, gy).
 
-   logo-points.json is built from interloid-logo.svg by
-   scripts/build-logo-points.mjs (`npm run logo:points`; `:check` to verify) as a
-   perfect lattice: the
-   artwork is divided into `grid` x `grid` cells, and every cell it covers by at
-   least half gets one point at that cell's exact centre, coloured by the ink
-   inside it. Each point also carries its integer cell (gx, gy).
-
-   Two earlier versions of that file were each wrong in a way that showed on
-   screen: a JITTERED sampling (nearest-neighbour spacing wandering .023-.029)
-   whose squares would never sit in true rows however it was re-quantised; and
-   a fringe of ~4% of points lying just OUTSIDE the silhouette, which read as
-   stray squares off the rim. Generating the grid from the artwork removes both
-   by construction rather than by filtering.
-
-   The field and the mark still need different POINT COUNTS: ~3900 points is a
-   legible dotted logo across a 611px desktop mark, but only ~2px apart on a
-   phone. So small marks keep every k-th row and column — an exact sub-grid,
-   never a sample — and the surplus FADES OUT as the mark forms, which is what
-   the per-particle alpha attribute is for. */
+   Small marks keep every k-th row and column (an exact sub-grid, so rows stay
+   true) and the surplus particles fade out as the mark forms. */
 const MARK_SPACING_PX = 4.3; /* finest centre-to-centre gap worth drawing */
 /* Square size as a fraction of the spacing, so its SQUARE is the ink coverage.
    0.88 leaves a hairline between neighbours: the grid still reads as squares,
    but the mark's edges and counters stay crisp rather than gappy. */
 const MARK_DOT_RATIO = 0.88;
 
-/* Vertical room on narrow screens. The nav is transparent at rest and owns the
-   first ~70px; without accounting for it the mark rode up under the wordmark
-   and left ~9px to the badge at 320px wide. */
+/* Vertical room on narrow screens: the transparent nav owns the first ~70px. */
 const NAV_PX = 70;
 const MARK_MARGIN_PX = 16;
 
@@ -165,7 +116,7 @@ export default function HeroScatter() {
 
       const hasLogo = !!logo && logo.count > 0;
       /* One particle per home point, so the mark lands complete with nothing
-         left drifting. Without the data, fall back to the reference count. */
+         left drifting. Without the data, use a fixed count. */
       const N = hasLogo ? logo!.count : 4200;
 
       const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -201,16 +152,12 @@ export default function HeroScatter() {
       /* ------------------------------------------------------------------
          Geometry, in POLAR around the cloud's own centre.
 
-         Positions are centre-relative and the object is MOVED, rather than an
-         offset being baked into every vertex. That way rotation happens about
-         the cloud's own axis; baking the offset in (as hero-order.js does)
-         rotates it about the world origin instead, which swings the whole
-         field sideways across the screen.
+         Positions are centre-relative and the object is moved, so rotation
+         happens about the cloud's own axis; baking the offset into vertices
+         would rotate about the world origin and swing the field sideways.
 
-         The move is scaled by k, so the SCATTER sits centred on the viewport
-         and covers the full page, and only the MARK travels to its home beside
-         the copy. Parking the field at the mark's home instead left the left
-         third of the page noticeably thin.
+         The move is scaled by k: the scatter stays centred and full-bleed, and
+         only the mark travels to its home beside the copy.
          ------------------------------------------------------------------ */
       const r0 = new Float32Array(N); /* scatter radius, world units */
       const th0 = new Float32Array(N); /* scatter angle */
@@ -277,11 +224,9 @@ export default function HeroScatter() {
           lth[i] = Math.atan2(src[i * 2 + 1], src[i * 2]);
         }
 
-        /* NON-CROSSING ASSIGNMENT. Sort both sets by angle and pair them
-           rank-to-rank. Rank matching is monotonic in angle, so it preserves
-           cyclic order — which is precisely the condition for no two travel
-           paths to cross. This is the difference between a converge that reads
-           as deliberate and one that reads as noise. */
+        /* Non-crossing assignment: sort both sets by angle and pair them
+           rank-to-rank. This preserves cyclic order, so no two travel paths
+           cross. */
         const byScatter = Array.from({ length: N }, (_, i) => i).sort(
           (a, b) => th0[a] - th0[b],
         );
@@ -311,16 +256,12 @@ export default function HeroScatter() {
       geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
       geo.setAttribute("aFade", new THREE.BufferAttribute(fade, 1));
 
-      /* A hand-written stand-in for PointsMaterial, because PointsMaterial has
-         no per-particle alpha and the surplus particles must fade out as the
-         mark forms. Everything else is deliberately identical to it: SQUARE
-         points (no circular mask) and the same `size * (height/2) / -z`
-         attenuation, so the approved scatter is pixel-for-pixel unchanged.
+      /* A minimal PointsMaterial equivalent with per-particle alpha, so
+         surplus particles can fade out as the mark forms. Square points and
+         the same `size * (height/2) / -z` attenuation.
 
-         The one correction is uDpr. gl_PointSize is in DEVICE pixels and
-         PointsMaterial does not account for that (HeroStage §5.17), so on a
-         retina phone it renders every point at half the intended CSS size.
-         Folding dpr into uScale keeps the grain honest on real devices. */
+         gl_PointSize is in device pixels, so devicePixelRatio is folded into
+         uScale; otherwise points render at half size on high-DPI screens. */
       const uni = {
         uSize: { value: SIZE_SCATTER },
         uScale: { value: 450 },
@@ -359,42 +300,21 @@ export default function HeroScatter() {
       const aCol = geo.getAttribute("color");
       const aFade = geo.getAttribute("aFade");
 
-      /* Theme is OBSERVED, never set — Nav owns `.dark` and the inline script
-         in layout.tsx writes it first (HANDOFF §5.19). Additive blending only
-         ever brightens, so it is useless on a pale ground but is what makes
-         the cloud glow on the dark one. */
-      /* THE MARK'S OWN COLOURS, taken from interloid-logo.svg rather than from
-         the muted --brand/--accent pair the FIELD uses. Rasterising the logo
-         and reading its histogram gives a vivid diagonal gradient — deep blue
-         (#0033ff–#1166ff) into bright cyan (#11eeff–#22eeff), running
-         top-left to bottom-right — and the old #1f5da0 -> #289dbe ramp across
-         x alone was both far duller and running the wrong way.
-
-         The cyan end is pulled back on LIGHT only. The logo's true #22eeff is
-         near-white in value, so on the pale hero it disappears; globals.css
-         already notes #289dbe is only 3.15:1 there. Dark keeps the full
-         vividness, where additive blending makes it glow. */
+      /* Theme is observed, never set: Nav and the inline script in layout.tsx
+         own `.dark`. Additive blending only brightens, so it is used on the
+         dark ground only. */
       const markRamp = { a: new THREE.Color(), b: new THREE.Color() };
       const hsl = { h: 0, s: 0, l: 0 };
       const WHITE = new THREE.Color(1, 1, 1);
       const AZURE_H = 0.55; /* hue the dark palette is pulled toward */
-      /* 0.45 (with a 0.30 floor) left the blue half at 0.69 of the cyan half's
-         luminance; 0.6 with the 0.36 floor below reaches 0.83 while chroma
-         stays 0.86 — simulated over the baked palette before choosing. 0.7
-         balances about as well but squeezes the blue end to azure. */
+      /* Balances blue/cyan luminance on dark without squeezing the blue end
+         to azure. Tuned together with the 0.36 luminance floor below. */
       const AZURE_MIX = 0.6;
       const baked = logo?.col;
 
-      /* ONE PALETTE FOR BOTH STATES.
-
-         The field used to carry its own muted --brand mix, which read as a
-         single flat blue next to the mark's vivid blue-to-cyan. Now every
-         particle carries the colour of the home it is paired with, from the
-         moment it appears: the logo's colours are present in the scatter and
-         simply assemble, rather than appearing out of nowhere at the end.
-
-         The field varies each particle's brightness by `tone` so it still has
-         depth and does not read as a flat wash. */
+      /* One palette for both states: each particle carries the colour of its
+         paired home point, so the logo's colours assemble rather than appear.
+         In the field, `tone` varies brightness so it does not read flat. */
       const writeColour = (i: number) => {
         colLogo[i * 3] = tmp.r;
         colLogo[i * 3 + 1] = tmp.g;
@@ -407,7 +327,7 @@ export default function HeroScatter() {
 
       const paintPalette = () => {
         if (!hasLogo) {
-          /* No mark: the field keeps the original --brand mix. */
+          /* No mark: a --brand/--accent mix. */
           for (let i = 0; i < N; i++) {
             tmp
               .copy(C.brand)
@@ -417,38 +337,14 @@ export default function HeroScatter() {
           return;
         }
         if (baked) {
-          /* Sampled per point from the artwork, so the mark carries the logo's
-             own gradient exactly — including which way it runs. Guessing the
-             axis by hand got it backwards and never reached cyan at all.
-             Dimmed on LIGHT: the artwork is drawn for a white ground, and its
-             brightest cyan is near-white in value, so it needs taking down to
-             hold against the pale hero. Multiplying keeps the hue. */
-          /* HUE IS THE SIGNAL; lightness gets normalised.
+          /* Colour sampled per point from the artwork. Hue is kept (it carries
+             the logo's blue-to-cyan gradient); saturation gets a floor so the
+             artwork's glossy bevel does not read as grey chips.
 
-             Sampling the artwork verbatim also samples its glossy bevel — a
-             highlight running the rim that reaches luminance ~197 against a
-             median of 74. As a smooth gradient in the logo that reads as
-             shine; chopped into separate squares it reads as scattered pale
-             grey chips along the mark's edge, which is what showed up on the
-             left side.
-
-             So each point keeps the hue it sampled (that is what carries the
-             logo's blue-to-cyan run) while saturation gets a floor and
-             lightness a band. Nothing can wash out, nothing can blow out. */
-          /* Normalised by PERCEIVED LUMINANCE, not by HSL lightness.
-
-             Lightness is the wrong yardstick here because blue carries only
-             7% of luma against cyan's 78%: at a fixed HSL lightness the cyan
-             end is bright and the blue end is nearly black. On the dark hero
-             that made half the mark disappear — the cyan side read fine while
-             the blue side sank into the background. The same flaw washed the
-             cyan out on light.
-
-             So each point keeps its hue and gets pushed to a luminance that
-             actually reads against THIS theme's background: capped on light
-             (bg luminance ~0.88), floored on dark (~0.005). Lifting is done by
-             mixing toward white rather than by scaling, because scaling a blue
-             just clips its one strong channel and shifts the hue. */
+             Brightness is normalised by perceived luminance, not HSL
+             lightness, because blue carries ~7% of luma against cyan's ~78%:
+             capped on light, floored on dark. Lifting mixes toward white;
+             scaling would clip a blue's one strong channel and shift its hue. */
           const lumMax = isLight ? 0.42 : 1;
           const lumMin = isLight ? 0 : 0.36;
           for (let i = 0; i < N; i++) {
@@ -460,14 +356,9 @@ export default function HeroScatter() {
               THREE.SRGBColorSpace,
             );
             tmp.getHSL(hsl, THREE.SRGBColorSpace);
-            /* On DARK, compress the hue range toward azure. Deep indigo simply
-               cannot carry light — it is 7% of luma — so on a near-black ground
-               the blue half sank while the cyan half shone. Lifting it by
-               mixing toward white instead turns it pale lavender and loses the
-               logo. Moving the hue a little toward cyan keeps it saturated and
-               unmistakably blue while giving it something to shine with. The
-               lerp is uniform, so the gradient's direction and order survive;
-               the whole run just starts brighter. */
+            /* On dark, pull hues toward azure: deep indigo cannot carry light,
+               and lifting it toward white turns it lavender. The lerp is
+               uniform, so the gradient's order survives. */
             const h = isLight ? hsl.h : hsl.h + (AZURE_H - hsl.h) * AZURE_MIX;
             tmp.setHSL(h, Math.max(hsl.s, 0.72), hsl.l, THREE.SRGBColorSpace);
             /* tmp is linear here, which is the space luma is defined in. */
@@ -499,9 +390,8 @@ export default function HeroScatter() {
           ? THREE.NormalBlending
           : THREE.AdditiveBlending;
         mat.needsUpdate = true;
-        /* Opacity, like size, cannot serve both states from one value: 0.78 is
-           right for a sparse field but leaves the dense mark looking washed
-           out against the pale ground. Cross-faded with k alongside size. */
+        /* Opacity, like size, differs between the sparse field and the dense
+           mark; it is cross-faded with k. */
         opScatter = isLight ? 0.78 : 0.62;
         opLogo = isLight ? 1 : 0.95;
         paintPalette(); /* both palettes are theme-dependent */
@@ -526,22 +416,11 @@ export default function HeroScatter() {
          frame loop, so it fades out as the mark forms and is exactly zero
          while the mark is held.
 
-         RELATIVE, NOT ABSOLUTE — this is what stops the lurching.
-
-         Mapping the cursor's absolute position straight onto the target means
-         any DISCONTINUITY in that position swings the whole field. Three ways
-         that happened, all reported:
-           · page loads with the cursor already parked off-centre, so the first
-             1px nudge told the field to swing to a target it had never seen;
-           · the cursor leaves the window and comes back somewhere else;
-           · a second monitor — dragging across the seam teleports the cursor
-             the full width of the screen in a single event.
-
-         So the target accumulates MOVEMENT instead. The first event after the
-         cursor appears only seeds the reference point and moves nothing, and
-         each event can shift the target by at most STEP, so a teleport becomes
-         one small nudge rather than a lurch. Real movement fires many events,
-         so it accumulates normally and still feels direct. */
+         Relative, not absolute: mapping the cursor position directly makes any
+         discontinuity (cursor parked off-centre on load, re-entering elsewhere,
+         jumping across monitors) swing the whole field. The target instead
+         accumulates movement: the first event only seeds the reference point,
+         and each event moves the target by at most STEP. */
       const STEP = 0.12;
       const ptr = { x: 0, y: 0, tx: 0, ty: 0, lx: 0, ly: 0, seen: false };
       const step = (d: number) => (d > STEP ? STEP : d < -STEP ? -STEP : d);
@@ -567,7 +446,7 @@ export default function HeroScatter() {
       hero.addEventListener("pointerleave", onLeave);
 
       /* ------------------------------------------------------------------
-         Layout — HeroStage's solved sizing, unchanged.
+         Layout
          ------------------------------------------------------------------ */
       let SCALE = 4;
       let HOME_X = 4.6;
@@ -585,11 +464,10 @@ export default function HeroScatter() {
       /* The source is an exact grid, so choosing what to draw is choosing
          every k-th row and column. k = 1 draws every point (desktop); on small
          marks k grows until neighbours sit MARK_SPACING_PX apart. Because k is
-         an INTEGER multiple of the source cell, the survivors still fall in
-         perfect rows — the one thing thinning by distance could never promise,
-         and why the phone mark used to look faintly jittered.
+         an integer multiple of the source cell, the survivors still fall in
+         perfect rows.
 
-         Runs on resize only. The angle PAIRING is untouched: homes never move,
+         Runs on resize only. The angle pairing is untouched: homes never move,
          only which of them are drawn. */
       const GRID = logo?.grid ?? 72;
       const gridX = logo?.gx;
@@ -659,39 +537,24 @@ export default function HeroScatter() {
         uni.uScale.value = h * 0.5 * Math.min(devicePixelRatio, 2);
 
         if (w >= 900) {
-          /* WIDE: the mark takes the space to the RIGHT OF THE WORDS.
-
-             It used to be placed by fixed fractions of the frustum, tuned at
-             1440 and wrong everywhere else: at 1024 the lead ran 175px under
-             the mark (247px at 1024x768), and even 1280 overlapped by 35px. So
-             the copy's right edge is now read from the DOM — the same rule as
-             the narrow branch below (§5.21): what the mark must avoid is
-             measured, never assumed — and the mark is fitted into what is left.
-
-             The same number is published as --copy-end so the scrim's left ramp
-             ends exactly where the words do. Its old percentage stops landed on
-             the mark's left half at every width, veiling it in both themes. */
+          /* Wide: the mark fills the space right of the words. The copy's
+             right edge is measured from the DOM, never assumed, and published
+             as --copy-end so the scrim's ramp ends exactly where the words do. */
           const pxPerWorld = h / FRAME.h;
           const end = copyEnd() ?? w * 0.52;
           hero.style.setProperty("--copy-end", `${Math.round(end)}px`);
           const edge = parseFloat(getComputedStyle(hero).paddingRight) || 64;
           const left = end + COPY_GAP_PX;
           const right = w - edge;
-          /* VERTICALLY, keep the mark inside the FIRST SCREEN. The section is
-             sized by its copy, and on a short window (1024x544, say) the
-             narrower column wraps until the section is far taller than the
-             viewport — centring on the SECTION then put the mark's lower half
-             below the fold. So it centres in the band between the nav clearance
-             (the section's own padding-top) and just above the fold, whichever
-             sits higher; when the section fits the window that is simply its
-             middle, exactly as before. `min` keeps the handover continuous as
-             the window shrinks. */
+          /* Vertically, keep the mark inside the first screen. On short windows
+             the section can be taller than the viewport, so centre in the band
+             between the nav clearance and just above the fold, or the section
+             middle, whichever is higher. `min` keeps the handover continuous. */
           const bandTop = parseFloat(getComputedStyle(hero).paddingTop) || 96;
           const bandBottom = Math.min(h, window.innerHeight) - 24;
           const centreY = Math.min(h / 2, (bandTop + bandBottom) / 2);
-          /* 0.68 of the section height is the size the mark had at 1440; cap
-             there so very wide screens do not balloon it — and to the visible
-             band, so the fold can never clip it. */
+          /* Capped at 0.68 of the section height so wide screens do not balloon
+             it, and to the visible band so the fold never clips it. */
           const diameterPx = Math.max(
             0,
             Math.min(right - left, h * 0.68, bandBottom - bandTop),
@@ -703,16 +566,10 @@ export default function HeroScatter() {
           return;
         }
 
-        /* NARROW. `h` is the SECTION height, not the screen — on mobile the
-           copy overflows the viewport, so sizing off FRAME.h alone puts the
-           mark edge to edge (§5.20). Everything below is therefore worked in
-           PIXELS against the band the CSS actually reserves, read from the DOM
-           so the reserved space and the mark cannot drift apart (§5.21).
-
-           The mark is fitted BETWEEN the nav and the copy with real margins,
-           rather than centred in the raw band. Centring on the band alone put
-           its top at 55px at 320px wide — under a nav that owns the first
-           ~70px — and left a 9px gap to the badge below. */
+        /* Narrow: `h` is the section height, not the screen, since the copy
+           overflows the viewport on mobile. Work in pixels against the band
+           the CSS reserves (read from the DOM so they cannot drift apart), and
+           fit the mark between the nav and the copy with margins. */
         const band = parseFloat(getComputedStyle(hero).paddingTop) || h * 0.36;
         const pxPerWorld = h / FRAME.h;
         const room = band - NAV_PX - MARK_MARGIN_PX * 2;
@@ -811,7 +668,7 @@ export default function HeroScatter() {
           else if (spin < -Math.PI) spin += Math.PI * 2;
         }
 
-        /* EXACTLY zero at k = 1. See the flat-mark note at the top. */
+        /* Exactly zero at k = 1. See the flat-mark note at the top. */
         points.rotation.y = (spin + ptr.x * 0.3) * settle;
         points.rotation.x = ptr.y * 0.18 * settle;
         /* Centred while scattered (full-bleed), at the mark's home once
@@ -829,7 +686,7 @@ export default function HeroScatter() {
 
       let io: IntersectionObserver | null = null;
       if (reduced) {
-        /* Resolved, still, honest — the mark is the meaningful state. */
+        /* Reduced motion: render the resolved, still mark once. */
         writeFrame(hasLogo ? 1 : 0, 0);
         if (hasLogo) {
           col.set(colLogo);
@@ -845,7 +702,7 @@ export default function HeroScatter() {
         points.position.set(hasLogo ? HOME_X : 0, hasLogo ? HOME_Y : 0, 0);
         renderer.render(scene, camera);
       } else {
-        /* Render only while on screen — §8's performance budget. */
+        /* Render only while on screen. */
         io = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting && raf === null) {

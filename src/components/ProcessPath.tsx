@@ -2,100 +2,53 @@
 
 import { useEffect, useRef } from "react";
 
-/* The connector for "How we work" — a generated motion path with waypoints,
-   replacing the two straight rail divs that were here before.
-
-   Chosen in motion-path-lab.html: shape 1 (alternating bow), COMET head on
-   desktop, and the VERTICAL arrangement below lg. The ends are inset.
+/* The "How we work" connector: a generated motion path through the step
+   nodes, with a comet that lights each waypoint as it reaches it. Alternating
+   bow; horizontal at lg, vertical below. The ends are inset.
 
    ── THE PATH IS NEVER AUTHORED ─────────────────────────────────────────────
-   Every point comes from measuring the rendered nodes. A hard-coded `d` is
-   correct at exactly one viewport width and drifts at every other, which is
-   why this effect is usually faked with a background image. The lab measured
-   this version at 0.1–1.2px from each node centre across every breakpoint —
-   that is sampling resolution, not error.
-
-   Two consequences that are easy to undo by accident:
+   Every point comes from measuring the rendered nodes; a hard-coded `d` is
+   correct at exactly one viewport width and drifts at every other.
 
    1. MEASUREMENT IGNORES TRANSFORMS, ON PURPOSE. getBoundingClientRect
-      returns the VISUAL box, so it includes any transform in flight. Two of
-      those are unavoidable here: [data-reveal] holds the step 20px low until
-      it scrolls in, and the node scales 1.1 on hover. Building from rects
-      meant the curve was laid through the pre-reveal positions and sat ~18px
-      below every node at desktop widths — measured, not theorised.
+      returns the visual box, including any transform in flight: [data-reveal]
+      holds each step 20px low until it scrolls in, and the node scales on
+      hover. `centre()` walks offsetLeft/offsetTop instead — layout values
+      that transforms do not touch — so the path runs through where the nodes
+      REST, whatever is animating.
+   2. `build()` READS LAYOUT, `frame()` DOES NOT. Measuring happens on mount,
+      resize and intersection; per-frame work only writes attributes. A layout
+      read inside frame() would thrash at 60fps.
 
-      `centre()` walks offsetLeft/offsetTop instead. Those are layout values
-      and transforms do not touch them, so the path is built through where the
-      nodes REST regardless of what is animating at the time. This is why the
-      reveal and the hover scale can stay exactly as they were.
-   2. `build()` READS LAYOUT, `frame()` DOES NOT. All the measuring happens on
-      mount, on resize and on breakpoint change; the per-frame work is writing
-      two attributes. Move a getBoundingClientRect into frame() and this
-      becomes a layout thrash at 60fps.
+   ── MOTION ────────────────────────────────────────────────────────────────
+   · The coloured path is drawn once and stays whole, so there is no seam when
+     the loop wraps.
+   · The comet travels on an eased cycle and fades out before the wrap, so it
+     never visibly jumps from the end back to the start.
+   · The head moves via a `transform` on a group.
+   · The loop runs only while the section is on screen, and the cycle starts
+     at the first intersection, so the reader sees the sweep happen.
 
-   ── WHAT MOVES, AND WHY IT IS SMOOTH ──────────────────────────────────────
-   · The coloured path is drawn ONCE and stays drawn. An earlier cut trimmed
-     it with the comet, which meant the stroke snapped back to empty every
-     time the loop wrapped — the seam was the only visible jank in the whole
-     effect. Nothing about the rail changes per frame now.
-   · The comet travels on an eased cycle (easeInOutSine) and fades out before
-     the wrap, so it never teleports from the end back to the start.
-   · The head is moved with a `transform` on a group, not by rewriting `cx`
-     and `cy` on two circles.
-   · The loop only runs while the section is on screen (IntersectionObserver),
-     and the cycle STARTS on that first intersection rather than at page load,
-     so the sweep is something the reader watches happen instead of something
-     that already finished while they were three sections above.
+   ── THE COMET LIGHTS THE WAYPOINTS, AND THE SEQUENCE REPLAYS ─────────────
+   Lighting follows the comet, not scroll position, so the section plays the
+   same sequence however the reader arrives. Each cycle has four beats: sweep
+   (0 -> TRAVEL), hold on the completed row (TRAVEL -> RESET_AT), dark
+   (RESET_AT -> 1), replay. The reset fires only in the dark phase, after the
+   comet has faded, so steps never blink off mid-sweep. The unlit state (no
+   --lit, no data-lit) matches the server render, so a replayed cycle is
+   identical to first paint.
 
-   ── THE TRACKER LIGHTS THE WAYPOINTS ──────────────────────────────────────
-   Changed 2026-09-07. The first cut drove the lighting from SCROLL POSITION,
-   and that was wrong for a reason worth recording: it made the section's state
-   a function of how the reader arrived. Land on it from a slow scroll and two
-   nodes are lit; jump to #process from the nav and the section is already
-   half-consumed with nothing to watch. The steps are a sequence — the section
-   should play it, not report where the viewport happens to be.
-
-   So the comet drives it: a waypoint lights as the head reaches it.
-
-   ── THE SEQUENCE REPLAYS; IT DOES NOT LATCH ───────────────────────────────
-   Changed 2026-09-07 at the user's explicit request: "once it reach to end
-   then start from the initial stage ... again and again".
-
-   This REVERSES the previous behaviour, and the reasoning that was recorded
-   for the latch is left here on purpose so nobody re-derives it and switches
-   back: latching meant the first pass was the reveal and every pass after
-   changed nothing, which avoids the four steps blinking. That concern is real
-   and the reset below is written to answer it rather than ignore it — the
-   reset fires inside the DARK PHASE, after the comet has faded out, so the
-   steps go quiet with nothing on screen to contradict them and then light in
-   order as the head comes round. What would read badly is a reset mid-sweep;
-   that cannot happen, because the reset is gated on u >= RESET_AT and the
-   sweep is finished by TRAVEL.
-
-   The cycle therefore has four beats, not two: sweep (0 -> TRAVEL), hold on
-   the completed row (TRAVEL -> RESET_AT), dark (RESET_AT -> 1), replay.
-
-   The unlit state is `--lit: 0` and no `data-lit`, which is exactly the state
-   the markup renders on the server — so a replayed cycle and a first paint are
-   indistinguishable. That is what "start like initial stage" means here.
-
-   The comet therefore runs at every width now, phones included — the earlier
-   version suppressed it below lg, which is no longer an option when it is the
-   thing that lights the steps. An unexplained sweep is worse than a sweep.
-
-   Reduced motion is honoured explicitly, in JS. globals.css kills CSS
-   transitions wholesale, but this is a rAF loop and that block never reaches
-   it — see the same note in CommitmentTile. */
+   Reduced motion is handled here in JS, because CSS reduced-motion rules never
+   reach a rAF loop: the steps are simply lit and the comet is hidden. */
 
 const LG = 1024; /* Tailwind's lg. The layout flips here, so the path does. */
 const CYCLE = 6500; /* ms for one comet pass, including its fade-out tail. */
 const TRAVEL = 0.84; /* fraction of the cycle spent moving; the rest is dark. */
 /* Where in the cycle the steps drop back to their initial state. It sits AFTER
    TRAVEL, which splits the dark phase in two: the completed row holds for a
-   beat, then goes dark for a beat, then the sweep replays. Resetting at the
-   wrap instead — the obvious place — measured wrong: with the ends inset the
-   first node is at path length 0, so step 1 re-lit on the very same frame it
-   was cleared and never appeared to restart at all. */
+   beat, then goes dark for a beat, then the sweep replays. Not at the wrap:
+   with the ends inset the first node is at path length 0, so step 1 would
+   re-light on the same frame it was cleared and never appear to restart. */
 const RESET_AT = 0.92;
 
 export default function ProcessPath() {
@@ -163,15 +116,9 @@ export default function ProcessPath() {
 
       /* ── THE ENDS ARE INSET ────────────────────────────────────────────────
          The route runs from the FIRST node's centre to the LAST one's and
-         stops. It used to overshoot both ends (5% of the row, 3% of the
-         column) and terminate in a cap dot.
-
-         Matched to shots/ends-inset.png on the user's instruction. The
-         overshoot read as the line escaping the sequence — a rail that starts
-         before step 1 implies something before step 1 — where an inset route
-         reads as exactly what it is: a connector between four points. Both
-         ends now disappear under their own node, which is opaque, so the path
-         presents as emerging from step 1 and arriving at step 4. */
+         stops. Both ends hide under their opaque nodes, so the path reads as a
+         connector between the steps rather than a rail escaping the
+         sequence. */
       const [x0, y0] = pts[0];
       let d = `M ${x0} ${y0}`;
 
@@ -208,9 +155,8 @@ export default function ProcessPath() {
       tail.current?.style.setProperty("--len", String(LEN));
     }
 
-    /* Light from a position ALONG THE PATH — normally the tracker's. Values
-       only ever go up: `litVal` is the latch that stops the four steps blinking
-       off every time the loop wraps. */
+    /* Light from a position ALONG THE PATH — normally the comet's. Values
+       only ever go up here; resetLit is the only way back down. */
     function lightTo(at: number) {
       steps.forEach((st, i) => {
         /* Ramp over the 90px before the waypoint so it comes up as the head
@@ -350,7 +296,7 @@ export default function ProcessPath() {
 
       {/* The faint route, always whole. */}
       <path ref={base} fill="none" stroke="var(--faint)" strokeWidth="2" strokeLinecap="round" />
-      {/* The coloured route, also always whole — see the note about the seam. */}
+      {/* The coloured route, also always whole, so the loop has no seam. */}
       <path
         ref={live}
         fill="none"

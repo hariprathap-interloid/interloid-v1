@@ -4,34 +4,15 @@ import SectionHeading from "./SectionHeading";
 import { HUE, LIFE } from "@/content/site";
 
 /* ==========================================================================
-   LIFE HERE — the bento, this site's answer to "Life at Converse".
+   LIFE HERE — the bento of what the office is actually like, plus the
+   moments rail (GalleryRail) below it.
    ==========================================================================
-   Requested 2026-09-08. The reference block is four photographs of an office
-   captioned "A collaborative, fast-paced, and incredibly rewarding
-   environment". Two things are different here and both are the point.
-
-   ── 1. NO PHOTOGRAPHS YET, AND NO EMPTY FRAMES EITHER ────────────────────
-   Every tile has an `img` field in site.ts and every one is `null`. A tile
-   with no image renders a DESIGNED panel — a hue wash, a dot texture, an
-   oversized glyph watermark, and the caption block — rather than a grey box
-   waiting for a photo. An empty frame advertises the absence; a designed panel
-   does not read as missing anything.
-
-   Drop a file into `public/life/`, set `img` to its filename, and the SAME
-   tile renders the photograph with the caption over a scrim. One field, no
-   component change. That is the same switch the /about roster uses for names,
-   and it is why this could be built now rather than waited on.
-
-   Stock photography is not an option at any point. An office full of people
-   who do not work here is the same fabrication as an invented colleague, and
-   worse on this page than on any other: the audience is the people who would
-   be in that room, and they see the real one on their first day.
-
-   ── 2. THE COPY IS CHECKABLE ─────────────────────────────────────────────
-   Three adjectives nobody can verify is the thing this page argues against on
-   every other section. Each tile says something specific instead — where
-   people sit, what happens on a Friday, what the hours are — including the one
-   most companies would leave out.
+   ── PHOTOGRAPHS ARE ONE FIELD ────────────────────────────────────────────
+   A tile whose `img` (site.ts) is null renders a designed panel (hue wash,
+   dot texture, glyph watermark) rather than an empty frame. Drop a file into
+   `public/life/`, set `img` to its filename, and the same tile renders the
+   photograph with the caption over a scrim. No component change. Use real
+   photographs of this office only, never stock.
 
    ── THE BENTO ARITHMETIC IS LOAD-BEARING ─────────────────────────────────
    `lg:grid-cols-4` with `auto-rows-[minmax(210px,auto)]`, and the four spans
@@ -45,18 +26,10 @@ import { HUE, LIFE } from "@/content/site";
    height so a tile whose copy runs long grows instead of clipping; the tall
    tile then simply spans two of whatever that row height became.
 
-   HOVER SIGNATURE — the watermark surfaces. The glyph sits at 6% and rises to
-   14% while the wash deepens: the tile brightens from within rather than
-   gaining a border effect, which is the closest non-photographic equivalent of
-   an image lifting on hover. Nothing moves — the site-wide rule from
-   WorkCard.tsx.
+   Hover: the watermark rises from 6% to 14% while the wash deepens. Nothing
+   moves (see the hover rule in Roles.tsx).
 
-   The section also carries the MOMENTS RAIL (GalleryRail) below the bento —
-   requested separately on 2026-09-08. Same subject, second half: the bento is
-   the facts, the rail is the photographs. Keeping them in one section is what
-   stops the page spending another band change on the same topic.
-
-   ⚠ All four descriptions are unverified; the grid is data-placeholder. */
+   Copy marked data-placeholder is unverified; confirm before public launch. */
 export default function LifeHere() {
   return (
     <section
@@ -122,26 +95,18 @@ export default function LifeHere() {
                         aria-hidden="true"
                       />
                       {/* Dot texture, radially masked so it fades before the
-                          tile edge instead of tiling into a hard cut — DS
-                          §2.6. `var(--border)`, not a literal, so it survives
-                          the dark theme where the token is white at 10%. */}
+                          tile edge instead of ending in a hard cut.
+                          `var(--border)`, not a literal, so it survives the
+                          dark theme. */}
                       <div
                         className="pointer-events-none absolute inset-0 bg-[radial-gradient(var(--border)_1.5px,transparent_1.5px)] bg-[size:22px_22px] [-webkit-mask-image:radial-gradient(ellipse_80%_70%_at_70%_20%,#000_10%,transparent_100%)] [mask-image:radial-gradient(ellipse_80%_70%_at_70%_20%,#000_10%,transparent_100%)]"
                         aria-hidden="true"
                       />
-                      {/* The watermark, and the hover signature. It BLEEDS off
-                          the top-right corner deliberately — the card is
-                          `overflow-hidden` to round its corners, so the glyph
-                          is cropped there and reads as texture rather than as
-                          an icon sitting in the tile.
-
-                          That is the opposite call from the /careers step
-                          numerals, which had to be pulled fully inside because
-                          a half-sliced NUMERAL reads as broken. A numeral has
-                          a right answer to "is it whole"; an abstract mark at
-                          6% opacity does not, so cropping it is free. If this
-                          ever becomes a glyph with a readable shape, move it
-                          inside the padding like those numerals. */}
+                      {/* The watermark, and the hover signature. It bleeds off
+                          the top-right corner deliberately: cropped by the
+                          card's `overflow-hidden`, an abstract mark reads as
+                          texture. A glyph with a readable shape (a numeral,
+                          say) should sit fully inside the padding instead. */}
                       <span
                         className={`pointer-events-none absolute -right-4 -top-6 opacity-[0.06] transition-opacity duration-500 ease-out group-hover:opacity-[0.14] ${h.text}`}
                         aria-hidden="true"
@@ -165,7 +130,7 @@ export default function LifeHere() {
                       {t.tag}
                     </span>
                     <h3
-                      className={`mb-2 font-display text-xl font-bold leading-[1.3] tracking-[-0.02em] ${
+                      className={`mb-2 font-display text-xl font-bold leading-[1.3] tracking-[-0.02em] [overflow-wrap:anywhere] ${
                         t.img ? "text-white" : "text-foreground"
                       }`}
                     >
@@ -185,19 +150,12 @@ export default function LifeHere() {
           })}
         </ul>
 
-        {/* The moments rail — requested 2026-09-08, and it lives INSIDE this
-            section rather than beside it: the bento is the facts half of "what
-            it is like", the rail is the same subject in photographs, and a
-            second <section> would have split one story across a band change.
-
-            It is the only client component on /careers. GalleryRail's banner
-            explains why arrows earn their JavaScript on a rail whose scrollbar
-            is hidden. */}
+        {/* The moments rail lives inside this section: same subject, in
+            photographs, so a second <section> would split one story. */}
         <GalleryRail />
 
-        {/* Said once, quietly, under both. A reader who notices there are
-            no photographs should find the reason here rather than assume the
-            page is unfinished — the same move /about makes about the team. */}
+        {/* Explains the missing photographs so the page does not read as
+            unfinished. Remove once real photographs are in. */}
         <p
           data-reveal
           style={{ "--delay": "400ms" } as React.CSSProperties}

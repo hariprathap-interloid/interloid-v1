@@ -1,56 +1,28 @@
 import type { Tech } from "@/content/service";
 
 /* ==========================================================================
-   TECH LOGOS — the real brand marks, from `public/tech/`.
+   TECH LOGOS — brand marks from `public/tech/` on a theme-adaptive plate.
    ==========================================================================
-   The live site's #technologies section uses EMOJI as its category icons
-   (💻 📱 ⚙️ ☁️ 🤖 👥). CLAUDE.md §3.6 bans that outright, and the review names
-   it the most visible unpolish on the live site — so the categories here take
-   Lucide glyphs from Icon.tsx and the technologies themselves take their own
-   published marks.
+   The plate is `--logo-plate`: white in light, slate in dark — a step above
+   --card, so it lifts off the ground it sits on.
 
-   ── THEME-ADAPTIVE PLATE (changed 2026-09-14, on request) ────────────────
-   This was a white plate in BOTH themes, on the argument that a mark which
-   changes colour with the theme is no longer the mark. In dark that put a
-   field of bright white squares on the /services diagram, and the user asked
-   for the plates to follow the theme. The plate is now `--logo-plate`:
-   white in light, slate in dark — a step above --card, so a plate still
-   lifts off the ground it sits on.
+   Brand colours are not recoloured, except marks drawn in near-black ink that
+   would vanish on a dark plate. Those are listed in INK_MARKS and get a
+   `.dark`-only filter from globals.css: `logo-mono` flattens a single-colour
+   mark to white; `logo-invert` swaps black and white on a mark made of only
+   those two. A multi-colour mark is never filtered (it would shift the brand
+   hues); if it has dark ink it swaps to the brand's on-dark file via ON_DARK.
 
-   Brand colours are NOT recoloured, with one exception: marks drawn in
-   near-black ink, which would vanish on a dark plate. Those are listed in
-   INK_MARKS and get a `.dark`-only filter from globals.css. `logo-mono`
-   flattens a single-colour mark to white (the published on-dark treatment
-   for Express, GitHub, OpenAI, CircleCI); `logo-invert` swaps black and
-   white on a mark made of only those two (Next.js's disc and N). A
-   multi-colour mark is never filtered — inverting it would shift its brand
-   hues, which really would no longer be the mark. When one of those has
-   dark ink (AWS's wordmark), it swaps to the brand's on-dark FILE via
-   ON_DARK instead.
+   A Tech without a `file` renders a monogram plate. Never substitute a
+   similarly named product's mark — the wrong logo is worse than letters.
 
-   Checked branch by branch on the dark diagram, 2026-09-14. Rails (#c00),
-   Java and Flutter read dimmer than on white but still as themselves, and
-   are deliberately left alone.
-
-   ── WHEN THERE IS NO MARK ────────────────────────────────────────────────
-   Every technology on this page has a mark as of 2026-09-14 (the last ten —
-   FastAPI, Expo, Xcode, Prometheus, LangChain, LangGraph, Scikit-learn,
-   pandas, Pinecone, Weaviate — were supplied by hand). A Tech without a
-   `file` still renders a MONOGRAM plate. Never borrow a neighbouring
-   product's mark instead — `pandacss.svg` is a CSS library, not pandas — and
-   shipping the wrong company's logo is worse than shipping letters.
-
-   Plain <img>, not next/image: these are tiny static SVGs already in
-   `public/`, so there is nothing for the optimiser to do, and next/image
-   would add a wrapper and a layout shift for a 24px square.
+   Plain <img>, not next/image: tiny static SVGs gain nothing from the
+   optimiser, and next/image would add a wrapper for a 24px square.
    ========================================================================== */
 
-/* Two letters, and the split has to understand camelCase: "LangChain" and
-   "LangGraph" are single words, so taking the first two characters gave both
-   of them "La" — two different products with the same chip, which is worse
-   than no chip. Splitting on the internal capital gives LC and LG.
-   Falls back to the first two letters for a genuinely single word (Expo → Ex,
-   pandas → Pa). */
+/* Two letters, splitting on camelCase so "LangChain" and "LangGraph" become
+   LC and LG rather than both "La". A single word falls back to its first two
+   letters (Expo → Ex). */
 function monogram(name: string) {
   const parts = name
     .replace(/[^A-Za-z]+/g, " ")
@@ -62,10 +34,8 @@ function monogram(name: string) {
   return letters.toUpperCase();
 }
 
-/* Marks whose ink is near-black and would disappear on the dark plate.
-   Measured from the SVGs' own fills, not guessed from the brand: express
-   has no fill at all (default black), github #161614, circleci #000, openai
-   #193718, nextjs #000 + #fff only. Add a file here only after checking that
+/* Marks whose ink is near-black and would disappear on the dark plate,
+   judged from the SVGs' own fills. Add a file here only after checking that
    it is single-colour (`logo-mono`) or strictly black-and-white
    (`logo-invert`); see the banner for why nothing else is filtered. */
 const INK_MARKS: Record<string, "logo-mono" | "logo-invert"> = {
@@ -73,12 +43,10 @@ const INK_MARKS: Record<string, "logo-mono" | "logo-invert"> = {
   "github-dark.svg": "logo-mono",
   "circleci.svg": "logo-mono",
   "openai.svg": "logo-mono",
-  /* #00546b only. Measured on the dark diagram: the dolphin all but
-     vanished. White is MySQL's own on-dark treatment. */
+  /* Single dark teal fill; white is MySQL's own on-dark treatment. */
   "mysql.svg": "logo-mono",
   "nextjs.svg": "logo-invert",
-  /* Added 2026-09-14 with the manual set: Expo's official mark is #000
-     only, Pinecone's #201d1e only. */
+  /* Single near-black fill each. */
   "expo.svg": "logo-mono",
   "pinecone.svg": "logo-mono",
 };
@@ -117,15 +85,10 @@ export default function TechLogo({
   shape = "rounded",
 }: {
   tech: Tech;
-  /** `circle` matches the core and the service tiles, so a technology reads
-      as the smallest node in the same family rather than as a chip stuck onto
-      the diagram. The list compositions keep `rounded`, where a chip beside a
-      name is exactly right. */
+  /** `circle` matches round diagram nodes; `rounded` suits a chip beside a
+      name in a list. */
   shape?: "rounded" | "circle";
-  /** Bumped a step across the board on 2026-09-08: at 32px plate / 16px mark
-      the logos were not readable on the diagram, which is the one place they
-      have to do the whole job of naming a technology. `lg` exists for the
-      radial layouts, where a mark is the only thing standing in for a label. */
+  /** Plate size. `lg` is for diagrams where the mark stands in for a label. */
   size?: "sm" | "md" | "lg";
 }) {
   const box =

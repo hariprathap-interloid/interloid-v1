@@ -2,42 +2,21 @@ import Icon from "./Icon";
 import SectionHeading from "./SectionHeading";
 import { PATH, PATH_NO } from "@/content/site";
 
-/* "How we hire" — the same numbered-step shape as Process.tsx, on purpose.
+/* "How we hire" — three numbered steps, visually rhyming with the home
+   page's process section.
 
-   Ground moved from `secondary` to `background` on 2026-09-08 when LifeHere
-   was inserted above it — this section had shared `secondary` with FitCheck,
-   and keeping that would have made three secondary sections in a row.
+   It deliberately does not reuse Process.tsx: that component is built around
+   a scroll-driven connector measured from live node rects, which is far too
+   much machinery for three static cards. The shared thing is the visual
+   vocabulary, not the code.
 
-   ── SHORTENED 2026-09-08 ──────────────────────────────────────────────────
-   Four steps became THREE. The paid three-hour code exercise is gone: it does
-   not make sense for somebody with no professional experience, and "paid" was
-   a claim we could not verify either. What replaced it is a day in the office
-   on a small real task — which is also the honest thing to offer for a role
-   whose defining feature is that you have to be in that office every day.
-   The grid is lg:grid-cols-3 to match.
+   Ground is `bg-background` to keep the section grounds alternating on
+   /careers.
 
-   A candidate who has read /#process should recognise the rhyme: numbered
-   steps, a time chip carrying the commitment rather than a schedule, and the
-   total stated up front. The client-facing section says "from first call to
-   production"; this one says the same thing about a hire.
-
-   It does NOT reuse Process.tsx. That component's whole design is
-   ProcessPath — a connector measured from the live `data-node` rects, with a
-   comet and waypoint lighting. Reusing it would mean either inheriting a
-   client component and a scroll-driven canvas for three static cards, or
-   parameterising it into something neither page can be measured against. The
-   shared thing here is the vocabulary, not the machinery.
-
-   THE COUNTER-LIST IS THE POINT OF THE SECTION, and on the fresher version it
-   matters more than it did on the senior one. "No training fee, ever" is the
-   single most reassuring line available to somebody applying to their first
-   job in a market where paid-training scams are common — and the most damaging
-   to be caught contradicting.
-
-   ⚠ Which is exactly why every timing and every promise here is
-   data-placeholder. Publishing "no training fee, ever" and then charging one
-   is worse for the firm than publishing nothing — it is the fabricated-proof
-   failure from HANDOFF §7, aimed at the readers least able to absorb it. */
+   The dark slab of things that will never happen (e.g. a training fee) is
+   the most reassuring content here, and the most damaging to be caught
+   contradicting. Copy marked data-placeholder is unverified; confirm before
+   public launch. */
 export default function HiringPath() {
   return (
     <section
@@ -70,24 +49,15 @@ export default function HiringPath() {
               className="h-full"
             >
               <div className="group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card p-7 shadow-sm transition-[border-color,box-shadow] duration-300 ease-out hover:border-accent/40 hover:shadow-lg">
-                {/* The numeral is Process's device — oversized, low-opacity,
-                    behind the content. Decorative here (the <ol> already
-                    numbers these for a screen reader), hence aria-hidden.
+                {/* The oversized step numeral, behind the content. Decorative
+                    (the <ol> already numbers these), hence aria-hidden.
+                    Positive insets keep it inside the padding: the card is
+                    `overflow-hidden`, and a half-cropped numeral reads as
+                    broken.
 
-                    ── IT WAS CLIPPED, AND THAT WAS A COPY-PASTE ────────────
-                    At `-right-3 -top-4` it sat OUTSIDE the card's box, and
-                    this card has `overflow-hidden` to round its corners — so
-                    the glyph rendered with its right edge sliced off, on all
-                    three cards. Process gets away with negative offsets
-                    because its numeral hangs off an unclipped node, not a
-                    clipped card. Positive insets keep the whole glyph inside
-                    the padding, which is the only version that reads. */}
-                {/* SIGNATURE — the step number is what lights up. It sits at
-                    9% at rest, which is a watermark; on hover it comes up to
-                    28%, which is legible, so the card reads as "this is the
-                    step you are on". Opacity only: nothing about the glyph's
-                    box changes, and `pointer-events-none` means it cannot
-                    steal the hover from the card underneath it. */}
+                    Signature: it rises from 9% (watermark) to 28% (legible)
+                    on hover. Opacity only, and `pointer-events-none` so it
+                    cannot steal the hover from the card. */}
                 <span
                   className="pointer-events-none absolute right-5 top-3 select-none font-display text-[64px] font-bold leading-none text-brand opacity-[0.09] transition-opacity duration-500 ease-out group-hover:opacity-[0.28]"
                   aria-hidden="true"
@@ -115,10 +85,8 @@ export default function HiringPath() {
         </ol>
 
         {/* The disclaimers, on a dark slab so they read as a separate object
-            rather than a fifth step. `on-dark` is not needed — nothing here is
-            focusable — but the colours are the slab's own (--spark), not
-            --accent, for the reason CtaAnchor documents: brand cyan goes muddy
-            on #0f172b. */}
+            rather than another step. Icons use --spark, not --accent: the
+            brand cyan goes muddy on the ink ground. */}
         <div
           data-reveal
           style={{ "--delay": "420ms" } as React.CSSProperties}
@@ -132,17 +100,9 @@ export default function HiringPath() {
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-brand/35 via-ink to-ink"
               aria-hidden="true"
             />
-            {/* HEADING ABOVE, NOT BESIDE (refactored 2026-09-08). It was
-                `lg:flex-row lg:justify-between` with the heading capped at
-                `max-w-xs` and the three items in ONE column on the right —
-                which left roughly a third of a 1216px slab empty down the
-                middle, with the longest item wrapping in a narrow column at
-                the same time. Stacking the heading frees the full width for a
-                three-up row, so every item gets ~370px and fits on one or two
-                lines, and the slab has no hole in it.
-
-                Dropping from four items to three is what made the old layout
-                fail: at four they filled a 2×2 beside the heading. */}
+            {/* Heading above, not beside: stacking frees the full width for a
+                three-up row, so each item fits on one or two lines and the
+                slab has no empty column. */}
             <div className="relative z-10">
               <p className="mb-6 font-display text-lg font-bold leading-[1.4] text-white">
                 And three things that will never happen to you here.
@@ -151,9 +111,8 @@ export default function HiringPath() {
                 {PATH_NO.map((n) => (
                   <li
                     key={n}
-                    /* items-START, not items-center: the longest of the three
-                       wraps to two lines at this width and a centred tick
-                       would float against the middle of the block. */
+                    /* items-start: when an item wraps, a centred tick would
+                       float against the middle of the block. */
                     className="flex items-start gap-2.5 text-[15px] leading-[1.6] text-ink-foreground"
                   >
                     <span className="mt-1 shrink-0 text-spark" aria-hidden="true">

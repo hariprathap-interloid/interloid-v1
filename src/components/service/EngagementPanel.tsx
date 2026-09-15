@@ -6,27 +6,14 @@ import SectionHeading from "../SectionHeading";
 import { ModeSwitch, useServiceMode } from "./ModeContext";
 import { SERVICE_MODES } from "@/content/service";
 
-/* ==========================================================================
-   THE ENGAGEMENT — the terms of the mode the visitor picked.
-   ==========================================================================
-   The reference's conversion section is a "4 Weeks to X" sprint ledger
-   (SERVICE-PAGE-RESEARCH.md §2 P5): it shows the shape of the engagement
-   before it asks for anything, which is why the ask lands. This is that
-   move with our content — except that ours has to answer two different
-   buyers, so it answers the one who identified themselves in the hero.
+/* The engagement terms for the selected mode, shown before any ask.
 
-   ⚠ EVERY LINE HERE IS A CONTRACT TERM AND EVERY ONE IS ON HANDOFF §7's
-   ALLOWED LIST. This is the section a client screenshots. Do not add a term
-   that is not on that list — and if one has to be added, it needs the user's
-   confirmation, not a data-placeholder, because a flagged contract term is
-   still a published contract term to anyone reading with the toggle off.
+   Every line here reads as a contract term. Do not add one that has not been
+   confirmed — a data-placeholder flag does not help, because a flagged term is
+   still a published term to anyone reading with the toggle off.
 
-   The second switch is here because a visitor who scrolled past the hero
-   without touching it very often works out which they are exactly HERE, at
-   the terms. The quiet link under the panel is the same move for the other
-   direction — someone reading the wrong set of terms should be one obvious
-   click from the right ones, not scrolling back a screen and a half.
-   ========================================================================== */
+   A second switch sits here, and a link under the panel flips to the other
+   mode, so a reader on the wrong terms is one click from the right ones. */
 export default function EngagementPanel() {
   const { mode, detail, setMode } = useServiceMode();
   const other = SERVICE_MODES.find((m) => m.key !== mode) ?? SERVICE_MODES[1];
@@ -110,10 +97,8 @@ export default function EngagementPanel() {
                 </ul>
               </div>
 
-              {/* The number column. One honest figure instead of a pricing
-                  table — the same device /why-choose-us uses for its clauses,
-                  and the reason it works is that the sentence under it says
-                  when the real number arrives. */}
+              {/* One figure instead of a pricing table, with the sentence
+                  under it saying when the real number arrives. */}
               <div className="flex flex-col gap-6 lg:col-span-5">
                 <div className="rounded-[1.5rem] border border-border bg-background p-8 text-center">
                   <p className="font-display text-[2.75rem] font-bold leading-none tracking-[-0.03em] text-foreground">
@@ -141,9 +126,7 @@ export default function EngagementPanel() {
                       <Icon name="arrow" className="size-5" />
                     </span>
                   </Link>
-                  {/* The same second door as the hero, repeated here because
-                      this is where an extend-mode reader finishes the terms
-                      and asks "so who actually turns up?". */}
+                  {/* Same secondary link as the hero. */}
                   <a
                     href={detail.secondary.href}
                     className="inline-flex h-12 items-center justify-center gap-2 rounded-full text-[15px] font-semibold text-primary transition-colors hover:text-accent-strong"
@@ -161,7 +144,7 @@ export default function EngagementPanel() {
           </div>
         </div>
 
-        {/* The way out, for somebody reading the wrong half. */}
+        {/* Switch to the other mode. */}
         <p
           data-reveal
           style={{ "--delay": "160ms" } as React.CSSProperties}

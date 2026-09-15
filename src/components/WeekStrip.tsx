@@ -1,30 +1,22 @@
 import SectionHeading from "./SectionHeading";
 import { WEEK } from "@/content/site";
 
-/* "A normal week, working with us" — prototype2-archive's `.week` / `.day`.
-
-   ── REBUILT AS A TIMELINE, 2026-09-08 ─────────────────────────────────────
-   The first cut was five equal floating cards and the user was right that it
-   read as filler: nothing in the layout said SEQUENCE, which is the one thing
-   the block communicates. This is now the DS §8.9 timeline idea at week
-   scale — a rail through five day nodes, horizontal on lg, vertical below it.
+/* "A normal week, working with us" — a timeline: a rail through five day
+   nodes, horizontal at lg, vertical below.
 
    The rail is drawn as PER-ITEM SEGMENTS (each li except the last carries the
-   piece of line to its neighbour), not one absolutely-positioned run: card
-   heights differ, and a single vertical rail sized to the container either
-   overshoots the last dot or has to guess the first card's height. A segment
-   from "below my dot" to "the top of the next li" is correct at any height.
-   Segment geometry that must agree: dot size-4 (centre 8px) ⇄ vertical
-   segment left-[7px] w-0.5 ⇄ horizontal segment top-[7px] h-0.5; the
-   vertical segment's -bottom-10 is the ol's gap-y-10.
+   line to its neighbour), not one absolutely-positioned run: card heights
+   differ, and a single rail sized to the container either overshoots the last
+   dot or has to guess the first card's height. Segment geometry that must
+   agree: dot size-4 (centre 8px) ⇄ vertical segment left-[7px] w-0.5 ⇄
+   horizontal segment top-[7px] h-0.5; the vertical segment's -bottom-10 is
+   the ol's gap-y-10, and the horizontal segment's -right-6 is lg:gap-x-6.
 
-   Five columns at lg for the same reason as before: Mon → Anytime is a
-   sequence and wrapping would put Friday under Monday. Friday (`hi`) is the
-   destination node — filled, glowing, its card ringed — because the demo is
-   the ceremony the week is built around.
+   Five columns at lg so the sequence never wraps. The `hi` day is the
+   destination node — filled, glowing, its card ringed.
 
-   Hover stays colour + elevation ONLY — no lift. WorkCard's note:
-   hover-triggered geometry on the hovered element flickers at its own edge. */
+   Hover is colour + elevation only, no lift: hover-triggered geometry on the
+   hovered element flickers at its own edge. */
 export default function WeekStrip() {
   return (
     <section

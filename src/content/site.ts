@@ -1,50 +1,26 @@
-/* ==========================================================================
-   Content — lifted from prototype3/script.js, where these arrays were written
-   specifically to become `.map()` calls (TAILWIND-MAP §4). Editing copy means
-   editing this file; no component changes.
+/* Site-wide copy and data. Components render these arrays directly, so copy
+   changes belong here rather than in components.
 
-   Claims allowed as fact, per HANDOFF §7 plus the 2026-09-06 confirmation:
-   free 30-min consult · 48-hr written proposal · weekly working demo ·
-   30 days post-launch support · 30-day notice · 100% code/IP ownership ·
-   $25k–$90k build range · 2-15 week first version (14–20 larger) ·
-   engineers with 2-15 years each · no juniors substituted after signing.
-   Anything NOT on that list stays data-placeholder — see CASES and QUOTES.
-   ========================================================================== */
+   Claims stated as fact: free 30-min consult · 48-hr written proposal ·
+   weekly working demo · 30 days post-launch support · 30-day notice ·
+   100% code/IP ownership · $25k–$90k build range · 2-15 week first version
+   (14–20 larger) · engineers with 2-15 years each · no juniors substituted
+   after signing. Anything else stays data-placeholder until confirmed. */
 
-/* The tech-logo shape is DEFINED IN content/service.ts and imported rather
-   than redeclared: /careers and /services both render technology marks through
-   the same TechLogo component, and two structurally-identical types would
-   drift the first time one of them gained a field.
-
-   This and service.ts's `import type { Hue } from "./site"` form a CYCLE, and
-   it is a safe one only because both are `import type`: TypeScript erases them
-   completely, so no `require` of either module ever waits on the other. If
-   either side is ever changed to a value import the cycle becomes real — move
-   the shared types to a third file at that point rather than untangling it. */
+/* `Tech` is defined in service.ts so /careers and /services share one shape.
+   The two files import types from each other; that cycle is safe only while
+   both stay `import type`. If either becomes a value import, move the shared
+   types into a third file. */
 import type { Tech } from "./service";
 
 export type Hue = "brand" | "accent" | "light" | "indigo" | "teal";
 
-/* DS §2.3: one hue per category, reused wherever that category appears.
+/* One hue per category, reused wherever that category appears.
 
-   `softHover` is a WHOLE class including its `group-hover:` prefix for the
-   same reason as `glow` below — a variant prefix is as invisible to the
-   scanner as a `/10` suffix if either is glued on at runtime.
-
-   `solidHover` was added 2026-09-08 for /about's Shape tiles, which fill
-   SOLID on hover rather than deepening. It exists for the same reason as
-   everything else in this map: the first version of that component wrote
-   `h.tile.replace("bg-", "group-hover:bg-")`, which is a class built at
-   runtime and therefore invisible to the scanner — the tile would simply
-   never have filled, with no error. If a variant is needed, add it here as a
-   whole string; never derive one from another.
-
-   `glow` exists ONLY because of the build. The prototype composed the blur
-   colour at runtime as `${h.tile}/10`, which the Tailwind *browser CDN*
-   happily generated on the fly. A compiled build scans source for complete
-   class strings, so `bg-brand` + "/10" is invisible to it and the class would
-   be silently dropped — the panel's glow would just vanish. Every class here
-   must stay a whole, literal string. Never rebuild one by concatenation. */
+   Every class must be a whole, literal string, including variant prefixes
+   (`group-hover:`) and opacity suffixes (`/10`). Tailwind scans source for
+   complete class names, so a class assembled at runtime is silently dropped.
+   Add a new variant as its own field; never derive one from another. */
 export const HUE: Record<
   Hue,
   {
@@ -104,51 +80,17 @@ export const HUE: Record<
   },
 };
 
-/* The five capabilities used to live here as SERVICES, feeding home's "What
-   we build" section. Both moved on 2026-09-08: the section came off the home
-   page at the user's request, and the content became CAPABILITIES in
-   `src/content/service.ts` where it grew the fields /services needs — a
-   mechanism diagram, an imperative headline, and the deliverables list.
-   Nothing imports SERVICES any more, so it is gone rather than kept in two
-   places: two copies of the capability list is how the footer and the service
-   page start disagreeing about what this company does. */
-
-export const STACK = [
-  "TypeScript",
-  "React",
-  "Next.js",
-  "Node.js",
-  "Python",
-  "PostgreSQL",
-  "AWS",
-  "Terraform",
-  "Docker",
-  "Kubernetes",
-  "React Native",
-  "GraphQL",
-];
-
 /* ==========================================================================
-   COMMITMENTS — the "Why Interloid" tiles.
+   COMMITMENTS — the "Why Interloid" tiles, shared by home and /why-choose-us.
 
-   Rebuilt 2026-09-07 from prototype 1's `why` array (script.js), which is the
-   design reference for this section. The three-tile home split of 2026-09-06
-   is reverted: the home section now carries the full set of SEVEN, and
-   /why-choose-us renders the same list rather than a longer one.
-
-   THE COUNT IS LOAD-BEARING. Three columns, and every row must fill.
-   7 tiles = 5 singles + 2 double-width = 9 slots = three full rows:
+   The count is load-bearing. In the three-column grid the first and last
+   tiles span two columns (Advantage derives this from the array length), so
+   only 5 or 7 tiles fill every row; any other count leaves a hole.
 
        [ wide (0) .......... ][ 1 ]
        [ 2 ][ 3 ][ 4 ]
        [ 5 ][ wide (6) .......... ]
-
-   The wide tiles are the FIRST and LAST entries, and Advantage derives that
-   from the array length — do not hard-code indices there. Changing the count
-   changes the arithmetic: at 5 tiles it is one wide (2+1+1+1+1 = 6 = two
-   rows), at 7 it is two. Any other count leaves a visible hole.
-
-   Every claim is on HANDOFF §7's allowed list. */
+   ========================================================================== */
 export const BENTO = [
   {
     k: "key-round",
@@ -207,35 +149,12 @@ export const BENTO = [
   body: string;
 }[];
 
-/* Kept as an empty-by-design alias: the two commitments that were split out on
-   2026-09-06 are back in BENTO above, and /why-choose-us imports this so the
-   split can be re-made later without touching that page again. */
-export const COMMITMENTS_EXTRA = [] as const satisfies readonly {
-  k: string;
-  hue: Hue;
-  span: string;
-  title: string;
-  body: string;
-}[];
-
 /* ==========================================================================
    HOW WE WORK — the four steps.
 
-   Replaced 2026-09-07 with prototype 1's `process` array verbatim (its
-   script.js), which is the approved reference for this section. What changed
-   and why it matters:
-
-   TITLES ARE NOW PHRASES, NOT LABELS. "Consult / Proposal / Build / Handover"
-   were nouns naming a stage; "Discovery call / Written proposal / Build in the
-   open / Launch & handover" say what actually happens. "Build in the open" in
-   particular is a claim, where "Build" was a category.
-
-   THE `when` CHIP CARRIES THE COMMITMENT. "Day 0 / Within 48h / Weekly /
-   +30 days" described a schedule. "30 minutes / 48 hours / Weekly demos /
-   30-day support" names the thing being promised, and each one is already on
-   HANDOFF §7's allowed list — they restate commitments the Why Interloid
-   section makes, rather than introducing new claims. The chip upper-cases in
-   CSS; store it sentence case. ========================================== */
+   Each `when` chip restates a commitment made elsewhere on the site. The chip
+   upper-cases in CSS; store it sentence case.
+   ========================================================================== */
 export const STEPS = [
   {
     k: "search",
@@ -267,8 +186,8 @@ export const STEPS = [
   },
 ];
 
-/* HANDOFF §7 makes three real, anonymised case studies a P0 launch blocker.
-   Every card carries data-placeholder. Do not un-flag these. */
+/* Placeholder case studies, rendered data-placeholder. Real, anonymised
+   case studies are required before launch. */
 export const CASES = [
   {
     sector: "Logistics",
@@ -296,19 +215,11 @@ export const CASES = [
 }[];
 
 /* ==========================================================================
-   FAQ — lifted from prototype/script.js.
+   FAQ
 
-   CONFIRMED AS FACT by the user 2026-09-06. These four were previously
-   unverifiable and would have needed data-placeholder:
-     · $25k–$90k per full build, monthly per engineer for augmentation
-     · 2-15 weeks to a focused first version, 14–20 for larger platforms
-     · senior engineers with 2-15 years of experience each
-     · no juniors swapped in after signing
-
-   That confirmation also closes HANDOFF §7's open P1 on pricing — the site now
-   publishes a range rather than claiming transparency without one. Do not
-   soften these back to qualitative language without asking; they are load-
-   bearing answers to the questions that actually block a booking. */
+   The price, timeline and seniority figures are confirmed claims and answer
+   the questions that block a booking; keep them specific.
+   ========================================================================== */
 export const FAQ = [
   {
     q: "How long until we launch?",
@@ -333,15 +244,12 @@ export const FAQ = [
 ];
 
 /* ==========================================================================
-   TESTIMONIALS — §8.3.
+   TESTIMONIALS
 
-   STILL PLACEHOLDER, and deliberately so. Every card and the pull-quote carry
-   data-placeholder. A testimonials block with visible "Placeholder Name" is
-   worse than no testimonials at all: an empty space reads as an early company,
-   a fake quote reads as a company that fabricates proof. The quotes themselves
-   are plausible drafts of what a real client might say — they are here to hold
-   the design, not to ship. Replace with real, permissioned quotes before
-   launch (HANDOFF §7 P0, same bucket as the case studies). */
+   Placeholder drafts that hold the design. Every card and the pull-quote
+   render data-placeholder; replace with real, permissioned quotes before
+   launch.
+   ========================================================================== */
 export const QUOTES = [
   {
     q: "They pushed back on half our original scope and were right about all of it. We shipped smaller and sooner than we planned.",
@@ -363,9 +271,8 @@ export const QUOTES = [
   },
 ];
 
-/* Split into name + role on 2026-09-07: prototype2-archive's pull-quote bolds
-   the name and leaves the role muted, which a single `who` string cannot
-   express without markup in the content layer. Copy stays copy. */
+/* Name and role are separate fields so the name can be emphasised without
+   markup in the content layer. */
 export const PULL_QUOTE = {
   q: "The weekly demo changed how our own team works. We stopped writing status reports and started showing the thing.",
   name: "Placeholder Name",
@@ -373,37 +280,15 @@ export const PULL_QUOTE = {
 };
 
 /* ==========================================================================
-   /why-choose-us — ported from prototype2-archive/why-choose-us.html
+   /why-choose-us
    ==========================================================================
-   Three blocks the Next page did not have: the working agreement, a normal
-   week, and the straight answers. Copy is verbatim from the archive; only the
-   presentation was rebuilt on this project's tokens.
-
-   ⚠ CLAUSES CARRIES HANDOFF §7's P1 AND IT IS THE WHOLE POINT OF THE PAGE.
-   The document asserts these five clauses are "carried into every engagement
-   agreement". If the real contract does not say so, this is not a wording
-   problem — it is fabricated proof on the one page whose entire argument is
-   "don't take our word for it". The footer line is data-placeholder until
-   somebody reads the actual contract. Do not un-flag it to tidy the page up.
+   CLAUSES asserts these terms are "carried into every engagement agreement".
+   That line in the Clauses footer, and WHY_HERO.kicker which restates it,
+   render data-placeholder until checked against the actual contract.
    ========================================================================== */
 
-/* The hero. Rewritten 2026-09-08 from user-supplied copy, replacing the
-   archive's "Every vendor sounds identical." `ctaHref` is /#contact (gotcha 9
-   — the section only exists on home); `subHref` is a bare fragment on
-   purpose, because #agreement IS on this page.
-
-   The copy arrived as one block with a bold opening line, two paragraphs and
-   a bold close, so it maps: bold line → head/accent, paragraphs → lead/body,
-   bold close → kicker.
-
-   ⚠ `kicker` RESTATES THE §7 P1 CLAIM the Clauses foot already carries —
-   "commitments carried into every engagement agreement". It is the same
-   unverified assertion, now moved ABOVE THE FOLD, so WhyHero renders it
-   data-placeholder. Do not un-flag either copy without reading the real
-   contract; see the block comment above. Everything else here is on the
-   allowed list: code and infrastructure in your accounts, the engineers you
-   meet, price before work starts, weekly demonstrated progress, 30 days
-   post-launch. */
+/* `ctaHref` goes to the contact page; `subHref` is a bare fragment because
+   #agreement is on this page. */
 export const WHY_HERO = {
   eyebrow: "Why Interloid",
   head: "Clarity from day one. Progress every week.",
@@ -415,7 +300,6 @@ export const WHY_HERO = {
   cta: "Book a free 30-min consult",
   /* Below `sm`, where the full label wrapped inside the pill. */
   ctaShort: "Book a free consult",
-  /* /contact, the enquiry page, since 2026-09-11 (was "/#contact"). */
   ctaHref: "/contact#story",
   sub: "Read the agreement",
   subHref: "#agreement",
@@ -499,15 +383,8 @@ export const WEEK = [
   },
 ] as const;
 
-/* Open on the page, not in an accordion — the archive's own note. Hiding the
-   awkward questions behind a click is the behaviour the section is arguing
-   against.
-
-   Extended 2026-09-08 after diffing against home's FAQ (user request): the
-   timeline and the exit questions were answered there and not here. Both
-   answers below restate only HANDOFF §7 allowed claims (2-15 / 14–20 weeks,
-   ownership throughout, 30 days support). The archive's four keep their
-   order; the two new ones follow. */
+/* Rendered open, not in an accordion: hiding the awkward questions behind a
+   click is the behaviour the section argues against. */
 export const ANSWERS = [
   {
     q: "Where are you actually based?",
@@ -535,10 +412,8 @@ export const ANSWERS = [
   },
 ] as const;
 
-/* The proof quote on /why-choose-us. A DIFFERENT quote from PULL_QUOTE on
-   home, and deliberately so — the archive picks one that argues the page's
-   own thesis (they were not needed again) rather than repeating the home
-   page's. Same P0 bucket: placeholder until a real, permissioned one exists. */
+/* Deliberately a different quote from PULL_QUOTE, chosen to support this
+   page's argument. Placeholder until a real, permissioned quote exists. */
 export const WHY_QUOTE = {
   q: "Six months after handover we haven’t needed them once, which, strangely, is exactly why we’d hire them again.",
   name: "Placeholder Name",
@@ -547,41 +422,13 @@ export const WHY_QUOTE = {
 } as const;
 
 /* ==========================================================================
-   /careers — added 2026-09-07, REWRITTEN 2026-09-08.
+   /careers — trainee roles, on site.
    ==========================================================================
-   The first version described senior, remote, market-rate hiring. The user
-   corrected it on 2026-09-08 and the correction changes the whole page, not
-   its numbers: the vacancies are for FRESHERS, on site in Gobichettipalayam,
-   with a six-month training period and a two-year agreement. Senior hiring is
-   not open at all right now.
-
-   The senior set is NOT deleted — see SENIOR_ROLES below. It is parked,
-   exported and unrendered, because "not open now" is a different statement
-   from "never existed" and the page says so out loud.
-
-   ── SHORTER, ON REQUEST ───────────────────────────────────────────────────
-   Nine sections became six. What went, and why it could go:
-     · CandidateOffer (six commitment tiles) → folded into PROGRAMME. A
-       fresher's first question is what the terms are, not what the culture is.
-     · CareerStack (four grouped stack cards) → folded into the role cards as
-       TECH ICONS, which is what the user asked for and costs a fifth of the
-       height.
-     · FirstNinety → became PROGRAMME's timeline. Same rail, different content:
-       the six months that matter here are the training, not the first 90 days.
-   The role filter went too. Four roles do not need one.
-
-   ⚠ CLAIM STATUS — HARDER THAN THE FIRST VERSION. Every term below came from
-   the user verbally and none of it is on HANDOFF §7's allowed-claims list.
-   Two carry more than the usual placeholder risk:
-
-     · TWELVE-HOUR DAYS. Flagged to the user on 2026-09-08: the Tamil Nadu
-       Shops & Establishments Act caps daily hours well below this, so
-       publishing it is a legal exposure as well as a recruiting one. Built as
-       instructed, marked, and easy to reword — the string is in TERMS and
-       appears nowhere else.
-     · ₹10,000 / MONTH and the TWO-YEAR AGREEMENT. Both are the kind of term a
-       candidate screenshots. They must match the actual offer letter before
-       this page is public.
+   None of these terms is on the confirmed-claims list. Items carrying `ph`
+   are unverified and render data-placeholder. The training hours, stipend and
+   agreement term must match the actual offer letter, and the hours must be
+   checked against Tamil Nadu Shops & Establishments Act limits, before this
+   page is public.
    ========================================================================== */
 
 /* The terms, in one place. Every component that states a term reads it from
@@ -624,8 +471,7 @@ export const CAREER_FACTS = [
   {
     k: "receipt",
     label: TERMS.stipend,
-    /* Kept to ONE line at the cell width — this was "Fixed for year one ·
-       2 years agreement", the only one of the four that wrapped. */
+    /* Kept short enough to stay on one line at the cell width. */
     body: `Fixed year one · ${TERMS.agreement} agreement`,
     ph: "P1: confirm stipend and agreement against the offer letter",
   },
@@ -637,12 +483,7 @@ export const CAREER_FACTS = [
 }[];
 
 /* ==========================================================================
-   PROGRAMME — the terms as a timeline.
-
-   This replaces both the commitment grid and the "first 90 days" block. For a
-   senior hire the interesting question is what the company promises; for a
-   fresher on a two-year agreement it is what the two years actually look like,
-   in order. Three phases, and the honest one is first.
+   PROGRAMME — the two-year agreement as a timeline, in order.
    ========================================================================== */
 export const PROGRAMME = [
   {
@@ -668,28 +509,15 @@ export const PROGRAMME = [
   },
 ] as const satisfies readonly {
   tag: string;
-  /** The one-word state of this phase, beside the numbered node. It was a
-      ternary on the index inside Programme.tsx; three strings of copy do not
-      belong in a component. */
+  /** The one-word state of this phase, shown beside the numbered node. */
   note: string;
   title: string;
   body: string;
   ph: string | null;
 }[];
 
-/* The summary under the timeline. REWRITTEN AS FIGURES 2026-09-08.
-
-   It was four ticked sentences on a `bg-secondary` bar, and the user's read
-   was right on both counts: it was hard to scan, and sitting on a different
-   ground from the cards above it made it look like a separate component that
-   had drifted into the section.
-
-   A tick plus a sentence is a list — the eye has to read all four to find the
-   number it wants. Split into FIGURE + LABEL the row becomes scannable in one
-   pass, which is what a summary is for, and it stops competing with the hero
-   band above (icon + label + body, doing the job of context rather than
-   recall). The component now gives it the cards' own surface so it reads as
-   the last row of the same group. */
+/* Summary under the timeline. Split into figure + label so the row scans in
+   one pass. */
 export const PROGRAMME_META = [
   { figure: TERMS.training, label: "of training", ph: null },
   {
@@ -706,26 +534,11 @@ export const PROGRAMME_META = [
 ] as const;
 
 /* ==========================================================================
-   ROLES — trainee, four of them.
+   ROLES — trainee roles.
 
-   `tech` holds `{ name, file }` — the `Tech` shape from content/service.ts —
-   because the technologies read as ICONS here rather than as another row of
-   word chips (the user's request, 2026-09-08).
-
-   REAL LOGO FILES, NOT DRAWINGS. The first pass hand-authored nine SVG marks
-   in a `TechIcon.tsx`. That file is deleted: `public/tech/` already holds the
-   published logos and `components/service/TechLogo.tsx` already renders them,
-   so the drawings were a second, worse copy of something the project had. Two
-   were not even the right mark (Postgres drawn as a cylinder, Docker as
-   stacked boxes) and two more had to be redrawn after rendering badly at 20px.
-
-   Every `file` must exist in `public/tech/`. An <img> with a 404 src draws
-   nothing and the plate goes blank — invisible rather than obviously broken —
-   so `.careers.mjs` asserts all sixteen actually load.
-
-   No `pay` field any more. Compensation is identical across all four roles and
-   lives in TERMS, so repeating it per card would be four places to correct
-   instead of one.
+   `tech` renders as logos through TechLogo. Every `file` must exist in
+   `public/tech/`: a missing file renders a blank plate, not a visible error.
+   Compensation is identical across roles and lives in TERMS.
    ========================================================================== */
 export const ROLES = [
   {
@@ -811,94 +624,8 @@ export const ROLES = [
 }[];
 
 /* ==========================================================================
-   SENIOR_ROLES — PARKED, NOT DELETED. 2026-09-08.
-
-   "For seniors the vacancy is not available for now, so keep it somewhere
-   reusable." This is that place. Nothing imports it today; the careers page
-   states in one line that senior hiring is closed, which is the honest version
-   of the same fact and costs two sentences instead of six cards.
-
-   To reopen: import SENIOR_ROLES in Roles.tsx and render it as a second group.
-   The shape is intentionally UNCHANGED from the 2026-09-07 version — same
-   fields, same copy — so nothing has to be rewritten to bring it back. The
-   salary bands were never confirmed and were data-placeholder then; they still
-   are, and must stay flagged if this is ever rendered.
-   ========================================================================== */
-export const SENIOR_ROLES = [
-  {
-    id: "senior-react-engineer",
-    title: "Senior React Engineer",
-    hue: "brand",
-    disciplines: ["Frontend"],
-    seniority: "6+ years",
-    tech: [
-      { name: "React.js", file: "reactjs.svg" },
-      { name: "TypeScript", file: "typescript.svg" },
-      { name: "Tailwind CSS", file: "tailwindcss.svg" },
-      { name: "Git", file: "git.svg" },
-    ],
-    pay: "₹28–42L / year",
-    summary:
-      "Own the front end of a client product end to end: the component library, the data layer, the accessibility, and the Friday demo that shows it working.",
-  },
-  {
-    id: "senior-rails-engineer",
-    title: "Senior Ruby on Rails Engineer",
-    hue: "accent",
-    disciplines: ["Backend"],
-    seniority: "6+ years",
-    tech: [
-      { name: "Ruby on Rails", file: "rails.svg" },
-      { name: "PostgreSQL", file: "postgresql.svg" },
-      { name: "Docker", file: "docker.svg" },
-      { name: "Git", file: "git.svg" },
-    ],
-    pay: "₹28–42L / year",
-    summary:
-      "Take Rails applications that grew faster than their design and make them boring again, without a rewrite nobody funded.",
-  },
-  {
-    id: "senior-python-engineer",
-    title: "Senior Python Engineer",
-    hue: "teal",
-    disciplines: ["Backend", "Data & AI"],
-    seniority: "6+ years",
-    tech: [
-      { name: "Python", file: "python.svg" },
-      { name: "PostgreSQL", file: "postgresql.svg" },
-      { name: "Docker", file: "docker.svg" },
-      { name: "Git", file: "git.svg" },
-    ],
-    pay: "₹30–45L / year",
-    summary:
-      "Build the pipelines, and the model-backed features on top of them, with evaluation, cost ceilings and lineage, not a notebook that impressed once.",
-  },
-  {
-    id: "senior-node-engineer",
-    title: "Senior Node.js Engineer",
-    hue: "indigo",
-    disciplines: ["Backend", "Platform"],
-    seniority: "6+ years",
-    tech: [
-      { name: "Node.js", file: "nodejs.svg" },
-      { name: "TypeScript", file: "typescript.svg" },
-      { name: "PostgreSQL", file: "postgresql.svg" },
-      { name: "Git", file: "git.svg" },
-    ],
-    pay: "₹28–42L / year",
-    summary:
-      "Design the APIs everything else in the product leans on, and the unglamorous operational work that keeps them up at 3am without you.",
-  },
-] as const;
-
-/* ==========================================================================
-   PATH — how we hire. Three steps, down from four.
-
-   The paid three-hour exercise from the senior version is gone: it does not
-   make sense for somebody with no professional experience, and paying for a
-   fresher's test would have been a claim we cannot verify either. What is left
-   is what a fresher can actually be assessed on — a conversation and a small
-   piece of real work, in the office, because the job is in the office.
+   PATH — how we hire. A conversation and a day of real work in the office,
+   because the job is in the office.
    ========================================================================== */
 export const PATH = [
   {
@@ -924,27 +651,16 @@ export const PATH = [
   },
 ] as const;
 
-/* The counter-list. Shorter than the senior version and every line is
-   something a fresher in this market is genuinely afraid of. */
+/* The counter-list: things a fresher in this market is genuinely wary of. */
 export const PATH_NO = [
   "No training fee, ever: we pay you, not the other way round",
   "No certificate-course upsell",
   "No ghosting: everybody hears back",
 ] as const;
 
-/* Two honest lists. On this page they carry more weight than they did on the
-   senior version: somebody signing a two-year agreement at twenty-two should
-   be told plainly what they are signing up for. */
-/* Each entry carries its own Icon.tsx glyph. A repeated tick down the column
-   said "list"; a glyph per line says WHAT the line is about, which is the
-   whole reason DS §1.2 rule 5 allows hue on icon tiles at all — it is
-   categorical, not decorative.
-
-   The pairing is also what equalises the two columns. The YES list is five
-   short lines and the NO list is four long ones; at one line of text per row
-   that is a ~3-line height difference and the shorter card bottoms out. As
-   icon ROWS the arithmetic changes to 5 × short ≈ 4 × tall, and the columns
-   land within a few pixels of each other without a magic number anywhere. */
+/* Two fit lists. Each line carries its own icon naming what it is about.
+   Icon rows also keep the columns close in height: five short YES rows
+   roughly match four taller NO rows. */
 export const FIT_YES = [
   {
     k: "rocket",
@@ -959,33 +675,14 @@ export const FIT_YES = [
   },
 ] as const;
 
-/* The closing line under each list. BOTH of them, not just the warning's —
-   they were asymmetric (only the right-hand list had one) and that asymmetry
-   was half of why the left column bottomed out ~200px short of the right in
-   the shared panel. Copy belongs here rather than inline in FitCheck.tsx
-   anyway; the component had been holding these two strings since it was
-   written, which is the thing CLAUDE.md §2 says not to do. */
-/* The two column headings. "You will do well here if…" / "You will not, if…"
-   were replaced 2026-09-08: the user could not read the pair at a glance, and
-   they were right to flag it. Three things were wrong with them —
-
-     · the second one is an ELLIPSIS OF THE FIRST. "You will not, if…" only
-       parses if you have already read and held the sentence above it, and the
-       two headings sit far apart on a wide screen.
-     · "do well here" is idiomatic. These roles are advertised to freshers in
-       Tamil Nadu, most of whom read English as a second language; an idiom is
-       the first thing to go.
-     · neither says what the reader is deciding. "This job is / is not for you"
-       names the decision in the heading, which is the whole point of the
-       section.
-
-   Kept parallel and near-identical on purpose: the pair should differ by one
-   word, so the contrast is the thing that registers rather than the wording. */
+/* Column headings. Keep them parallel, differing by one word, and free of
+   idiom: much of the audience reads English as a second language. */
 export const FIT_TITLES = {
   yes: "This job is for you if…",
   no: "This job is not for you if…",
 } as const;
 
+/* Closing line under each list. Both columns need one to stay balanced. */
 export const FIT_NOTES = {
   yes: "If three of these sound like you, that is enough to apply. Nobody arrives with all five.",
   no: "None of these are character flaws; they describe a different job, and there are good ones. Deciding here costs you five minutes. Deciding in month three costs you a year.",
@@ -1011,74 +708,13 @@ export const FIT_NO = [
 ] as const;
 
 /* ==========================================================================
-   LIFE — the bento. Added 2026-09-08 on request.
-   ==========================================================================
-   The reference careers page (conversedatasolutions.com/careers) has a "Life
-   at Converse" block: four photographs of the office in a bento, captioned
-   "A collaborative, fast-paced, and incredibly rewarding environment."
-
-   This site.ts banner previously listed that section as one of the two things
-   deliberately NOT reproduced. The user asked for it directly, which is
-   CLAUDE.md §8's case: flag once, then build and mark it. This is the build,
-   and the note above has been amended rather than left contradicting it.
-
-   ── `img: null`, THE SAME SWITCH THE /about ROSTER USES ──────────────────
-   Every tile has an `img` field and every one is `null`. Until a real
-   photograph exists the tile renders a DESIGNED fallback — a hue-washed panel
-   with a glyph watermark and the caption — rather than an empty frame, which
-   advertises the absence and looks broken.
-
-   Drop a file into `public/life/` and set `img` to its filename: the tile
-   switches to the photograph with the caption over a scrim, and nothing else
-   changes. That is the whole reason it is shaped this way instead of waiting.
-
-   NOT stock photography, under any circumstances. A stock office with people
-   who do not work here is the same fabrication as an invented colleague, and
-   on a page aimed at people who would be IN that room it is worse — they will
-   see the real one on day one.
-
-   ── THE COPY IS THE OTHER HALF OF THE POINT ──────────────────────────────
-   "Collaborative, fast-paced and incredibly rewarding" is three adjectives
-   nobody can check and every company claims. Each tile here says something
-   specific and falsifiable instead — where people sit, what happens on a
-   Friday, what the hours are — which is the same standard the rest of this
-   page holds itself to.
-
-   ⚠ ALL FOUR ARE UNVERIFIED. They describe an office none of this was written
-   from. The grid carries data-placeholder for the set. Confirm or correct each
-   one before publishing, and delete any that are not true rather than
-   softening them into adjectives.
-   ========================================================================== */
-/* ==========================================================================
    GALLERY — the moments rail under "Life here" on /careers.
    ==========================================================================
-   EVERY `img` IS null, AND THAT IS THE POINT. GalleryRail renders a quiet
-   captioned frame when `img` is null and a photograph when it is a filename
-   in `public/gallery/`. There is no `public/gallery/` directory yet, and
-   until there are REAL photographs of THIS office, there must not be one:
-
-     · CLAUDE.md §6 P1 is explicit that we do not launch with invented people.
-     · site.ts's own careers banner records that the reference site's "Life
-       at …" photo bento was deliberately NOT reproduced, because stock faces
-       on a careers page are the exact failure the review calls "asking for
-       trust while showing no proof".
-     · A stock photograph of a generic office is worse here than an empty
-       frame. The frame reads as a company that has not taken the photographs
-       yet; the stock shot reads as one that is pretending.
-
-   So the captions are written first and the pictures arrive later. Each one
-   describes a thing that actually happens in the room, so a photographer has
-   a brief rather than a mood board — and each is checkable, which is what
-   keeps this section honest while it waits.
-
-   TO SHIP A PHOTO: drop the file in `public/gallery/`, put its filename in
-   `img`, and the rail switches that card to the image treatment on its own.
-   Nothing else changes.
-
-   ⚠ These captions describe the training floor as the careers page describes
-   it elsewhere (on site, six months, seniors and trainees in one room). They
-   inherit the same claim status as PROGRAMME and TERMS: if the real
-   arrangement differs, these are wrong too. */
+   `img: null` renders a captioned frame; set it to a filename in
+   `public/gallery/` to show the photograph. Photos must be real ones of this
+   office, never stock. Captions describe the training floor and inherit the
+   claim status of TERMS and PROGRAMME; confirm them before launch.
+   ========================================================================== */
 export const GALLERY = [
   {
     tag: "The floor",
@@ -1124,12 +760,15 @@ export const GALLERY = [
   img: string | null;
 }[];
 
+/* LIFE — the bento. `img: null` renders a designed fallback; set a filename in
+   `public/life/` to show the photograph (real photos only, never stock). All
+   four tiles are unverified and render data-placeholder until confirmed. */
 export const LIFE = [
   {
     k: "users",
     hue: "brand",
-    /* `span` is the bento arrangement, and the four values are load-bearing
-       together — see LifeHere.tsx. Whole class strings, never composed. */
+    /* The four `span` values define the bento layout together (see
+       LifeHere.tsx). Whole class strings, never composed. */
     span: "lg:col-span-2 lg:row-span-2",
     tag: "The room",
     title: "One floor, and everyone is on it",
@@ -1170,8 +809,7 @@ export const LIFE = [
   tag: string;
   title: string;
   body: string;
-  /** Filename in `public/life/`, or null for the designed fallback. This one
-   *  field is the switch between the honest state and the finished one. */
+  /** Filename in `public/life/`, or null for the designed fallback. */
   img: string | null;
 }[];
 

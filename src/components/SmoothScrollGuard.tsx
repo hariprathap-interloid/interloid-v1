@@ -4,33 +4,16 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 /* ==========================================================================
-   SMOOTH SCROLL, BUT NOT DURING A ROUTE CHANGE.
+   Smooth scroll, but not during a route change.
    ==========================================================================
    globals.css sets `html { scroll-behavior: smooth }` so in-page anchors
-   glide — #capabilities, #technologies, /#work, /#contact and the capability
-   index all depend on it. The cost is that it also applies to the scroll the
-   App Router performs on every navigation, and an ANIMATED scroll-to-top
-   loses the race against the incoming page's render: the animation is still
-   running when the new (taller) document lays out, and the browser's scroll
-   anchoring settles somewhere in the middle of it.
+   glide. It also applies to the App Router's scroll on navigation, and an
+   animated scroll-to-top loses the race against the incoming page's layout:
+   scroll anchoring settles somewhere mid-page instead of at the top.
 
-   Measured on 2026-09-12, clicking the header nav from a scrolled-to-top page:
-
-     /services → Why us      y = 5670   (of 6570)
-     /services → About us    y = 6083   (of 7248)
-     /services → Contact     y = 3010   (of 3910 — the footer)
-     /about    → Services    y = 10659  (of 12672)
-     /contact  → Services    y = 11233  (of 12672)
-
-   With `scroll-behavior: auto` every one of those lands at y = 0. The
-   property is the whole cause, and only during navigation.
-
-   ── WHY THIS SHAPE AND NOT `window.scrollTo(0, 0)` ───────────────────────
-   The obvious fix — force the scroll ourselves on every pathname change —
-   also breaks BACK and FORWARD, which are supposed to restore the position
-   you left. The router already gets that right; the animation is what
-   corrupts it. So this suppresses the animation and lets the router's own
-   scrolling stand, rather than replacing it.
+   Forcing `window.scrollTo(0, 0)` on pathname change would break back/forward
+   restoration, so this only suppresses the animation and lets the router's
+   own scrolling stand.
 
    The click listener is on the CAPTURE phase so the property is set before
    the router moves, and only for links that change the pathname — a

@@ -2,41 +2,20 @@ import Icon from "../Icon";
 import SectionHeading from "../SectionHeading";
 import { PLACE } from "@/content/about";
 
-/* "Where we are" — and which country that is.
+/* "Where we are" — the office, the working-hours overlap, and the entity.
 
-   ── THIS SECTION EXISTS TO SETTLE A LIVE P1 ──────────────────────────────
-   HANDOFF §7 carries a GEOGRAPHY CONTRADICTION as an open item: the live
-   site's meta says "Based in US & UK" while the only address is Tamil Nadu
-   and the only phone number is +91. Every prototype has used the honest
-   framing instead ("India-based · US & UK overlap hours") and it has been
-   waiting on the user's confirmation ever since.
+   Order is deliberate: address, then how the overlap works, then who you are
+   contracting with. Leading with the timezone would read as an apology for
+   the address. `lines` renders as display type and `note` as body, so each
+   card scans as a figure with an explanation.
 
-   An About page is where that gets answered in the open or not at all, so
-   the lead says it in one sentence — plenty of firms this size present as
-   American and route the work elsewhere; we do not — and the overlap card
-   carries the flag until the real window is confirmed.
+   Ground is `bg-background` to keep the section grounds alternating on
+   /about; two `bg-secondary` sections in a row read as one.
 
-   ── THREE CARDS, AND THE MIDDLE ONE IS THE ANSWER ────────────────────────
-   Office / overlap / entity. The middle is the one a buyer actually worries
-   about, and it is deliberately not first: leading with the timezone would
-   read as an apology for the address. Address, then how it works, then who
-   you are contracting with.
-
-   `lines` renders as display type and `note` as body, so each card is a
-   figure with an explanation rather than a paragraph with a heading — the
-   same figure-over-label idea the /careers summary strip uses, which is what
-   makes a three-up row scannable instead of read.
-
-   Ground moved to `bg-background` when the roster was inserted above it —
-   the alternation is hero(sec) → origin(bg) → shape(sec) → people(bg) →
-   team(sec) → place(bg), and two `bg-secondary` sections in a row would read
-   as one very long section.
-
-   HOVER SIGNATURE — the card's ground warms to `bg-secondary` while its icon
-   tile inverts. A ground change is the one colour move no other section on
-   the site uses for its signature, and it suits three cards that are
-   effectively an address block: the card lights up, nothing else happens.
-   Nothing moves, per the site-wide rule in WorkCard.tsx. */
+   Hover: the card's ground warms and its icon tile inverts. Nothing moves:
+   a hover translate shifts the hit box out from under the pointer and
+   flickers. Copy marked data-placeholder is unverified; confirm before
+   public launch. */
 export default function Place() {
   return (
     <section
@@ -58,7 +37,7 @@ export default function Place() {
           {PLACE.head}
         </SectionHeading>
 
-        <ul className="grid gap-6 md:grid-cols-3">
+        <ul className="grid gap-6 lg:grid-cols-3">
           {PLACE.cards.map((c, i) => (
             <li
               key={c.label}
@@ -79,14 +58,12 @@ export default function Place() {
                   </span>
                 </div>
 
-                {/* `<address>` is only correct for the first card — it is for
-                    contact details, not for arbitrary content — so the tag is
-                    chosen per card rather than applied to all three for the
-                    sake of symmetry. */}
+                {/* `<address>` is for contact details, so only the first card
+                    uses it. */}
                 {i === 0 ? (
                   <address className="mb-4 font-display text-xl font-bold not-italic leading-[1.35] tracking-[-0.02em] text-foreground">
                     {c.lines.map((l) => (
-                      <span key={l} className="block">
+                      <span key={l} className="block [overflow-wrap:anywhere]">
                         {l}
                       </span>
                     ))}
@@ -94,7 +71,7 @@ export default function Place() {
                 ) : (
                   <p className="mb-4 font-display text-xl font-bold leading-[1.35] tracking-[-0.02em] text-foreground">
                     {c.lines.map((l) => (
-                      <span key={l} className="block">
+                      <span key={l} className="block [overflow-wrap:anywhere]">
                         {l}
                       </span>
                     ))}

@@ -26,21 +26,19 @@ import {
 } from "@/content/apply";
 import { ROLES } from "@/content/site";
 
-/* ==========================================================================
-   ApplyForm — the trainee application.
-   ==========================================================================
-   Sent from `onSubmit` through `startTransition`, NOT `<form action>`, for
-   the same reason as useStoryBrief: React resets a form after an action
-   runs, and a reset after a server-side error would throw away everything
-   typed and the chosen CV with it.
+/* ApplyForm — the trainee application.
+
+   Sent from `onSubmit` through `startTransition`, not `<form action>`: React
+   resets a form after an action runs, and a reset after a server-side error
+   would throw away everything typed and the chosen CV with it.
 
    Errors come from two places: `local` (checked in the browser on submit,
    so an empty field never costs a 5 MB upload) and the server's reply. A
    field the applicant has touched since stops showing the server's error.
 
    No `data-reveal` in here: several classNames are computed from state, and
-   Reveal's `is-in` would be wiped by React's next write. The page reveals
-   the wrapper instead. */
+   React's next write would wipe Reveal's `is-in`. The page reveals the
+   wrapper instead. */
 
 const IDLE: ApplyState = { status: "idle" };
 const ORDER: ApplyField[] = ["role", "firstName", "lastName", "phone", "linkedin", "resume", "message"];
@@ -82,7 +80,7 @@ function Field({
       </div>
       {children}
       {error && (
-        <p id={`${id}-error`} className="mt-2 flex items-start gap-1.5 text-[13px] font-medium text-rose-500">
+        <p id={`${id}-error`} className="mt-2 flex items-start gap-1.5 text-[13px] font-medium text-rose-700 dark:text-rose-400">
           <span className="mt-0.5 shrink-0">
             <Icon name="alert" className="size-3.5" />
           </span>
@@ -226,7 +224,7 @@ export default function ApplyForm({ initialRole }: { initialRole: string | null 
             ))}
           </div>
           {roleErr && (
-            <p id="apply-role-error" className="mt-2 flex items-start gap-1.5 text-[13px] font-medium text-rose-500">
+            <p id="apply-role-error" className="mt-2 flex items-start gap-1.5 text-[13px] font-medium text-rose-700 dark:text-rose-400">
               <span className="mt-0.5 shrink-0">
                 <Icon name="alert" className="size-3.5" />
               </span>

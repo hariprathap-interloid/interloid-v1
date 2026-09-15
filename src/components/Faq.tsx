@@ -4,46 +4,23 @@ import { useState } from "react";
 import Icon from "./Icon";
 import { FAQ } from "@/content/site";
 
-/* "Questions we get every week." Converted from prototype/'s accordion.
+/* "Questions we get every week." — an accordion.
 
-   This is the single most valuable unblocked section on the page. The review's
-   core finding is that the site asks for trust while showing no proof; an FAQ
-   is proof-by-transparency — the only kind that needs nobody's permission.
-   Prototype 1's subhead says exactly why it works.
+   The open/close animation is grid-template-rows 0fr -> 1fr, not max-height:
+   it animates to the content's real height with no magic number.
 
-   The open/close animation is grid-template-rows 0fr -> 1fr, not max-height.
-   max-height needs a magic number that is wrong for every answer; 0fr->1fr
-   animates to the content's real height and stays correct if the copy changes.
-
-   `visibility` is on the row too, not just height: a collapsed panel that is
-   only zero-height still keeps its text in the accessibility tree and (with
-   any focusable content) in the tab order — the same trap as HANDOFF §5.4.
+   `visibility` toggles along with the height: a zero-height panel would still
+   keep its text in the accessibility tree and any focusable content in the
+   tab order.
 
    The button carries an INSET focus ring: the item clips overflow to round its
-   corners, which would crop an outward ring (HANDOFF §5.5).
+   corners, which would crop an outward ring.
 
-   ── REACT'S className WIPES Reveal'S `is-in` — THE CARD VANISHED ───────────
-   Found 2026-09-07 from the user's report: opening an item made that item
-   DISAPPEAR. Measured — the clicked card went `is-in: true -> false`,
-   opacity 1 -> 0.01, while still correctly expanding 76px -> 181px. It was
-   opening; it was just invisible while it did.
-
-   Reveal.tsx adds `is-in` with `classList.add`, straight onto the DOM. React
-   owns the `className` attribute on that same element, and on a state change
-   it writes the whole attribute — which does not contain `is-in`, because
-   React never knew about it. So `[data-reveal] { opacity: 0 }` reapplied.
-
-   Only the clicked card, and that detail is the proof rather than a curiosity:
-   React diffs the className string and skips the DOM write when it is
-   unchanged, so the five cards whose classes did not change kept their
-   `is-in`. Any card whose class string changed lost it.
-
-   This is the SAME collision as WorkCard's, one layer up — there the conflict
-   was CSS specificity, here it is ownership of the attribute. The fix is the
-   same and it is structural: the wrapper reveals, the inner card carries the
-   state classes. NEVER put `data-reveal` on an element whose className is
-   computed from React state. That rule holds for any client component on this
-   page. */
+   ── NEVER PUT data-reveal ON AN ELEMENT WITH A STATE-DRIVEN className ─────
+   Reveal adds `is-in` with classList, outside React. When a state change
+   alters an element's className, React rewrites the whole attribute and drops
+   `is-in`, so `[data-reveal] { opacity: 0 }` reapplies and the card vanishes.
+   The wrapper reveals; the inner card carries the state classes. */
 export default function Faq() {
   const [open, setOpen] = useState<number | null>(null);
 
@@ -52,16 +29,10 @@ export default function Faq() {
       id="faq"
       className="relative overflow-hidden border-t border-border bg-secondary py-32"
     >
-      {/* Dot-grid backdrop — DS §2.6, and prototype 1 has it on exactly this
-          section (`.grid-backdrop` on #faq and #work). The radial mask is the
-          whole point: an unmasked grid tiles to a hard edge at the section
-          boundary and reads as a texture that was cut off, so it fades out
-          before it gets there.
-
-          `var(--border)` where DS hardcodes `#e2e8f0`. DS is written for the
-          light theme only; the token is that same slate-200 in light and
-          `white/10` in dark, so one class works in both. A literal would have
-          left the dots invisible on the dark ground. */}
+      {/* Dot-grid backdrop. The radial mask fades it out before the section
+          edge; unmasked, the grid tiles to a hard edge and reads as a texture
+          that was cut off. `var(--border)` rather than a literal so the dots
+          stay visible on the dark ground. */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(var(--border)_1.5px,transparent_1.5px)] bg-[size:24px_24px] [-webkit-mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_20%,transparent_100%)]"
         aria-hidden="true"
@@ -88,7 +59,7 @@ export default function Faq() {
           </p>
         </div>
 
-        <div /* `.faq`: 52rem, wider than max-w-3xl's 48rem. */
+        <div /* 52rem: a little wider than the heading's max-w-3xl (48rem). */
           className="mx-auto flex max-w-[52rem] flex-col gap-4">
           {FAQ.map((f, i) => {
             const isOpen = open === i;

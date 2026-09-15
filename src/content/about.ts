@@ -1,47 +1,13 @@
 import type { Hue } from "./site";
 
 /* ==========================================================================
-   /about — content. Added 2026-09-08.
+   /about
    ==========================================================================
-   Its own file rather than another block in site.ts, following the precedent
-   `service.ts` already set: site.ts is past a thousand lines and holds home,
-   /why-choose-us and /careers between them. CLAUDE.md §2's rule is that copy
-   lives in `src/content/` and never in a component; which file inside it is a
-   filing decision, and one page per file is the one this project has drifted
-   to on its own.
-
-   ── BUILT AFTER READING conversedatasolutions.com/about WITH PLAYWRIGHT ───
-   That page is: hero → "Why We Exist" (three flip cards, problem front /
-   solution back) → "Meet the Squad" (SIXTEEN named colleagues with
-   photographs, in a carousel) → a technology marquee → "The Rhythm of Our
-   Work" (a four-panel process accordion) → "The Ecosystem" (a radial orbit
-   diagram) → CTA.
-
-   NONE of that structure is reproduced, and three of its six sections could
-   not be even if we wanted them:
-
-     · MEET THE SQUAD is the centre of gravity of their page and the one thing
-       this site cannot answer in kind. HANDOFF §7 P1: "Do not launch with
-       invented people." Sixteen stock portraits with invented names is the
-       precise failure the review names — asking for trust while showing no
-       proof — and it is worse here than a fake testimonial, because a person
-       is easier to check than a quote. So this page answers the question that
-       section exists to answer ("who will I actually work with?") with the
-       facts we DO have, and says plainly why there are no photographs yet.
-     · THE PROCESS ACCORDION would duplicate home's `#process` and
-       /why-choose-us' week strip.
-     · THE ECOSYSTEM DIAGRAM already exists on /services.
-
-   What is left is the part no other page on this site covers: why the company
-   exists, how it is shaped, who is in the room, and where the room is.
-
-   ⚠ CLAIM STATUS. The allowed-claims list in site.ts is about ENGAGEMENT
-   commitments; almost nothing on an About page is on it. Anything historical
-   (a founding year, a headcount, a client count, an origin anecdote) is
-   unverifiable from here and is either absent or `data-placeholder`. What is
-   stated as fact is limited to: the legal entity name, the location, the
-   engagement commitments already cleared on 2026-09-06, and statements about
-   how the firm is SHAPED that the user can confirm in one reading.
+   Almost nothing on an About page is on the confirmed-claims list in
+   site.ts. Historical facts (founding year, headcount, client count) are
+   omitted or carry `ph`. What is stated as fact is limited to the legal
+   entity, the location, the engagement commitments, and how the firm is
+   structured.
    ========================================================================== */
 
 export const ABOUT_HERO = {
@@ -89,22 +55,12 @@ export const ABOUT_FACTS = [
 }[];
 
 /* ==========================================================================
-   ORIGIN — the narrative.
+   ORIGIN — the narrative, as prose.
 
-   Written as PROSE rather than as tiles, because it is the one thing on this
-   site that is genuinely a story and tiles would chop it into slogans. It is
-   also the section type the site does not have yet (DS §3.4, long-form
-   article typography), so it earns its place on a page whose whole job is to
-   sound like a person rather than a brochure.
-
-   ⚠ THE HARD PART, AND READ THIS BEFORE EDITING. Every sentence here is about
-   what the company BELIEVES and how it OPERATES — both checkable in one call
-   — and not one of them asserts a historical fact. There is no founding year,
-   no "we started when…", no headcount, no client story. That is not modesty;
-   it is that none of it can be verified from here, and an origin story is the
-   easiest place on a website to write fiction without noticing. If the user
-   supplies real history, it goes in as its own paragraph WITH a date, not by
-   loosening these. */
+   Every sentence describes beliefs and practice, never history, because
+   history cannot be verified here. Add real history as its own dated
+   paragraph rather than loosening these.
+   ========================================================================== */
 export const ORIGIN = {
   eyebrow: "Why we exist",
   head: "Most of this company is a",
@@ -114,9 +70,8 @@ export const ORIGIN = {
     "None of that is exotic. It is the normal shape of the industry, and it is profitable: a client who cannot leave is a client who renews. We decided to build the company that is bad at that: everything in your accounts from the first commit, the price in writing before the work, the same engineers throughout, and a working demo every Friday whether or not the week went well.",
     "The consequence is that we are small, and we intend to stay small enough that the person you speak to is the person who writes the code. That is not a growth strategy. It is the only way the rest of it stays true.",
   ],
-  /* The pull-out beside the narrative. Every figure is on site.ts's allowed
-     list — these are the engagement commitments, restated as the shape of the
-     company rather than as a sales promise. */
+  /* The pull-out beside the narrative. Every row restates a confirmed
+     engagement commitment. */
   glance: {
     title: "At a glance",
     rows: [
@@ -133,13 +88,8 @@ export const ORIGIN = {
 /* ==========================================================================
    SHAPE — how the company is built, including what it deliberately lacks.
 
-   Five statements, each falsifiable in one conversation. The absences matter
-   more than the presences: "there is no account manager" is checkable on the
-   first call, where "we value communication" is not.
-
-   Deliberately NOT a values list and NOT a second commitments grid —
-   /why-choose-us owns the commitments and repeating them here would make two
-   pages argue the same point. These are about the org chart, not the contract.
+   Each statement should be checkable in one conversation. These describe the
+   organisation, not the contract; /why-choose-us owns the commitments.
    ========================================================================== */
 export const SHAPE = [
   {
@@ -186,23 +136,7 @@ export const SHAPE = [
 }[];
 
 /* ==========================================================================
-   PEOPLE — the section that replaces "Meet the Squad".
-
-   The reference page answers "who will I work with?" with sixteen portraits.
-   We cannot, and the honest substitute is to answer the same question with
-   the four things that are actually true and checkable, then say plainly why
-   there are no faces here yet.
-
-   ── WHY THE DISCLOSURE IS ON THE PAGE AT ALL ─────────────────────────────
-   Because the alternative is a silence a reader fills in for themselves, and
-   they fill it in worse than the truth. A site whose entire argument is "we
-   tell you the awkward thing first" cannot have a conspicuous gap where every
-   competitor has photographs and say nothing about it.
-
-   It is `data-placeholder` for a reason that runs the other way from most of
-   the flags on this project: this copy should be DELETED, not confirmed, the
-   day real bios and permissioned photographs exist. Until then it is the
-   honest version. Do not soften it into "our team is growing".
+   PEOPLE — who the client works with, answered with checkable facts.
    ========================================================================== */
 export const PEOPLE = {
   eyebrow: "Who you work with",
@@ -238,58 +172,12 @@ export const PEOPLE = {
 } as const;
 
 /* ==========================================================================
-   TEAM — the roster. Added 2026-09-08 on request.
-   ==========================================================================
-   The user asked for the equivalent of the reference page's "Meet the Squad"
-   after being told twice that HANDOFF §7 blocks it. CLAUDE.md §8 is explicit
-   about what happens next: flag once, then build, and mark it. This is the
-   build.
+   TEAM — the engineering roster.
 
-   ── EXTENDED 2026-09-08: PHOTOGRAPHS, POSITIONS AND LINKEDIN ─────────────
-   The user asked for the full people card — a photograph, the position, and a
-   LinkedIn link — and for a section that an EMPLOYEE feels good arriving at,
-   not only a buyer. That is what TEAM_HEADING's `note` is for; it is the one
-   piece of copy on this site written for the team rather than for a client.
-
-   Three nullable fields now, and they are INDEPENDENT on purpose: `name`,
-   `img`, `linkedin`. A name usually lands before a photograph and a
-   photograph before somebody agrees to be linked, so the card is built to
-   render correctly at every combination rather than only at "all or nothing".
-
-   ── THE `null` DESIGN, AND WHY IT IS NOT A COP-OUT ───────────────────────
-   Every seat below is null on all three today. The card renders "Named in
-   your proposal" in the name slot, which is a true statement and already the
-   promise made three sections up.
-
-   The alternative was to invent seven people. That is the one thing the
-   review names as disqualifying, and it is worse here than the placeholder
-   testimonials already in site.ts: a quote from "Placeholder Name" is
-   obviously a placeholder, whereas a plausible Indian name under a plausible
-   job title reads as a real colleague to every visitor who is not looking for
-   the trick. There is no honest way to write that string.
-
-   So the component is built to work in every state and switch on the fields.
-   The day real details exist they are typed in here — one line per person, no
-   component change, no layout change — and each placeholder disappears on its
-   own as its field is filled.
-
-   ⚠ PHOTOGRAPHS MUST BE OF THESE PEOPLE, WITH THEIR PERMISSION. Not stock, and
-   not scraped from anywhere. Same rule as the careers gallery, and it matters
-   more here: a stock portrait under a real colleague's job title is worse than
-   no photograph, and the colleague will be the first to notice.
-
-   ── ROLES ARE INTERLOID'S, NOT THE REFERENCE'S ───────────────────────────
-   Their roster is Data/BI/Power Platform because that is their business.
-   These map to what /services actually publishes — web, mobile, backend,
-   cloud, AI integration — so the roster and the service list corroborate each
-   other instead of describing two different companies.
-
-   ⚠ WHICH SEATS ACTUALLY EXIST IS UNVERIFIED. The grid carries
-   data-placeholder for that, separately from the names. A roster is a
-   headcount claim in disguise: seven cards say "there are at least seven of
-   us" whether or not the page uses the number. Confirm the real seats before
-   this is public, and delete the ones that do not exist rather than leaving
-   them nameless. */
+   Roles map to the services on /services. Names, roles and seats must be
+   confirmed before launch; remove seats that do not exist. Any photographs
+   must be of these people, used with their permission, never stock.
+   ========================================================================== */
 export const TEAM_HEADING = {
   eyebrow: "Engineering team",
   head: "Meet the",

@@ -4,30 +4,19 @@ import { useState } from "react";
 import Icon from "./Icon";
 import { CAREER_FAQ } from "@/content/site";
 
-/* Candidate FAQ.
+/* Candidate FAQ. A separate component from Faq.tsx rather than a
+   parameterised one: the shared part is a small accordion, while the
+   content, heading, backdrop and section ground all differ.
 
-   ── WHY THIS IS NOT Faq.tsx WITH PROPS ────────────────────────────────────
-   Faq.tsx was measured property-by-property against prototype 1 and matches
-   it. Parameterising it would mean changing a component that is currently
-   provable, for a second caller — and the shared part is about forty lines of
-   accordion, while the differing part is the content, the heading, the
-   backdrop and the section ground. That trade was made the other way for
-   CtaAnchor (every prop defaults to home's copy, so home renders byte-for-byte
-   what it rendered before) because there the shared part was a 200-line slab
-   with a WebGL stage. Here it is not worth the risk.
-
-   What IS copied deliberately, and must stay copied, is the accordion's two
-   hard-won details — both documented at length in Faq.tsx:
-
+   Accordion details that must stay in step with Faq.tsx:
      · grid-template-rows 0fr → 1fr, never max-height. It animates to the
        content's real height and stays correct when the copy changes.
      · `invisible` on the collapsed row as well as zero height, or the answer
-       keeps its text in the a11y tree.
+       stays in the accessibility tree.
 
-   And the structural rule: the reveal wrapper and the element whose className
-   depends on state are DIFFERENT NODES. React rewrites the whole className
-   attribute on a state change and would wipe the `is-in` that Reveal.tsx put
-   there directly — the bug where opening a card made it vanish. */
+   The reveal wrapper and the element whose className depends on state are
+   different nodes: React rewrites the whole className on a state change and
+   would wipe the `is-in` class Reveal.tsx adds directly. */
 export default function CareerFaq() {
   const [open, setOpen] = useState<number | null>(null);
 
@@ -85,8 +74,8 @@ export default function CareerFaq() {
                       id={`cfaq-q-${i}`}
                       onClick={() => setOpen(isOpen ? null : i)}
                       /* The card clips overflow to round its corners, which
-                         would crop an outward focus ring — so this one is
-                         inset (HANDOFF §5.5). */
+                         would crop an outward focus ring, so this one is
+                         inset. */
                       className="flex w-full items-center justify-between gap-6 rounded-[1rem] p-6 text-left font-display text-[17px] font-semibold text-foreground focus-visible:shadow-[inset_0_0_0_2px_var(--ring)]"
                     >
                       {f.q}

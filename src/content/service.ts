@@ -1,58 +1,14 @@
 /* ==========================================================================
-   SERVICE PAGE CONTENT — added 2026-09-08, rebuilt on the LIVE SITE's content.
+   /services content.
    ==========================================================================
-   Copy for /services. Split out of site.ts because it is a page's worth of
-   content with its own shape, and because the components in
-   `src/components/service/` are written against these TYPES rather than
-   against one page's data: a second service page later is a second object
-   here plus a route, with no component changes.
+   Components in `src/components/service/` are written against these types,
+   so another service page is another object here plus a route.
 
-   ── WHERE THE CONTENT CAME FROM ──────────────────────────────────────────
-   interloid.com's own `#services` and `#technologies` sections, read with
-   Playwright on 2026-09-08 at the user's instruction ("this is my old
-   application… I expect this is going to be placed in the services page").
-   Both are reproduced here in full:
-
-     · SIX services, not the five the prototype carried. The live site splits
-       what the prototype called "Product engineering" into Web, Mobile and
-       Backend, and has no "Data & analytics" service at all. The live
-       taxonomy wins — it is what the company actually sells.
-     · Each service keeps its live promise paragraph and its three outcome
-       bullets, in the live site's own words wherever those words are ours to
-       keep (see the claim note below).
-     · SIX technology stacks, grouped exactly as the live tabs group them.
-       The live section renders emoji as its category icons; ours renders the
-       real brand marks from `public/tech/` (CLAUDE.md §3.6 bans emoji as
-       iconography, and the review names it the live site's most visible
-       unpolish).
-
-   ⚠ CLAIMS — READ BEFORE PUBLISHING. This is the important part.
-   HANDOFF §7 allows exactly these as fact: free 30-min consult · 48-hr
-   written proposal · weekly working demo · 30 days post-launch support ·
-   30-day notice · 100% code/IP ownership · 2-15 weeks to a first version
-   (14–20 larger) · engineers with 2-15 years each · no juniors substituted
-   after signing · named in the proposal · work in the client's own accounts.
-
-   The live bullets go far beyond that list — "save 40% on development
-   costs", "99.99% uptime SLA", "Deploy 50+ times per day", "Reduce support
-   tickets by 60%", "SOC 2, HIPAA-compliant", "Reduce operations overhead by
-   40%". Every one of those is an unverified performance claim, so each
-   carries a `ph` string and its component renders it `data-placeholder`.
-   They are on the page because the user asked for this content; they are
-   flagged because publishing a measured-sounding number nobody measured is
-   the same fabricated-proof failure as a fake testimonial.
-
-   TWO of them also CONTRADICT claims the site already makes, and those were
-   reconciled rather than flagged, because publishing both numbers would make
-   the site argue with itself:
-     · live "Go live in 30-60 days" vs the verified "2-15 weeks to a focused
-       first version" → the verified figure is used.
-     · live "Senior engineers (10+ years exp.)" vs the verified "2-15 years
-       each" → the verified figure is used.
-
-   NO PRICE. The $25k–$90k range was removed from this page on request
-   (2026-09-08). It is still published in home's FAQ, which is where the
-   verified claim lives; do not reintroduce it here.
+   Only confirmed claims are stated as fact. Outcome bullets with a `ph`
+   string are unverified performance claims and render data-placeholder;
+   confirm or remove them before launch. Where a figure would conflict with a
+   confirmed claim (timeline, years of experience), the confirmed figure is
+   used. No price is published on this page; the range lives in home's FAQ.
    ========================================================================== */
 
 import type { Hue } from "./site";
@@ -73,21 +29,21 @@ export type Capability = {
   k: string;
   /** Icon name in Icon.tsx. */
   icon: string;
-  /** The live site's service name. */
+  /** Service name. */
   name: string;
   hue: Hue;
   /** Diagram key in components/service/Diagrams.tsx. */
   figure: string;
-  /** Imperative headline: neutral clause + ONE gradient clause (DS §1.2.4). */
+  /** Imperative headline: neutral clause + ONE gradient clause. */
   head: string;
   accent: string;
-  /** The live promise paragraph. */
+  /** The promise paragraph. */
   body: string;
-  /** The live outcome bullets. `ph` set = unverified, rendered flagged. */
+  /** Outcome bullets. `ph` set = unverified, rendered flagged. */
   outcomes: readonly { text: string; ph?: string }[];
-  /** The live #technologies tab for this service. */
+  /** The technology stack for this service. */
   stack: readonly TechGroup[];
-  /** One line under the stack — why this stack, in the live site's voice. */
+  /** One line under the stack: why this stack. */
   stackNote: string;
 };
 
@@ -123,25 +79,14 @@ export const SERVICE_HERO = {
 } as const;
 
 /* ── MODES ────────────────────────────────────────────────────────────
-   THE CTA IS A ROUTE, NOT A `mailto:`. Both modes opened a pre-addressed
-   email until 2026-09-12, which fails silently on any machine with no mail
-   client configured - the commonest case on a work laptop and on every
-   webmail-only user - and it was the only CTA on the page not pointing at
-   /contact. The contact form is the measurable path; the address is still on
-   the contact page for anyone who prefers it.
+   The CTA is a route to the contact page, never a `mailto:`, which fails
+   silently on machines without a configured mail client.
 
-   `secondary` differs per mode ON PURPOSE. Build mode sends you to the
-   mechanism (#capabilities); extend mode sends you to /about#team, the
-   "Meet the Builders" roster, because someone buying senior capacity wants
-   to see who they are getting before they ask. Only the label, href and icon
-   NAME change between modes - never a className, and never whether the
-   element renders - so the [data-reveal] nodes around them survive the swap
-   (ModeContext.tsx's banner explains why that rule exists).
-─────
-   The two figures were the $25k–$90k range and "Monthly". The range came out
-   on request; what replaced it is the verified timeline, which answers the
-   same question a visitor is really asking at that point ("how long before
-   this is real?") without publishing a number twice. */
+   `secondary` differs per mode on purpose: build links to #capabilities,
+   extend to the /about#team roster. Only the label, href and icon name may
+   change between modes, never a className or whether the element renders,
+   so the [data-reveal] nodes around them survive the swap (see
+   ModeContext.tsx). */
 export const SERVICE_MODES = [
   {
     key: "build",
@@ -230,10 +175,9 @@ export const SERVICE_PROBLEMS = [
 ] as const satisfies readonly { q: string; a: string; to: string }[];
 
 /* ── CAPABILITIES ──────────────────────────────────────────────────────────
-   The live site's six services, each with its live promise, its three live
-   outcome bullets, and its live technology stack. `head`/`accent` is ours:
-   the live H3s are category names ("Web Development"), which already appear
-   as the label above, so the headline says what the client gets instead. */
+   Six services, each with its promise, three outcome bullets and its stack.
+   `head`/`accent` says what the client gets; the category name already
+   appears as the label above. */
 export const CAPABILITIES: readonly Capability[] = [
   {
     k: "web",
@@ -548,9 +492,7 @@ export const CAPABILITIES: readonly Capability[] = [
   },
 ];
 
-/* The live #technologies section's own headline, kept because it is the best
-   sentence on the live site and it is entirely ours to keep — it makes a
-   claim about judgement rather than about a metric. */
+/* Heading for the technology stacks section. */
 export const STACK_HEADING = {
   eyebrow: "Proven technology stacks",
   head: "We don't chase trends,",
@@ -610,17 +552,6 @@ export const SERVICE_PRINCIPLES = [
   build: string;
   extend: string;
 }[];
-
-/* ── WHY INTERLOID ─────────────────────────────────────────────────────────
-   Five figures, all on the allowed list. The price range that used to sit
-   here was removed on request; the timeline replaced it. */
-export const SERVICE_TERMS = [
-  { figure: "100%", caption: "code and IP yours, from the first commit" },
-  { figure: "48 hrs", caption: "from first call to a written scope and price" },
-  { figure: "Weekly", caption: "working demo, for the whole engagement" },
-  { figure: "2-15 yrs", caption: "experience per engineer, no juniors swapped in" },
-  { figure: "30 days", caption: "notice either way, and post-launch support included" },
-] as const satisfies readonly { figure: string; caption: string }[];
 
 /* ── HOW TO START ──────────────────────────────────────────────────────── */
 export const SERVICE_START = [

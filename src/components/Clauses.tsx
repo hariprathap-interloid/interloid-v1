@@ -1,54 +1,19 @@
 import SectionHeading from "./SectionHeading";
 import { CLAUSES } from "@/content/site";
 
-/* The working agreement, ported from prototype2-archive's `.doc` / `.clause`.
+/* The working agreement, shaped like a document rather than a card grid: one
+   bordered sheet, a titled head, numbered clauses divided by rules, and a foot
+   naming the legal entity. The page's claim is "we put it in the contract", so
+   the block looks like one.
 
-   ── IT IS SHAPED LIKE A DOCUMENT ON PURPOSE ───────────────────────────────
-   This is the one block on the site that is not a card grid, and that is the
-   argument rather than a style choice: the page's claim is "we put it in the
-   contract", so the block is built to look like the contract — one bordered
-   sheet, a titled head, numbered clauses divided by rules, and a foot with the
-   legal entity on it. Five separate rounded cards would have said "five
-   features". A sheet says "one document".
+   - Each figure is a dashed-border chip so it reads as a margin annotation,
+     not a spreadsheet cell; the third column is `auto` to fit the chip.
+   - The head is a small uppercase label, not a display-font title, so it does
+     not compete with the H2 above it.
+   - The documentary feel comes from uppercase + wide tracking; the type system
+     deliberately has no monospace face.
 
-   ── REBUILT AGAINST THE ARCHIVE'S OWN RULES, 2026-09-07 ───────────────────
-   The first cut read as a sparse table and the user was right. Diffing it
-   against `.clause` in prototype2-archive/styles.css found four divergences,
-   and all four were mine, not the archive's:
-
-   1. THE FIGURE IS A CHIP, NOT BARE TEXT. `.clause__figure` has
-      `padding .625rem 1rem; border: 1px DASHED; background: slate-50; radius;
-      white-space: nowrap`. Bare right-aligned text in an empty column is what
-      made the rows look like a spreadsheet with the gridlines turned off —
-      the number had nothing holding it. The dashed border is the detail that
-      makes it read as a margin annotation on a document rather than a cell.
-   2. THE THIRD COLUMN IS `auto`, NOT A FIXED 9rem. `9rem 1fr 9rem` reserved a
-      fixed slab for "100%" and left most of it empty on every row. `auto`
-      sizes to the chip.
-   3. IT COLLAPSES AT `md` (768px), NOT `lg`. A three-column clause fits at
-      768px; holding it single-column to 1024px wasted the whole tablet range.
-   4. THE PROSE IS CAPPED AT 34rem (`.clause p`). Without it the paragraph ran
-      the full 1fr and the measure got too long to read comfortably.
-
-   Also restored: the row hover (`rgba(248,250,252,.7)`) and the document head
-   as a small uppercase LABEL rather than a display-font title — it is a form
-   header, not a section heading, and setting it in Outfit at 17px made it
-   compete with the H2 directly above it.
-
-   The archive sets the head, the clause ids and the figures in a mono face.
-   This build has no mono and must not gain one (CLAUDE.md gotcha 4: Outfit +
-   Inter, Satoshi for the hero H1 alone), so the documentary feel comes from
-   uppercase + wide tracking in Inter, which is how every other eyebrow on the
-   site is already built.
-
-   ── DS PASS, 2026-09-07 ───────────────────────────────────────────────────
-   Two additions on request, both from DESIGN-SYSTEM.md and neither touching
-   the document argument above: the sheet moved from card elevation to the L4
-   feature-panel ladder rung (§1.3 — it is the page's hero object), and each
-   row gained §8.9's ghost numeral behind its id column.
-
-   ⚠ The foot line is HANDOFF §7 P1 and is flagged. See the note over CLAUSES
-   in site.ts before touching it. */
+   Copy marked data-placeholder is unverified; confirm before public launch. */
 export default function Clauses() {
   return (
     <section
@@ -71,13 +36,10 @@ export default function Clauses() {
 
         <div
           data-reveal
-          /* DS L4 (§1.3): the sheet is the page's hero object, so it carries
-             the feature-panel elevation — big radius, hairline ring, one deep
-             soft shadow — instead of a card's shadow-sm. */
-          /* Full container width (user, 2026-09-08) — the 56rem cap left the
-             sheet floating in a 7xl section. The prose measure below still
-             caps itself, so the width goes to breathing room, not line
-             length. */
+          /* The sheet is the page's hero object, so it carries feature-panel
+             elevation — big radius, hairline ring, one deep soft shadow —
+             instead of a card's shadow-sm. It spans the full container; the
+             prose inside caps its own measure. */
           className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-[0_30px_80px_-15px_rgba(0,0,0,0.1)] ring-1 ring-foreground/5"
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border bg-secondary px-6 py-6 sm:px-8 md:px-12">
@@ -98,11 +60,11 @@ export default function Clauses() {
               className="group grid items-start gap-x-10 gap-y-4 border-b border-border px-6 py-9 transition-colors duration-200 last:border-b-0 hover:bg-secondary/60 sm:px-8 md:grid-cols-[9rem_1fr_auto] md:px-12 md:py-10"
             >
               <span className="relative flex flex-col gap-1 pt-0.5">
-                {/* DS §8.9's ghost numeral, sitting BEHIND the id labels —
+                {/* Ghost numeral, sitting BEHIND the id labels —
                     near-invisible at rest, warming toward the accent on row
                     hover. Decorative: the readable "Clause NN" follows. */}
                 <span
-                  className="pointer-events-none absolute -top-7 -left-1 select-none font-display text-[72px] font-bold leading-none text-foreground/5 transition-colors duration-500 group-hover:text-accent/10"
+                  className="pointer-events-none absolute -top-7 -left-1 hidden select-none font-display md:block text-[72px] font-bold leading-none text-foreground/5 transition-colors duration-500 group-hover:text-accent/10"
                   aria-hidden="true"
                 >
                   {c.n}
@@ -119,18 +81,16 @@ export default function Clauses() {
                 <h4 className="mb-2.5 font-display text-xl font-bold leading-[1.35] tracking-[-0.02em] text-foreground">
                   {c.title}
                 </h4>
-                {/* The archive caps `.clause p` at 34rem; the full-width sheet
-                    loosens that to 2xl — still a readable measure, without a
-                    hard cliff of empty column at 7xl. */}
+                {/* Capped for a readable measure inside the full-width sheet. */}
                 <p className="max-w-2xl leading-[1.7] text-muted-foreground">
                   {c.body}
                 </p>
               </div>
 
               {/* aria-hidden: the figure restates the prose beside it, so a
-                  screen reader would hear "48 hrs to a written price" twice.
-                  The DASHED border is the archive's, and it is what makes this
-                  read as an annotation in the document's margin. */}
+                  screen reader would hear the same fact twice. The dashed
+                  border makes it read as an annotation in the document's
+                  margin. */}
               <div
                 className="justify-self-start whitespace-nowrap rounded-xl border border-dashed border-border bg-secondary px-4 py-2.5 text-right md:justify-self-end"
                 aria-hidden="true"

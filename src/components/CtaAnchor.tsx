@@ -1,37 +1,15 @@
 import CtaStage from "./CtaStage";
 import Icon from "./Icon";
 
-/* DS §11.1 — a light section wrapping a dark rounded slab.
+/* A light section wrapping a dark rounded slab.
 
-   ── MEASURED AGAINST PROTOTYPE 1, 2026-09-07 ──────────────────────────────
-   The user supplied a reference screenshot and named prototype/index.html as
-   the source. `.cta` was then diffed against this component property by
-   property; the differences were all colour and type, and every one of them
-   came from reaching for --accent where prototype 1 reaches for something
-   brighter. The slab is #0f172b, and the brand cyan goes muddy on it.
+   The slab is dark in both themes, and --accent goes muddy on it, so the copy
+   uses the brighter spark colours. The button is filled with the brand blue;
+   the accent appears only as the glow around it.
 
-   The BUTTON is the one to remember: it is `.btn--glow`, whose background is
-   var(--brand) — the blue in the reference — not var(--accent). It had been
-   built teal. Its glow is `rgba(40,157,190,.6)`, i.e. accent at 60%, which is
-   the accent appearing as LIGHT around a blue button rather than as its fill.
-
-   The trailing "Or email hello@interloid.com" paragraph was removed here:
-   neither the reference screenshot nor prototype 1 has it, and the user asked
-   for the screenshot's content. It also carried `data-placeholder="confirm
-   real address"`, so this is one fewer unverified claim on the page, not a
-   lost one.
-
-   The button's default `href` is /contact (2026-09-11), the "tell us your
-   story" enquiry. It was `mailto:hello@interloid.com`, which opened a blank
-   email and disagreed with the connect@ address the footer publishes. Pages
-   that need a different destination still pass `href` (careers does).
-
-   The 24 drifting particles use a seeded LCG so the layout is identical on
-   every load and screenshot diffs stay meaningful. Because it is deterministic
-   it runs at BUILD time in this Server Component rather than in the browser:
-   same output, zero client JS. The prototype skipped them under
-   prefers-reduced-motion; here globals.css's reduced-motion block already
-   kills the animation, so the markup can render unconditionally. */
+   The 24 fallback particles use a seeded LCG, so the layout is deterministic
+   and renders on the server with zero client JS. globals.css's reduced-motion
+   block stops their animation, so the markup renders unconditionally. */
 function particles() {
   let seed = 7;
   const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
@@ -49,12 +27,8 @@ function particles() {
   });
 }
 
-/* Parameterised 2026-09-07 so /why-choose-us can close on the same slab
-   instead of a second copy of it. EVERY prop defaults to the home version, so
-   `<CtaAnchor />` renders exactly what it rendered before — that was the point
-   of doing it this way rather than extracting a shared shell: home's slab was
-   measured identical to prototype 1 property by property, and a refactor that
-   cannot change it is worth more than a tidier one that might. */
+/* Every prop defaults to the home page's version, so `<CtaAnchor />` needs no
+   arguments; other pages override the copy and destination. */
 export default function CtaAnchor({
   id = "contact",
   eyebrow = "Let’s start",
@@ -82,19 +56,15 @@ export default function CtaAnchor({
   return (
     <section
       id={id}
-      /* The LIGHT BAND, not the slab. Deepened on request 2026-09-07:
-         pt-8/pb-24 (32/96px, which was prototype 1's `.cta-wrap` padding to
-         the pixel) -> pt-24/pb-40 (96/160px). The slab's own padding is
-         untouched, so the card is the same size and only the ground around it
-         grew — that was the ask, and it is the one knob that does it. */
+      /* The LIGHT BAND around the slab. Its padding sets the ground around the
+         card; the slab's own padding sets the card's size. */
       className="relative bg-background px-4 pb-40 pt-24 sm:px-6"
     >
       {/* Not `.shell`: the section already owns the gutter (`px-4 sm:px-6`
-          above), so the shell's clamped padding would double it. Only the cap
-          moves, to match the new page width. */}
+          above), so the shell's clamped padding would double it. */}
       <div className="mx-auto w-full max-w-[1600px]">
-        <div /* `.cta`: 4rem/1.5rem, then 5rem/4rem at sm. Radius is a flat 3rem,
-              not the token scale's rounded-4xl (2.55rem). */
+        <div /* Radius is a flat 3rem, not the token scale's rounded-4xl
+              (2.55rem). */
           data-cta-slab
           className="relative flex flex-col items-center justify-center overflow-hidden rounded-[3rem] bg-ink px-6 py-16 text-center shadow-[0_25px_50px_-12px_rgba(15,23,43,.35)] sm:px-16 sm:py-20">
           <div
@@ -106,7 +76,7 @@ export default function CtaAnchor({
             aria-hidden="true"
           />
           {/* The no-JS / no-WebGL field. CtaStage fades this out once its
-              canvas has drawn — see its note on the handshake. */}
+              canvas has drawn a frame. */}
           <div
             data-cta-fallback
             className="pointer-events-none absolute inset-0"
@@ -119,9 +89,9 @@ export default function CtaAnchor({
           <CtaStage />
 
           <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center">
-            {/* prototype 1's `.badge--dark`: uppercase, tracking-[.2em],
-                accent-coloured icon and label — a different object from the
-                light-section badge, not the same one recoloured. */}
+            {/* Dark-ground badge: uppercase, wide tracking, spark-coloured icon
+                and label — a different object from the light-section badge,
+                not the same one recoloured. */}
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-4 py-2 shadow-[0_1px_2px_0_rgba(15,23,43,.06)] backdrop-blur-sm">
               <span className="text-spark" aria-hidden="true">
                 <Icon name="star" className="size-4" />
@@ -135,24 +105,19 @@ export default function CtaAnchor({
               {headline}
               <br />
               {/* `/srgb`: Tailwind v4 interpolates gradients in oklab by default,
-                    which bends the midpoint of a blue->green ramp visibly. The
-                    prototype's `linear-gradient(90deg, ...)` is plain sRGB. */}
+                    which bends the midpoint of a blue->green ramp visibly. */}
                 <span className="bg-linear-to-r/srgb from-spark to-spark-end bg-clip-text text-transparent">
                 {accent}
               </span>
             </h2>
 
-            {/* This paragraph is the reason to take prototype 1's version:
-                offering to name someone else is the most disarming thing on
-                the page, and it costs nothing to say. */}
             <p className="mb-10 max-w-xl text-[17px] leading-[1.7] text-ink-foreground">
               {lead}
             </p>
 
-            {/* `on-dark` swaps the focus ring for the dark-ground variant.
-                HANDOFF §5.2: a component's own box-shadow out-cascades the
-                global ring, so the ring is COMPOSED into the shadow, never
-                replacing it. */}
+            {/* `on-dark` swaps the focus ring for the dark-ground variant. A
+                component's own box-shadow out-cascades the global ring, so
+                the ring is COMPOSED into the shadow, never replacing it. */}
             <a
               href={href}
               className="on-dark group inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-full border border-white/12 bg-ink-cta px-7 text-[15px] font-bold text-white sm:h-14 sm:px-10 sm:text-[17px] shadow-[0_0_36px_-14px_rgba(40,157,190,.34)] transition-[background-color,box-shadow] duration-300 ease-out hover:bg-ink-cta-hover hover:shadow-[0_0_46px_-14px_rgba(40,157,190,.52)] active:scale-95"
@@ -174,8 +139,8 @@ export default function CtaAnchor({
               </svg>
             </a>
 
-            {/* prototype 1's `.cta__meta` — three objection-removers under
-                the button, where the hesitation actually happens. */}
+            {/* Objection-removers under the button, where the hesitation
+                actually happens. */}
             <ul className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-3">
               {meta.map(
                 (m) => (

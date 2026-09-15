@@ -1,34 +1,9 @@
 import HeroScatter from "./HeroScatter";
 
-/* ==========================================================================
-   HERO — treatment C "Terms" layout, contrast headline.
-
-   A Server Component: nothing here is interactive, so none of this markup
-   ships as JavaScript. Only <HeroStage /> crosses the client boundary, and
-   even that code-splits `three` out of the initial bundle (see HeroStage).
-
-   Layout is treatment C from hero-copy-lab.html — left copy over the mark,
-   proof as an editorial rail rather than a chip row — with treatment A's
-   contrast headline, which carries more.
-
-   The badge carries the AUDIENCE, the lead carries the OFFER. Keep it split:
-   the full "Senior product engineering · for founders and business leaders"
-   string wrapped to a two-line pill at 390px (the dot then floats mid-left and
-   reads as broken) and duplicated "senior engineering team" in the lead
-   directly beneath (HANDOFF §5.27).
-
-   Word order in the lead is a positioning decision, not a copy tweak: "senior
-   engineering expertise with modern AI" — never AI-first. The site is sold on
-   seniority end to end, and an AI-led hero reads cheap and automated, which is
-   the exact fear the rest of the page answers (§5.26).
-
-   "as a demo" is load-bearing. "Delivering working software every week" on its
-   own claims weekly PRODUCTION releases, which is not on HANDOFF §7's allowed
-   list; "weekly working demo" is.
-
-   OPEN: the mobile CTA sits ~162px below an 844px fold. HANDOFF §6 item 11 —
-   accept it, halve the mark on mobile, or show two sentences below `sm:`.
-   ========================================================================== */
+/* Home hero. A Server Component; only <HeroScatter /> is client code.
+   The badge carries the audience and the lead carries the offer: combined,
+   the badge wraps to two lines on phones. In the lead, "as a demo" is
+   load-bearing; without it the copy claims weekly production releases. */
 export default function Hero() {
   return (
     <section
@@ -41,17 +16,10 @@ export default function Hero() {
       <div className="scrim" aria-hidden="true" />
       <div className="scrim-spread" data-scrim-spread aria-hidden="true" />
       <div className="relative z-10 mx-auto w-full max-w-[1600px]">
-        {/* 30rem from 900 to 1439px. Side by side with the mark there is only
-            ~1000px to share, and at the full 48rem the lead ran 175px under
-            the mark at 1024 (247px at 1024x768, 35px even at 1280). HeroScatter
-            now places the mark from where these words actually END, so this
-            cap is what buys the mark room — the overlap itself cannot recur.
-
-            It widens back at 1440, deliberately not at `xl:` (1280). Widening
-            the copy pushes the mark ~185px narrower, and at 1280 that was a
-            visible step — measured 501px at 1180 dropping to 418px at 1280. At
-            1440 the mark is already near its height cap either side, so the
-            switch barely moves it. */}
+        {/* Narrower copy from 900 to 1439px buys the mark room: HeroScatter
+            places the mark from where this column ends. It widens at 1440, not
+            `xl:`, because the mark is already near its height cap there and
+            the switch barely moves it. */}
         <div className="max-w-3xl min-[900px]:max-w-136 min-[1440px]:max-w-3xl 2xl:max-w-3xl">
           <div
             data-reveal
@@ -66,8 +34,7 @@ export default function Hero() {
             </span>
           </div>
 
-          {/* DS §3.2: the hero H1 is the only place font-black (900) is used.
-              Solid, not gradient — chosen in hero-type-lab.html. */}
+          {/* The hero H1 is the only place font-black (900) is used. */}
           <h1
             data-reveal
             style={{ "--delay": "100ms" } as React.CSSProperties}
@@ -78,12 +45,8 @@ export default function Hero() {
             <span className="t-accent">It&rsquo;s shipping.</span>
           </h1>
 
-          {/* DECK + BODY, not one paragraph. At 60 words a single block is a
-              wall; the deck gives the eye an entry point and keeps DS §3.2's
-              "lead is text-xl" satisfied, with detail one step down.
-
-              The deck is Inter, not the display face: Satoshi has no 600, so
-              font-semibold there resolves to 700 and fights the 900 H1. */}
+          {/* Deck in Inter, not the display face: Satoshi ships only 900, so
+              font-semibold would not render as intended. */}
           <p
             data-reveal
             style={{ "--delay": "200ms" } as React.CSSProperties}
@@ -131,9 +94,6 @@ export default function Hero() {
                 <path d="m12 5 7 7-7 7" />
               </svg>
             </a>
-            {/* "See the proof" points at §06 Selected Work, which is three
-                placeholder cards — HANDOFF §7's case-study P0 is therefore a
-                hero-level promise. Land the case studies or repoint this. */}
             <a
               href="#work"
               className="inline-flex h-12 items-center whitespace-nowrap rounded-full border border-border bg-card/60 px-6 text-[15px] font-medium sm:h-14 sm:px-8 sm:text-lg text-foreground backdrop-blur-sm transition-all hover:border-primary hover:bg-card hover:text-primary active:scale-95"
@@ -163,10 +123,8 @@ export default function Hero() {
         </svg>
       </a>
 
-      {/* z-[2], above the scrim (1) and below the copy (10). At z-10 it sat at
-          the SAME level as the content and later in the DOM, so it painted
-          over the CTAs at any viewport short enough to bring them within 128px
-          of the bottom — 1280×720 washed both buttons out (HANDOFF §5.29). */}
+      {/* z-[2]: above the scrim (1), below the copy (10). At the copy's level
+          it would paint over the CTAs on short viewports. */}
       <div
         className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2] h-32 bg-gradient-to-t from-[var(--hero-bg)] to-transparent"
         aria-hidden="true"

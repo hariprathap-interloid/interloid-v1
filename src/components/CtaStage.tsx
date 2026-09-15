@@ -3,31 +3,23 @@
 import { useEffect, useRef } from "react";
 
 /* ==========================================================================
-   The CTA slab's drifting field — a three.js replacement for the 24 CSS
-   particles that were here. It follows HeroStage's contract exactly, because
-   every rule that component learned the hard way applies again:
+   The CTA slab's drifting WebGL particle field.
 
    LOADING. `three` is imported dynamically inside the effect, behind
-   requestIdleCallback. This section is below the fold and must not touch first
-   paint — the budget is 364ms and the build measures 236ms (HANDOFF §8). The
-   library is already code-split for the hero, so the marginal cost here is the
-   component, not the dependency.
+   requestIdleCallback: the section is below the fold and must not affect
+   first paint.
 
    FALLBACK. The server-rendered CSS particles stay in the markup and are what
    you see with no JS, no WebGL, or before this boots. They fade out only once
-   the canvas has actually drawn a frame — `data-webgl="ready"` on the slab,
-   the same handshake HeroStage does with `.ready`. Nothing pops.
+   the canvas has actually drawn a frame, signalled by `data-webgl="ready"` on
+   the slab, so nothing pops. Teardown removes the attribute and restores them.
 
-   ADDITIVE BLENDING IS SAFE HERE, and it is worth saying why, because §5.17
-   says the opposite for the hero: additive only ever brightens, so it is
-   useless on a pale ground, which is why HeroStage has to watch the theme and
-   retune. This slab is #0f172b in BOTH themes — it is the one surface on the
-   page that does not change — so the field can blend additively and never
-   needs a theme observer at all.
+   ADDITIVE BLENDING IS SAFE HERE. Additive only brightens, so it fails on a
+   pale ground; this slab is dark in both themes, so the field needs no theme
+   observer.
 
-   NO ROTATION. §5.15. The field is flat, and rotating it would sweep the
-   points through a line exactly as it does for the hero mark. It drifts and
-   sways in the plane; nothing rotates.
+   NO ROTATION. The field is a flat plane; rotating it would sweep the points
+   edge-on into a line. It drifts and sways in the plane only.
    ========================================================================== */
 
 function webglOK() {
@@ -108,8 +100,7 @@ export default function CtaStage() {
         seed[i * 4 + 2] = 0.004 + Math.random() * 0.016; /* sway  */
         seed[i * 4 + 3] = Math.random() * Math.PI * 2; /* phase */
 
-        /* Mostly white dust with a tinted minority — the same restraint the
-           CSS particles had, with a colour range they could not do. */
+        /* Mostly white dust with a tinted minority. */
         const r = Math.random();
         tmp.copy(white);
         if (r > 0.82) tmp.copy(spark);
@@ -128,8 +119,8 @@ export default function CtaStage() {
       geo.setAttribute("aSize", new THREE.BufferAttribute(siz, 1));
       geo.setAttribute("aAlpha", new THREE.BufferAttribute(alp, 1));
 
-      /* ShaderMaterial, not PointsMaterial — §5.16: PointsMaterial draws
-         SQUARES, and a field of tiny squares reads as compression noise. */
+      /* ShaderMaterial, not PointsMaterial: PointsMaterial draws SQUARES, and
+         a field of tiny squares reads as compression noise. */
       const uni = { uDpr: { value: DPR }, uFade: { value: 0 } };
       const mat = new THREE.ShaderMaterial({
         uniforms: uni,
@@ -222,12 +213,12 @@ export default function CtaStage() {
       let io: IntersectionObserver | null = null;
       if (reduced) {
         /* Decoration, so under reduced motion it simply sits still. Handled
-           here in JS because globals.css kills CSS transitions wholesale and
-           never reaches a rAF loop — same note as usePointerLight. */
+           here in JS because CSS reduced-motion rules never reach a rAF
+           loop. */
         uni.uFade.value = 1;
         renderer.render(scene, camera);
       } else {
-        /* Render only while on screen — §8's performance budget. */
+        /* Render only while on screen. */
         io = new IntersectionObserver(
           ([e]) => {
             if (e.isIntersecting && raf === null) {

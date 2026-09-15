@@ -18,7 +18,7 @@ import {
    sendStory — the /contact enquiry.
    ==========================================================================
    Public and unauthenticated by design: it is a contact page. That makes it
-   an untrusted entry point (Next's server-actions guide), so values are
+   an untrusted entry point, so values are
    re-read against the fields of the version that was sent — unknown keys are
    dropped and every string is length-capped. Every field is free text
    (suggestions only fill a blank), so there is no option list to check.
@@ -88,18 +88,6 @@ export async function sendStory(
   if (values.email && !isEmail(values.email)) delete values.email;
   if (values.phone && !isPhone(values.phone)) delete values.phone;
 
-  /* /contact-lab sends `lab=1`: validated exactly like a real story, so every
-     layout variant exercises the real rules — but never saved. Harmless to
-     leave public: all it can do is NOT write a file. */
-  if (formData.get("lab") === "1") {
-    return {
-      status: "sent",
-      ref: "LAB",
-      firstName: values.name.split(/\s+/)[0],
-      contact: values.email ?? values.phone,
-    };
-  }
-
   const ref = randomUUID().slice(0, 8).toUpperCase();
   const receivedAt = new Date().toISOString();
 
@@ -110,7 +98,7 @@ export async function sendStory(
       receivedAt,
     );
   } catch (err) {
-    console.error("[content] could not save story", err);
+    console.error("[contact] could not save story", err);
     return { status: "error", version: version.key, message: "", missing: [] };
   }
 

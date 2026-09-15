@@ -7,21 +7,16 @@ import { SERVICE_HERO } from "@/content/service";
 
 /* /services hero.
 
-   The right-hand column is NOT an illustration. It is the qualifying
-   question — "which of these two are you?" — because that is the single most
-   useful thing this page can establish in the first screen, and because the
-   answer changes the four sections below it (SERVICE-PAGE-RESEARCH.md §4).
-   The reference pages put a product diagram here and speak to one buyer;
-   putting the choice here is the clearest way this page is not that one.
+   The right-hand column is the mode switch — the qualifying question whose
+   answer changes the sections below.
 
    The copy column is the tabpanel the switch controls: the headline's
-   gradient clause, the lead and the CTA label all come from the chosen mode,
-   so a visitor sees the page answer them within one click. No aria-live is
-   needed on top of that — tablist/tabpanel already tells assistive tech that
-   pressing a tab replaces this region.
+   gradient clause, the lead and the CTA label all come from the chosen mode.
+   No aria-live is needed — tablist/tabpanel already tells assistive tech that
+   selecting a tab replaces this region.
 
-   Every [data-reveal] element keeps a STATIC className and only its text
-   children change (ModeContext's banner explains why that rule exists). */
+   Every [data-reveal] element keeps a static className and only its text
+   children change (see ModeContext.tsx). */
 export default function ServiceHero() {
   const { detail } = useServiceMode();
   const activeTab = detail.key === "build" ? "mode-tab-0" : "mode-tab-1";
@@ -31,9 +26,8 @@ export default function ServiceHero() {
       id="services-top"
       className="relative overflow-hidden bg-secondary pb-28 pt-40"
     >
-      {/* Masked dot grid — the same backdrop the careers and commitments
-          heroes use, so the three sub-pages read as one site. `var(--border)`
-          rather than a literal so it survives the dark theme. */}
+      {/* Masked dot grid, shared with the other sub-page heroes.
+          `var(--border)` rather than a literal so it follows the theme. */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(var(--border)_1.5px,transparent_1.5px)] bg-[size:26px_26px] [-webkit-mask-image:radial-gradient(ellipse_75%_60%_at_50%_35%,#000_10%,transparent_100%)] [mask-image:radial-gradient(ellipse_75%_60%_at_50%_35%,#000_10%,transparent_100%)]"
         aria-hidden="true"
@@ -74,9 +68,8 @@ export default function ServiceHero() {
               className="font-display text-4xl font-medium leading-[1.1] tracking-[-0.025em] text-foreground md:text-5xl lg:text-[3.5rem]"
             >
               {SERVICE_HERO.head}{" "}
-              {/* DS §3.3 / HANDOFF §5.13: the gradient is one inline span.
-                  Splitting it across inline-block children puts them outside
-                  the parent's background-clip and they render as nothing. */}
+              {/* The gradient must be one inline span. Inline-block children
+                  fall outside the parent's background-clip and render blank. */}
               <span className="bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">
                 {detail.heroAccent}
               </span>
@@ -105,10 +98,8 @@ export default function ServiceHero() {
                   <Icon name="arrow" className="size-5" />
                 </span>
               </Link>
-              {/* Build → the mechanism; extend → the roster. `<a>` and not
-                  `<Link>`: one of the two is a bare `#hash` on this page, and
-                  routing that through the router is a no-op the browser
-                  handles better itself. */}
+              {/* `<a>` rather than `<Link>`: one of the targets is a same-page
+                  `#hash`, which the browser handles better than the router. */}
               <a
                 href={detail.secondary.href}
                 className="inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-6 text-[15px] font-semibold sm:h-14 sm:px-8 sm:text-[17px] text-foreground shadow-sm transition-all hover:border-accent/40 hover:shadow-md active:scale-95"
@@ -138,30 +129,14 @@ export default function ServiceHero() {
 
               <ModeSwitch panelId="mode-panel-hero" />
 
-              {/* The number, immediately. A visitor deciding whether to read
-                  on is asking what this costs, and the shape of the answer
-                  differs per mode — so it belongs with the choice, not four
-                  sections later. Both figures are HANDOFF §7 claims. */}
-              {/* SIDE BY SIDE ONLY WHERE BOTH HALVES FIT ON ONE LINE, AND
-                  THAT IS TWO SEPARATE BANDS, NOT ONE THRESHOLD.
+              {/* The per-mode price figure, placed with the choice.
 
-                  The row needs 262px of content box (figure 93 + gap 16 +
-                  caption 153). What it gets is the CARD's width, and the card
-                  does not grow with the viewport monotonically — at `lg` the
-                  hero splits 7/5 and this column drops from full width to
-                  five twelfths:
-
-                    1023px → card 941 → 883 available   row fits
-                    1024px → card 355 → 257 available   5px SHORT, both
-                                                        halves wrapped, 96px
-                    1280px → card 453 → 355 available   row fits
-
-                  So it stacks twice: under 420px (phones, where the figure
-                  itself broke across two lines) and again across 1024–1279,
-                  where the split makes the card narrower than it was a pixel
-                  earlier. Between and above those it is a row. Tailwind
-                  orders `min-[420px]` by its value, so the four
-                  flex-direction rules resolve 420 → lg → xl in that order. */}
+                  Figure and caption sit side by side only where the row's
+                  ~262px fits. The card is not monotonic in viewport width: at
+                  `lg` the hero splits 7/5 and this column narrows sharply. So
+                  it stacks twice — below 420px and again across `lg`–`xl` —
+                  and is a row elsewhere. Tailwind orders `min-[420px]` by
+                  value, so the rules resolve 420 → lg → xl. */}
               <div className="mt-5 flex flex-col gap-1 rounded-2xl bg-muted px-5 py-4 min-[420px]:flex-row min-[420px]:items-baseline min-[420px]:justify-between min-[420px]:gap-4 lg:flex-col lg:items-start lg:gap-1 xl:flex-row xl:items-baseline xl:justify-between xl:gap-4">
                 <span className="font-display text-2xl font-bold tracking-[-0.02em] text-foreground">
                   {detail.figure}

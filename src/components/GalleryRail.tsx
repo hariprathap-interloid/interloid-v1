@@ -5,46 +5,27 @@ import Icon from "./Icon";
 import { GALLERY } from "@/content/site";
 
 /* ==========================================================================
-   THE MOMENTS RAIL — DS §8.12's snap carousel.
+   THE MOMENTS RAIL — a horizontal snap carousel of office photographs,
+   rendered inside LifeHere.
    ==========================================================================
-   Requested 2026-09-08: "a gallery to showcase the moments and celebrations."
-   It renders inside LifeHere rather than as its own section — same subject,
-   second half. See site.ts's GALLERY banner for why, and for the warning that
-   THIS is the one block whose point genuinely is the photographs.
+   A client component only for the arrow buttons: with the scrollbar hidden,
+   a desktop user would otherwise never discover the rail scrolls. Snapping
+   is CSS (`snap-x snap-mandatory`) and touch scrolling is native.
 
-   ── WHY THIS IS THE ONLY CLIENT COMPONENT ON /careers ────────────────────
-   The page is otherwise server-rendered end to end; the role filter and the
-   role disclosure were both removed for that reason. This one earns its
-   JavaScript because a horizontal rail without arrow controls is a rail most
-   people never discover on a desktop — the scrollbar is hidden, and a trackpad
-   user has to guess that shift+wheel works. The arrows are the affordance.
+   ── EASY TO GET WRONG ───────────────────────────────────────────────────
+   1. KEYBOARD. A scroll container is not focusable by default. `tabIndex={0}`
+      plus `role="region"` and a label make the rail a tab stop, and arrow
+      keys then scroll it natively.
+   2. REDUCED MOTION. `scrollBy({ behavior: "smooth" })` is a script call,
+      not a CSS transition, so it ignores the media query. Read the query and
+      pass "auto".
+   3. ARROW STATE. Both arrows are disabled at their ends, from a scroll
+      listener with a small tolerance, because `scrollLeft` is fractional at
+      some zoom levels.
+   4. CLEANUP. The scroll listener and ResizeObserver are removed on unmount.
 
-   Everything else stays CSS: `snap-x snap-mandatory` does the snapping, and
-   the rail scrolls natively on touch with no JS at all.
-
-   ── FOUR THINGS THAT ARE EASY TO GET WRONG HERE ──────────────────────────
-   1. KEYBOARD. A scroll container is not focusable by default, so a keyboard
-      user cannot reach the overflowed cards at all. `tabIndex={0}` plus a
-      `role="region"` and a label make the rail itself a stop, and arrow keys
-      then scroll it natively. Chrome ships a warning for exactly this.
-   2. REDUCED MOTION. `scrollBy({ behavior: "smooth" })` ignores the media
-      query — it is a script call, not a CSS transition. Read the query and
-      pass "auto" instead, or the one user who asked for no animation gets a
-      400px glide every time they press an arrow.
-   3. THE ARROWS MUST KNOW WHERE THEY ARE. A "previous" button at the start of
-      the rail does nothing when pressed, which is worse than not being there.
-      Both are disabled at their ends, from a scroll listener with a 1px
-      tolerance — `scrollLeft` lands on fractional pixels at some zoom levels
-      and an exact comparison never fires.
-   4. THE LISTENER MUST BE REMOVED. Without the cleanup, hot reload stacks a
-      fresh scroll listener on every edit (TAILWIND-MAP §4) — a failure mode
-      the static prototypes could not have.
-
-   THE `data-reveal` RULE STILL APPLIES. React owns `className` and rewrites
-   the whole attribute on a state change, wiping the `is-in` that Reveal.tsx
-   added straight to the DOM — the bug where an opened FAQ card vanished. The
-   two arrow buttons are the only elements whose class depends on state here,
-   and neither carries `data-reveal`. Do not add one. */
+   No `data-reveal` on the arrow buttons: their className depends on state,
+   and React's rewrite would wipe the `is-in` class Reveal.tsx adds. */
 export default function GalleryRail() {
   const rail = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
@@ -55,9 +36,8 @@ export default function GalleryRail() {
     if (!el) return;
     /* 2px of tolerance at both ends: `scrollLeft` is fractional at non-integer
        zoom levels and at some device pixel ratios, so `=== 0` and `=== max`
-       are both unreliable. The rail's resting position IS 0 — that depends on
-       `scroll-pl-6` matching the container's `px-6`; see the note on the rail
-       for what happens without it. */
+       are both unreliable. The resting position is 0 only because
+       `scroll-pl-6` matches the container's `px-6` (see the note on the rail). */
     setAtStart(el.scrollLeft <= 2);
     setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 2);
   }, []);
@@ -107,10 +87,9 @@ export default function GalleryRail() {
           </p>
         </div>
 
-        {/* Hidden below `md`, where the rail is swiped rather than clicked
-            (DS §8.12). Not `opacity-0` on hover-only — arrows that appear on
-            hover are undiscoverable on a trackpad, and this rail has no
-            visible scrollbar to fall back on. */}
+        {/* Hidden below `md`, where the rail is swiped. Always visible above
+            it, not hover-only: hover-revealed arrows are undiscoverable, and
+            the rail has no visible scrollbar to fall back on. */}
         <div className="hidden shrink-0 gap-2 md:flex">
           <button
             type="button"
@@ -137,14 +116,11 @@ export default function GalleryRail() {
           gutter while still scrolling edge to edge — without it the rail
           appears to start indented and the last card is clipped by padding.
 
-          `scroll-pl-6` IS NOT OPTIONAL WITH THAT PADDING, and the harness
-          caught it: without a matching `scroll-padding-left`, the snap area is
-          the padding box, so the browser rests the first card at
-          `scrollLeft: 24` rather than 0 — measured exactly that on a fresh
-          load. Two consequences, one invisible and one not: snapped cards sit
-          under the left padding, and every "am I at the start?" test is off by
-          the padding, so the previous arrow shipped ENABLED at rest and did
-          nothing when pressed. Any padded snap container needs the matching
+          `scroll-pl-6` is required with that padding: without a matching
+          `scroll-padding-left` the browser rests the first card at
+          `scrollLeft: 24` rather than 0, so snapped cards sit under the
+          padding and the "at start" check fails, leaving the previous arrow
+          enabled at rest. Any padded snap container needs matching
           scroll-padding. */}
       <div
         ref={rail}
@@ -176,10 +152,9 @@ export default function GalleryRail() {
               </>
             ) : (
               <>
-                {/* The waiting state, and it is deliberately quieter than the
-                    bento's. The bento tiles carry an argument and can stand
-                    alone; these are captions waiting for pictures, so the
-                    panel reads as a frame rather than as a finished card. */}
+                {/* The no-photo state, deliberately quieter than the bento's:
+                    these are captions waiting for pictures, so the panel
+                    reads as a frame rather than a finished card. */}
                 <div
                   className="absolute inset-0 bg-gradient-to-br from-secondary via-card to-secondary"
                   aria-hidden="true"
@@ -189,7 +164,7 @@ export default function GalleryRail() {
                   aria-hidden="true"
                 />
                 <span
-                  className="pointer-events-none absolute inset-x-0 top-[26%] grid place-items-center text-muted-foreground opacity-25 transition-opacity duration-500 ease-out group-hover:opacity-40"
+                  className="pointer-events-none absolute inset-x-0 top-[26%] grid place-items-center text-muted-foreground opacity-25 transition-opacity duration-500 ease-out group-hover:opacity-40 dark:opacity-50 dark:group-hover:opacity-70"
                   aria-hidden="true"
                 >
                   <Icon name="image" className="size-14" />

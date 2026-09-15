@@ -2,34 +2,22 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
-/* Cursor-follow for the card effects — CommitmentTile's wash and WorkCard's
-   lit border both run on this.
+/* Cursor-follow for card lighting effects. Shared so the subtle parts (the
+   rAF loop parking itself, the first-contact seed, the leave cleanup, the
+   reduced-motion opt-out) live in one place.
 
-   Extracted 2026-09-07 when the second copy was about to be written. The
-   subtle part is not the maths, it is the four things around it (the rAF
-   parking itself, the first-contact seed, the leave cleanup, the reduced-motion
-   opt-out) and having two copies of those drift apart is how one of them ends
-   up with a leak nobody notices.
+   It writes the CSS custom properties --x/--y and nothing else; consumers
+   place them in a gradient. It never touches a class or `transform`, so it
+   cannot fight a hover transform or keyframe on the same element.
 
-   It writes CSS custom properties and nothing else. Consumers place --x/--y in
-   a gradient; the hook never touches a class, a style rule or `transform` —
-   the last of those matters because HANDOFF §5.14 has a keyframe on `transform`
-   cancelling a hover scale, and this is exactly the code that would do it
-   again.
+   The lerp is the point: writing the pointer position straight from the
+   event snaps frame-for-frame, while easing toward the target at `ease` per
+   frame (0.14 settles in roughly 150ms) makes the light glide.
 
-   THE LERP IS THE POINT. Writing the pointer position straight from the event
-   pins the light to the cursor and it snaps frame-for-frame; easing toward the
-   target at `ease` per frame (0.14 settles in roughly 150ms) makes it glide
-   and settle, which is the difference between "a gradient moves" and "a light
-   follows you".
-
-   REDUCED MOTION IS HANDLED HERE, and that fixes a real bug rather than
-   avoiding a hypothetical one: globals.css kills CSS transitions wholesale,
-   but a rAF loop is not a transition and that block never reached it, so
-   CommitmentTile's spotlight kept gliding for visitors who had asked for less
-   movement. Under the media query the position is written directly — the
-   effect still works, it just stops animating. Read live rather than cached,
-   because the OS setting can change mid-session. */
+   Reduced motion is handled here because the global CSS rule only disables
+   transitions, and a rAF loop is not one. Under the media query the position
+   is written directly, so the effect still works without animating. Read
+   live rather than cached, since the OS setting can change mid-session. */
 export function usePointerLight<T extends HTMLElement>(ease = 0.14) {
   const node = useRef<T | null>(null);
   const target = useRef<[number, number] | null>(null);

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/content/seo";
 import Link from "next/link";
 import ApplyForm from "@/components/apply/ApplyForm";
 import Footer from "@/components/Footer";
@@ -8,29 +9,15 @@ import Reveal from "@/components/Reveal";
 import { APPLY_HERO, APPLY_NEXT, APPLY_TERMS } from "@/content/apply";
 import { ROLES } from "@/content/site";
 
-export const metadata: Metadata = {
-  title: "Apply for a trainee developer role | Interloid",
-  description:
-    "Apply for one of four on-site trainee developer roles in Gobichettipalayam: React, Ruby on Rails, Python or Node.js. Your details, your CV, and an optional message. No account needed.",
-};
+export const metadata: Metadata = pageMeta(
+  "/careers/apply",
+  "Apply for a trainee developer role",
+  "Apply for an on-site trainee developer role in Gobichettipalayam: React, Ruby on Rails, Python or Node.js. Your details and CV, no account needed.",
+);
 
-/* ==========================================================================
-   /careers/apply — the trainee application. Added 2026-09-14.
-   ==========================================================================
-   Reached from each role card's Apply button (`?role=trainee-react` and so
-   on preselects the role) and from the careers CTA. Deliberately NOT in the
-   nav or the footer: it is a step inside /careers, not a destination.
-
-     hero        the same band as /contact's BriefHero: secondary ground,
-                 two orbs, badge, two-tone H1
-     ApplyForm   the form card (components/apply/ApplyForm.tsx)
-     aside       what happens next + the terms, sticky beside the form on
-                 desktop, under it on a phone so the form comes first
-
-     content/apply.ts            the words and the shared field rules
-     app/careers/apply/actions   the send
-
-   No CtaAnchor slab: this page IS the conversion. */
+/* Trainee application: hero, the form, and an aside (next steps + terms) that
+   is sticky beside the form on desktop and below it on phones. `?role=<id>`
+   preselects a role. Intentionally absent from the nav and footer. */
 export default async function Apply({
   searchParams,
 }: {
@@ -43,12 +30,6 @@ export default async function Apply({
   return (
     <>
       <Reveal />
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-200 focus:rounded-full focus:bg-primary focus:px-5 focus:py-3 focus:font-semibold focus:text-primary-foreground"
-      >
-        Skip to content
-      </a>
       <Nav />
       <main id="main">
         <section className="relative overflow-clip border-b border-border bg-secondary pb-14 pt-32 lg:pb-20 lg:pt-40">
@@ -65,7 +46,7 @@ export default async function Apply({
               <Link
                 href="/careers#openings"
                 data-reveal
-                className="group mb-8 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
+                className="group -my-2 mb-6 inline-flex items-center gap-2 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
               >
                 <span className="rotate-180 transition-transform group-hover:-translate-x-1">
                   <Icon name="arrow" className="size-4" />

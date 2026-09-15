@@ -9,83 +9,37 @@ import { CAPABILITIES } from "@/content/service";
 import { HUE } from "@/content/site";
 
 /* ==========================================================================
-   THE CAPABILITIES — a scroll-linked showcase.
+   CAPABILITIES — a scroll-linked showcase.
    ==========================================================================
-   This is the page's signature interaction and the one section that had to be
-   invented rather than adapted.
+   Copy blocks scroll in the left column; the diagram panel on the right is
+   sticky and cross-fades to whichever capability is being read. The index in
+   the panel doubles as a progress indicator and a jump list.
 
-   The reference pages give each capability its own full-height block with the
-   copy on one side and a bespoke diagram on the other, sides alternating
-   (SERVICE-PAGE-RESEARCH.md §1). That pairing is the best thing about them and
-   the reason they read as technical rather than promotional. Its weakness is
-   that five near-identical blocks in a row become a scroll with nothing to
-   do — §3.4.
+   ── ACTIVE INDEX ─────────────────────────────────────────────────────────
+   One IntersectionObserver over the copy blocks with a reading band cut out
+   of the middle of the viewport (`-45% / -45%`) and `threshold: 0`. Never a
+   fractional threshold: a block taller than the shrunken root can never
+   reach one at high zoom. Blocks are `min-h` sized so one occupies the band
+   at a time.
 
-   So: the copy blocks scroll normally in the left column, and the diagram
-   panel on the right is STICKY and cross-fades to whichever capability is
-   being read. The reader gets the same one-diagram-per-capability pairing, but
-   the diagram is a single stable object that transforms — which is both more
-   interesting and less tiring than five hand-offs. The index inside the panel
-   doubles as a progress indicator and a jump list.
+   ── BELOW `xl` ───────────────────────────────────────────────────────────
+   No sticky panel: each block renders its diagram inline, in reading order.
+   The panel is `hidden xl:block` and the inline copies are `xl:hidden`, so
+   only one copy of each diagram is in the accessibility tree — and why
+   Diagrams.tsx must not use ids.
 
-   ── HOW THE ACTIVE INDEX IS DECIDED ──────────────────────────────────────
-   One IntersectionObserver over the five copy blocks with a reading band cut
-   out of the middle of the viewport (`-45% / -45%`), and `threshold: 0` —
-   never a fractional threshold, because a block taller than the shrunken root
-   can never reach one at 400% zoom (HANDOFF §5.6). The blocks are `min-h`
-   sized so exactly one occupies the band at a time.
-
-   ── MOBILE IS A DIFFERENT COMPOSITION, NOT A SQUASHED ONE ────────────────
-   Below `xl` there is no sticky panel: each block renders its own diagram
-   inline, in reading order. Sticky positioning on a short viewport pins a
-   panel over the very copy it illustrates. The desktop panel is `hidden
-   xl:block` and the inline ones are `xl:hidden`, so only one copy of each
-   diagram is ever in the accessibility tree — which is also why Diagrams.tsx
-   is forbidden from using ids.
-
-   ── THE SPLIT IS AT `xl`, NOT `lg`, AND THAT IS A MEASUREMENT ────────────
-   It was `lg` until 2026-09-12, which made the diagram SHRINK BY HALF for
-   going to a wider viewport — the inline diagram is full-column, the panel
-   one is half of it, and the switch fired at 1024:
-
-     834px  → 733px wide     (inline)
-     1024px → 373px wide     (panel — a 49% cut, going UP a breakpoint)
-     1920px → 638px wide     (still under the 834px figure)
-
-   The diagrams carry 10px labels in their own viewBox units, so at 373px
-   they rendered at an effective 6.7px and the layer names were unreadable.
-   Moving the split to `xl` gives 1024–1279 the full-width inline diagram
-   (~930px) and starts the sticky panel at 1280, where it is ~490px and its
-   labels clear 9px. Below that width the panel is not worth what it costs
-   the drawing.
-
-   `max-w-3xl` ON THE TEXT AND ON THE INLINE DIAGRAM is what pays for the
-   move. Below `xl` the article is the full shell, and at 1024–1279 that is
-   908–1143px: unconstrained, the outcome bullets ran a 120–150 character
-   measure and the diagram grew to fill a box half again as tall as it needs
-   to be. 768px holds the bullets near 95 characters and the diagram near the
-   size it had at 834, which is where it read best. The cap is inert at `xl`,
-   where the copy column is ~490px wide on its own.
-
-   The split at `xl` is 5/7 rather than 6/6 for the same reason: the copy is
-   text with a `max-w-xl` on it and does not use the twelfth it gives up,
-   while the diagram uses every pixel it is handed. 6/6 put the panel at
-   491px at 1280; 5/7 puts it at ~570 and at ~660 by 1440.
+   The split is at `xl` because the diagrams' 10px viewBox labels become
+   unreadable in a half-width panel below ~1280px. `max-w-3xl` on the text
+   and inline diagram keeps line length and diagram height sane across the
+   full-width `lg` band; it is inert at `xl`. The `xl` split is 5/7 because
+   the copy is capped at `max-w-xl` while the diagram uses every pixel.
 
    ── REVEAL ───────────────────────────────────────────────────────────────
-   Nothing here mounts or unmounts on state change: all five diagrams stay in
-   the DOM and only their opacity/visibility classes change. Every
-   [data-reveal] node keeps a static className.
+   Nothing mounts or unmounts on state change: all diagrams stay in the DOM
+   and only their opacity/visibility classes change. Every [data-reveal] node
+   keeps a static className.
    ========================================================================== */
-export default function CapabilityShowcase({
-  onStackLink,
-}: {
-  /** Selected the matching tab in <TechStacks> when a "whole stack" link was
-      followed. TechStacks has been uncalled since the ecosystem map replaced
-      it, so this has had no reader for two passes — optional now, and the
-      callback is kept only so restoring TechStacks stays a one-line change. */
-  onStackLink?: (i: number) => void;
-}) {
+export default function CapabilityShowcase() {
   const [active, setActive] = useState(0);
   const blocks = useRef<(HTMLElement | null)[]>([]);
 
@@ -104,22 +58,17 @@ export default function CapabilityShowcase({
       { threshold: 0, rootMargin: "-45% 0px -45% 0px" },
     );
     els.forEach((el) => io.observe(el));
-    /* Cleanup is not optional: without it a hot reload stacks a fresh
-       observer on every edit (TAILWIND-MAP §4). */
+    /* Without cleanup, every remount (including hot reload) stacks another
+       observer. */
     return () => io.disconnect();
   }, []);
 
   return (
     <section
       id="capabilities"
-      /* NO `overflow-hidden` ON THIS SECTION, and that is deliberate. It is
-         the second thing that breaks `position: sticky`: an ancestor with a
-         non-visible overflow becomes the sticky element's scroll container,
-         and since that box never scrolls, the panel just scrolls away with
-         the page (measured: 2589px off the top). Every other section on the
-         site clips its orbs at the section level; this one clips them in
-         their own wrapper instead, which contains the blur just as well and
-         leaves the sticky chain intact. See also layout.tsx's <body>. */
+      /* No `overflow-hidden` on this section: an ancestor with non-visible
+         overflow becomes the sticky panel's scroll container and breaks
+         `position: sticky`. The orbs clip in their own wrapper instead. */
       className="relative border-t border-border bg-secondary py-32"
     >
       <div
@@ -153,18 +102,10 @@ export default function CapabilityShowcase({
                   }}
                   data-cap-index={i}
                   id={`capability-${c.k}`}
-                  /* TWO NUMBERS, TWO JOBS. `min-h` is scroll distance for
-                     the sticky panel to swap on; `py` is the separation
-                     between one capability and the next. They were confused
-                     once in each direction: 78vh with the content CENTRED put
-                     240px of nothing between the section heading and the
-                     first block, and dropping to 58vh with `py-14` then left
-                     only 147px between blocks — too little for an item that
-                     is a heading, three paragraphs and a list.
-
-                     `justify-start` keeps the slack below the text instead of
-                     splitting it above and below, and the separation is `py`
-                     now, where it can be read as separation. */
+                  /* `min-h` is scroll distance for the sticky panel to swap
+                     on; `py` is the separation between capabilities.
+                     `justify-start` keeps the slack below the text rather
+                     than splitting it above and below. */
                   className="flex scroll-mt-32 flex-col justify-center border-b border-border py-12 last:border-b-0 xl:min-h-[58vh] xl:justify-start xl:border-b-0 xl:py-24"
                 >
                   <div
@@ -207,17 +148,12 @@ export default function CapabilityShowcase({
                     {c.body}
                   </p>
 
-                  {/* The diagram, inline — mobile and tablet only.
+                  {/* The inline diagram, below `xl` only.
 
-                      THE `xl:hidden` IS ON THE INNER NODE, AND THAT IS
-                      LOAD-BEARING. Putting it on the [data-reveal] element
-                      itself makes that element `display:none` at xl, where an
-                      IntersectionObserver never fires for it — it has no box
-                      to intersect with. It would then sit at `opacity: 0`
-                      forever, which is invisible at xl (so nothing looks
-                      wrong) but leaves five permanently-unrevealed nodes in
-                      the page and fails any reveal audit. The wrapper stays
-                      displayed and collapses to zero height instead. */}
+                      `xl:hidden` must be on the inner node, not the
+                      [data-reveal] element: a display:none element has no box,
+                      so the IntersectionObserver never fires and it stays
+                      unrevealed. The wrapper stays displayed at zero height. */}
                   <div
                     data-reveal
                     style={{ "--delay": "200ms" } as React.CSSProperties}
@@ -241,10 +177,8 @@ export default function CapabilityShowcase({
                     <Icon name="check" className="size-4 text-accent-strong" />
                     What you get
                   </h4>
-                  {/* The live site's own outcome bullets. `ph` marks the ones
-                      whose numbers are unverified — the component renders the
-                      flag so `npm run verify` and the placeholder toggle count
-                      them; site.ts's banner lists which and why. */}
+                  {/* `ph` marks outcomes whose numbers are unverified; it is
+                      rendered as `data-placeholder` so tooling can find them. */}
                   <ul className="mt-4 max-w-3xl space-y-3">
                     {c.outcomes.map((o, j) => (
                       <li
@@ -268,13 +202,8 @@ export default function CapabilityShowcase({
                     ))}
                   </ul>
 
-                  {/* Technology supports the story rather than being it: the
-                      marks sit UNDER the argument, small, and the capability
-                      whose stack is the client's own carries none. */}
-                  {/* A TASTE of the stack, not the stack: the first group's
-                      marks, then a link into the full tabbed section below.
-                      Technology supports the story here; #technologies is
-                      where it gets to be the subject. */}
+                  {/* A sample of the stack — the first group's marks — and a
+                      link to the full #technologies section. */}
                   <div
                     data-reveal
                     style={{ "--delay": "460ms" } as React.CSSProperties}
@@ -292,7 +221,6 @@ export default function CapabilityShowcase({
                     </ul>
                     <a
                       href="#technologies"
-                      onClick={() => onStackLink?.(i)}
                       className="group/link inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary transition-colors hover:text-accent-strong"
                     >
                       the whole stack
@@ -308,30 +236,17 @@ export default function CapabilityShowcase({
 
           {/* ---- the sticky panel -------------------------------------- */}
           <div className="hidden xl:col-span-7 xl:block">
-            {/* THE PANEL MUST FIT THE VIEWPORT, NOT THE OTHER WAY ROUND.
-                A sticky box taller than the window can never be scrolled into
-                view — the part below the fold is simply unreachable, and on
-                this panel the unreachable part was the capability index, the
-                one thing in it you can click. Measured before the cap, with
-                the panel pinned at top-28:
-
-                  1280x720  panel 676px  index ended 35px past the fold
-                  1366x768  panel 709px  index ended 20px past the fold
-
-                Both are ordinary laptops. `max-h` on the sticky element plus
-                `min-h-0 shrink` on the stage lets the DRAWING give up height
-                first: the SVG is `preserveAspectRatio: meet`, so a shorter
-                box scales the diagram down and centres it rather than
-                cropping it. The index is `shrink-0` and always survives. */}
+            {/* The panel must fit the viewport: the part of a sticky box
+                below the fold is unreachable. `max-h` on the sticky element
+                plus `min-h-0 shrink` on the stage lets the drawing give up
+                height first — the SVG is `preserveAspectRatio: meet`, so it
+                scales down rather than crops. The index is `shrink-0`. */}
             <div className="sticky top-28 flex max-h-[calc(100dvh-8rem)] flex-col">
-              {/* p-6, mt-5, pt-4 — trimmed from p-8/mt-8/pt-6 on 2026-09-12. Measured
-                  at 1440x900 the panel was 692px of which 204px (29%) was chrome,
-                  and 120px of THAT was pure whitespace against 84px of actual
-                  index chips. The drawing is the argument this section makes;
-                  the gaps around it are not, so the gaps gave way first. */}
+              {/* Padding is kept tight so the panel's height goes to the
+                  drawing rather than chrome. */}
               <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-4xl border border-border bg-card p-6 shadow-[0_30px_80px_-15px_rgba(15,23,42,.12)] ring-1 ring-foreground/5">
-                {/* h.glow is a whole class string — never composed at runtime
-                    (site.ts's HUE banner). */}
+                {/* h.glow is a whole class string — never composed at runtime,
+                    so Tailwind can see it. */}
                 {CAPABILITIES.map((c, i) => (
                   <div
                     key={c.k}
@@ -342,19 +257,17 @@ export default function CapabilityShowcase({
                   />
                 ))}
 
-                {/* The stage. A fixed aspect box so the panel never resizes
-                    between capabilities — a jumping sticky panel is the fastest
-                    way to make a scroll-linked section feel broken. It keeps
-                    that aspect wherever there is room for it and only gives
-                    way when the window is too short (see the note above). */}
+                {/* The stage: a fixed aspect box so the panel never resizes
+                    between capabilities. It only gives way when the window is
+                    too short (see the max-h note above). */}
                 <div className="relative aspect-[8/5] w-full min-h-0 shrink">
                   {CAPABILITIES.map((c, i) => (
                     <div
                       key={c.k}
                       aria-hidden={i !== active}
-                      /* DS §8.4's panel swap: opacity 0→1, blur(10px)→0,
-                         y 20→0, ~400ms. `invisible` keeps the inactive
-                         diagrams out of the a11y tree and off the pointer. */
+                      /* Panel swap: opacity, blur and a small rise.
+                         `invisible` keeps inactive diagrams out of the a11y
+                         tree and off the pointer. */
                       className={`absolute inset-0 transition-all duration-500 ease-out ${
                         i === active
                           ? "visible translate-y-0 opacity-100 blur-0"
@@ -366,9 +279,8 @@ export default function CapabilityShowcase({
                   ))}
                 </div>
 
-                {/* The index: progress, and a jump list. Anchors rather than
-                    buttons — each target is a real element with an id, so
-                    these work with JS off and are shareable. */}
+                {/* The index. Anchors rather than buttons: each target has an
+                    id, so these work without JS and are shareable. */}
                 <nav
                   aria-label="Capabilities"
                   className="mt-5 shrink-0 border-t border-hairline pt-4"
@@ -381,13 +293,10 @@ export default function CapabilityShowcase({
                           <a
                             href={`#capability-${c.k}`}
                             aria-current={on ? "true" : undefined}
-                            /* Set it immediately rather than waiting for the
-                               observer. A jump lands the target block at the
-                               top of the viewport, which is ABOVE the reading
-                               band, so the observer would not fire until the
-                               reader scrolled further — leaving the panel
-                               showing the capability they just navigated away
-                               from. The observer still owns scrolling. */
+                            /* Set immediately: a jump lands the block above the
+                               reading band, so the observer would not fire
+                               until the reader scrolled further. The observer
+                               still owns scrolling. */
                             onClick={() => setActive(i)}
                             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-all duration-300 ${
                               on

@@ -1,17 +1,14 @@
 import { ROLES, TERMS } from "./site";
 
 /* ==========================================================================
-   /careers/apply — the words, and the rules both sides check.
+   /careers/apply — copy and validation rules.
    ==========================================================================
-   Added 2026-09-14. The trainee roles used to open a pre-addressed email,
-   which fails silently on any machine with no mail client and gives nobody
-   a CV in a predictable shape. This is the replacement: one page, reached
-   from each role's Apply button (`?role=<id>` preselects it) and from the
-   careers CTA. It is NOT in the nav, on purpose.
+   Reached from each role's Apply button (`?role=<id>` preselects it) and the
+   careers CTA; intentionally not in the nav.
 
-   `checkApplication` is imported by BOTH the form (instant feedback, and no
-   5 MB upload just to hear a field is empty) and the server action (the only
-   check that counts). One function, so the two cannot disagree. */
+   `checkApplication` is shared by the form (instant feedback without a 5 MB
+   upload) and the server action (the authoritative check), so the two
+   cannot disagree. */
 
 export const APPLY_HERO = {
   eyebrow: "Apply · trainee roles",

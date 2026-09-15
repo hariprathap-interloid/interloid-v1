@@ -1,57 +1,21 @@
-/* DS §11.2. ONLY links that resolve — HANDOFF §7 flags 20 dead links in the
-   live site's footer as a P0 ("fabricated navigation"). The Industries and
-   Resources columns are deliberately absent rather than stubbed.
-
-   ── REDESIGNED 2026-09-12 ────────────────────────────────────────────────
-   Three things were wrong, and only one of them was visual:
-
-     1. THE SERVICES COLUMN WAS SIX LINKS TO ONE PLACE. Every service name
-        pointed at bare `/services`, so a visitor who clicked "Mobile App
-        Development" landed at the top of the page and had to find it again.
-        CapabilityShowcase already renders an id of `capability-<k>` on each
-        block with `scroll-mt-32`, so the deep link was there to be used and
-        was not. The names and the anchors are BOTH derived from CAPABILITIES
-        now, which is the only way the two stay in step.
-     2. NO FOCUS RING ON A DARK SURFACE. globals.css ships `.on-dark` for
-        exactly this — the default ring draws `--background` (light) as its
-        inner stop, which on #020618 is a white halo rather than a ring.
-        Every link here now carries `on-dark`.
-     3. `<a>` FOR INTERNAL ROUTES. Most of these are real route changes and
-        each one was a full document load. They are `next/link` now; `tel:`,
-        `mailto:` and the unresolved legal links stay plain `<a>`, which is
-        what they are.
-
-   Layout is a 12-column grid at `lg`, split 3/3/2/2/2. The identity block
-   was tried at 5 wide with the address folded into it; screenshotted at
-   1440 that left ~250px of dead ground between the tagline and the Services
-   column and stacked all the height on the left, so "Where we are" is its
-   own column again and the identity block is only as wide as its copy.
-   Below `lg` it is two columns, and one on phones.
-
-   THE LEGAL ROW IS UNCHANGED AND STILL FLAGGED. `/privacy` and `/terms` do
-   not exist; both links keep `href="#"` and their P0 `data-placeholder` so
-   the toggle keeps counting them. Do not "fix" these by pointing them at a
-   page that is not a policy. */
+/* Site footer. Only links that resolve; no stubbed columns.
+   Every link carries `on-dark`: the default focus ring's inner stop is the
+   light `--background`, which reads as a white halo on this dark surface.
+   Layout: 12 columns at `lg` (3/3/2/2/2), two columns below, one on phones. */
 import Link from "next/link";
 import { CAPABILITIES } from "@/content/service";
+import { SOCIAL_LINKS } from "@/content/social";
 
 type FooterLink = { href: string; label: string; placeholder?: string };
 
-/* The six services, matching /services exactly. Derived from CAPABILITIES
-   rather than hand-kept: a footer that names a service the services page
-   does not have is how a nav loses trust, and this list has already drifted
-   once. The anchor is the capability's own `k`, i.e. the same key the
-   showcase renders its id from — rename a key there and this follows. */
+/* Derived from CAPABILITIES so names and anchors stay in step with /services.
+   The anchor uses the same `k` the showcase renders its ids from. */
 const SERVICE_LINKS: FooterLink[] = CAPABILITIES.map((c) => ({
   href: `/services#capability-${c.k}`,
   label: c.name,
 }));
 
-/* Pages. Every one is a route that exists — /careers from 2026-09-07,
-   /about from 2026-09-08, /contact (the enquiry page, not "/#contact")
-   from 2026-09-11 — so none carries a flag. `placeholder` stays OPTIONAL on
-   the type rather than disappearing: the next link added before its route
-   exists needs it, and flagging a dead link is the point of the toggle. */
+/* A link added before its route exists should carry `placeholder`. */
 const COMPANY_LINKS: FooterLink[] = [
   { href: "/about", label: "About us" },
   { href: "/why-choose-us", label: "Why us" },
@@ -60,13 +24,9 @@ const COMPANY_LINKS: FooterLink[] = [
   { href: "/contact", label: "Contact" },
 ];
 
-/* Sections rather than pages — each one is an id that is rendered today:
-   #process (Process.tsx), #work (Work.tsx) and #faq (Faq.tsx) on home,
-   #agreement (Clauses.tsx) on /why-choose-us, #technologies (TechStacks.tsx)
-   on /services. globals.css's `scroll-padding-top: 7rem` clears the nav, so
-   none of these needs a per-target offset. Verify the id before adding a row
-   here; a fragment that matches nothing fails silently at the top of the
-   page, which is the worst kind of dead link. */
+/* Section fragments. `scroll-padding-top` in globals.css clears the nav, so
+   no per-target offset is needed. Verify the id exists before adding a row: a
+   fragment that matches nothing fails silently. */
 const EXPLORE_LINKS: FooterLink[] = [
   { href: "/#process", label: "How we work" },
   { href: "/#work", label: "Selected work" },
@@ -76,7 +36,7 @@ const EXPLORE_LINKS: FooterLink[] = [
 ];
 
 const LINK =
-  "on-dark rounded-sm text-sm text-ink-foreground/75 transition-colors hover:text-white";
+  "on-dark inline-block rounded-sm py-1 text-sm text-ink-foreground/75 transition-colors hover:text-white";
 
 const HEADING =
   "mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/50";
@@ -91,7 +51,7 @@ function LinkColumn({
   return (
     <div>
       <h3 className={HEADING}>{heading}</h3>
-      <ul className="space-y-3.5">
+      <ul className="space-y-1.5">
         {links.map((l) => (
           <li key={l.href}>
             <Link
@@ -148,12 +108,7 @@ export default function Footer() {
               in your accounts, on your repos.
             </p>
 
-            {/* The one outbound action in the footer, and it goes to
-                /contact — the same enquiry the nav's "Contact" and
-                CtaAnchor's button open. Three entry points, one destination,
-                which is what stops a footer CTA from becoming a fourth
-                funnel nobody maintains. `--ink-cta` is the theme-independent
-                blue the CTA slab uses; --brand shifts in dark and this
+            {/* `ink-cta`, not `brand`: --brand shifts in dark mode and this
                 surface does not. */}
             <Link
               href="/contact#story"
@@ -174,6 +129,33 @@ export default function Footer() {
                 <path d="m12 5 7 7-7 7" />
               </svg>
             </Link>
+
+            {/* Monochrome at rest like the rest of the footer chrome; on hover
+                each mark takes its brand colour on a white disc. */}
+            <ul className="mt-8 flex items-center gap-3" aria-label="Interloid on social media">
+              {SOCIAL_LINKS.map((s) => (
+                <li key={s.href}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Interloid on ${s.label} (opens in a new tab)`}
+                    style={{ "--social": s.color } as React.CSSProperties}
+                    className="on-dark group grid size-10 place-items-center rounded-full border border-white/10 text-ink-foreground/75 transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-(--social) hover:shadow-lg hover:shadow-white/10 focus-visible:bg-white focus-visible:text-(--social) active:scale-95"
+                  >
+                    <svg
+                      viewBox={s.viewBox}
+                      fill="currentColor"
+                      fillRule="evenodd"
+                      className="size-4 transition-transform duration-300 group-hover:scale-110"
+                      aria-hidden="true"
+                    >
+                      <path d={s.path} />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* ---- the three link columns --------------------------------- */}
@@ -197,23 +179,19 @@ export default function Footer() {
               <br />
               Gobichettipalayam, Tamil Nadu 638453
             </address>
-            {/* Stacked with padding, not <br>: two 20px lines touching
-                failed the tap-target check (Lighthouse, 2026-09-11) — a
-                thumb aimed at the number could hit the email. */}
+            {/* Stacked with padding, not <br>, so each is a separate tap target. */}
             <div className="mt-3 flex flex-col items-start">
-              <a href="tel:+919042032424" className={`${LINK} py-1.5`}>
+              <a href="tel:+919042032424" className={LINK}>
                 +91 9042032424
               </a>
               <a
                 href="mailto:connect@interloid.com"
-                className={`${LINK} py-1.5`}
+                className={LINK}
               >
                 connect@interloid.com
               </a>
             </div>
-            {/* /70, not /50: at 12px the fainter grey measured 3.9:1 on the
-                footer's ink (Lighthouse, 2026-09-11); /70 matches the lines
-                above. */}
+            {/* /70, not /50: fainter fails contrast at 12px on this ground. */}
             <p className="mt-2 text-xs text-ink-foreground/70">
               India-based · US &amp; UK overlap hours
             </p>
@@ -225,20 +203,8 @@ export default function Footer() {
             © 2026 Interloid Technologies Private Limited. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a
-              href="#"
-              className="on-dark rounded-sm transition-colors hover:text-white"
-              data-placeholder="P0 LEGAL: page 404s today"
-            >
-              Privacy policy
-            </a>
-            <a
-              href="#"
-              className="on-dark rounded-sm transition-colors hover:text-white"
-              data-placeholder="P0 LEGAL: page missing"
-            >
-              Terms
-            </a>
+            <span>Privacy policy</span>
+            <span>Terms</span>
           </div>
         </div>
       </div>
