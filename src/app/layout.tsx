@@ -41,16 +41,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f9fc" },
-    { media: "(prefers-color-scheme: dark)", color: "#020618" },
-  ],
+  themeColor: "#f7f9fc",
 };
 
 /* Runs before first paint: marks JS as available (scroll reveals only hide
-   content when it is) and applies a stored dark preference without a flash.
+   content when it is). Light is the default; dark applies only when the
+   visitor chose it with the theme toggle, without a flash.
    It mutates <html>'s class before hydration, hence suppressHydrationWarning. */
-const themeScript = `(function(){var d=document.documentElement;d.classList.add("js");try{var t=localStorage.getItem("interloid-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))d.classList.add("dark")}catch(e){}})();`;
+const themeScript = `(function(){var d=document.documentElement;d.classList.add("js");try{var t=localStorage.getItem("interloid-theme");if(t==="dark")d.classList.add("dark")}catch(e){}})();`;
 
 const organization = {
   "@context": "https://schema.org",
