@@ -1,11 +1,21 @@
 /* Deployment-wide SEO switches.
 
    NEXT_PUBLIC_SITE_URL  the public origin, used for canonical URLs, Open Graph
-                         and the sitemap. Falls back to localhost in dev.
+                         and the sitemap. On Vercel it falls back to the
+                         project's domain; locally to localhost.
    SITE_INDEXABLE        "true" only on the public launch. Anything else
                          serves noindex meta, an X-Robots-Tag header and a
                          disallow-all robots.txt. */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+function resolveSiteUrl() {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  /* Set automatically by Vercel: the production domain first, then the
+     per-deployment URL for previews. */
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+  if (vercel) return `https://${vercel}`;
+  return "http://localhost:3000";
+}
+
+export const SITE_URL = resolveSiteUrl().replace(/\/$/, "");
 
 export const INDEXABLE = process.env.SITE_INDEXABLE === "true";
 

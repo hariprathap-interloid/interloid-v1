@@ -25,17 +25,18 @@ import { ROLES } from "@/content/site";
    ── WHERE APPLICATIONS GO ────────────────────────────────────────────────
    One folder per application in `content-submissions/applications/`
    (git-ignored with the rest of content-submissions): `application.json`
-   plus `resume.<ext>`. Like /contact, this needs a writable filesystem, so
-   on a serverless host swap `save` for storage + email before deploying.
+   plus `resume.<ext>`. Like /contact, this needs a writable filesystem: on a
+   serverless host it reports `unavailable` until storage + email replace it.
 
    The request body limit is raised to 6 MB in next.config.ts; the default
    1 MB would reject most CVs before this function runs. */
 
 export type ApplyState =
   | { status: "idle" }
-  /** `failed` = the save broke, not the applicant; `errors` is then empty. */
-  | { status: "error"; errors: ApplyErrors; failed: boolean }
-  | { status: "sent"; ref: string; firstName: string; role: string };
+  | { status: "error"; errors: ApplyErrors }
+  | { status: "sent"; ref: string; firstName: string; role: string }
+  /** Applications cannot be stored on this deployment yet. */
+  | { status: "unavailable" };
 
 const SIGNATURES: Record<string, readonly number[]> = {
   ".pdf": [0x25, 0x50, 0x44, 0x46], // %PDF
@@ -68,8 +69,10 @@ export async function applyForRole(
 
   const role = ROLES.find((r) => r.id === values.role);
   if (Object.keys(errors).length || !file || !bytes || !role) {
-    return { status: "error", errors, failed: false };
+    return { status: "error", errors };
   }
+
+  if (process.env.VERCEL) return { status: "unavailable" };
 
   const ref = randomUUID().slice(0, 8).toUpperCase();
   const receivedAt = new Date().toISOString();
@@ -109,7 +112,7 @@ export async function applyForRole(
     );
   } catch (err) {
     console.error("[careers] could not save application", err);
-    return { status: "error", errors: {}, failed: true };
+    return { status: "unavailable" };
   }
 
   return { status: "sent", ref, firstName: values.firstName, role: role.title };

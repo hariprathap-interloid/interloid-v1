@@ -866,6 +866,17 @@ li:nth-child(n + 5) .check-tick {
   }
 }
 
+/* Toast entrance: a short rise, within the 600ms reveal budget. */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.toast-in {
+  animation: toast-in 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

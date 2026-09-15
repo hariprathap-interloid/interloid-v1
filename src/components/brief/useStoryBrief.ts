@@ -11,7 +11,6 @@ import {
 import { sendStory, type BriefState } from "@/app/contact/actions";
 import {
   BRIEF_REACH,
-  BRIEF_SEND,
   BRIEF_VERSIONS,
   fieldsOf,
   isReachable,
@@ -137,14 +136,11 @@ export function useStoryBrief() {
       ? state.missing.filter(stillMissing)
       : [];
   const labels = new Map(fields.map((f) => [f.name, f.label]));
-  const notice =
-    state.status === "error" && !state.missing.length
-      ? BRIEF_SEND.failed
-      : open.length
-        ? missingMessage(
-            open.map((n) => (reachNames.includes(n) ? BRIEF_REACH.label : labels.get(n) ?? n)),
-          )
-        : "";
+  const notice = open.length
+    ? missingMessage(
+        open.map((n) => (reachNames.includes(n) ? BRIEF_REACH.label : labels.get(n) ?? n)),
+      )
+    : "";
   const invalid = (f: Field) =>
     reachNames.includes(f.name) ? open.includes(BRIEF_REACH.fields[0]) : open.includes(f.name);
 

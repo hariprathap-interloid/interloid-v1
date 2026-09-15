@@ -63,8 +63,6 @@ export const APPLY_ERRORS = {
   resume: "Attach your CV so we can read it before we call.",
   resumeType: "Upload a PDF, DOC or DOCX file.",
   resumeSize: "That file is over 5 MB. Try exporting it as a PDF.",
-  failed:
-    "Sorry, your application didn't send because of a problem on our side. Please try again, or email it to connect@interloid.com.",
 } as const;
 
 export const RESUME = {

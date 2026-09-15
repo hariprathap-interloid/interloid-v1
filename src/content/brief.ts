@@ -248,7 +248,6 @@ export const BRIEF_SEND = {
   ctaQuick: "Send my note",
   pending: "Sending your story…",
   meta: ["Free, no obligation", "No sales pressure", "Price in writing within 48 hours"],
-  failed: "Sorry, something went wrong on our side and your story didn’t send. Your words are safe in this browser, so please try again, or email us at connect@interloid.com.",
 } as const;
 
 export const BRIEF_DONE = {

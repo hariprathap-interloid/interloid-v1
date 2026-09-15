@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   startTransition,
   useActionState,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -11,8 +12,8 @@ import {
 } from "react";
 import { applyForRole, type ApplyState } from "@/app/careers/apply/actions";
 import Icon from "@/components/Icon";
+import Toast from "@/components/Toast";
 import {
-  APPLY_ERRORS,
   APPLY_LABELS,
   type ApplyErrors,
   type ApplyField,
@@ -101,6 +102,9 @@ export default function ApplyForm({ initialRole }: { initialRole: string | null 
   const formRef = useRef<HTMLFormElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const doneRef = useRef<HTMLDivElement>(null);
+  /* Keyed to the reply object, so every new "unavailable" reply reopens it. */
+  const [dismissed, setDismissed] = useState<object | null>(null);
+  const closeToast = useCallback(() => setDismissed(state), [state]);
 
   useEffect(() => {
     if (state.status === "sent") doneRef.current?.scrollIntoView({ block: "center" });
@@ -396,12 +400,6 @@ export default function ApplyForm({ initialRole }: { initialRole: string | null 
           </label>
         </div>
 
-        {state.status === "error" && state.failed && (
-          <p role="alert" className="mt-8 rounded-2xl bg-rose-500/10 px-4 py-3 text-[15px] leading-relaxed text-foreground">
-            {APPLY_ERRORS.failed}
-          </p>
-        )}
-
         <div className="mt-10 flex flex-col-reverse gap-5 border-t border-hairline pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="shrink-0 text-accent-strong">
@@ -421,6 +419,19 @@ export default function ApplyForm({ initialRole }: { initialRole: string | null 
           </button>
         </div>
       </form>
+
+      <Toast
+        open={state.status === "unavailable" && dismissed !== state}
+        title="This feature is in development"
+        onClose={closeToast}
+      >
+        Online applications aren&rsquo;t live yet. Until then, email your CV
+        to{" "}
+        <a href="mailto:connect@interloid.com" className="on-dark font-semibold text-white underline underline-offset-4">
+          connect@interloid.com
+        </a>{" "}
+        with the role in the subject line.
+      </Toast>
     </div>
   );
 }

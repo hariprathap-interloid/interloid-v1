@@ -30,17 +30,18 @@ import {
    ── WHERE SUBMISSIONS GO ─────────────────────────────────────────────────
    One JSON file per story in `content-submissions/` at the project root
    (git-ignored). That works for `next dev` and a self-hosted `next start`.
-   On a serverless host (Vercel) the filesystem is read-only and per-request,
-   so this write will fail there and the visitor sees BRIEF_SEND.failed —
-   swap `save()` for an email or database call before deploying to one. It
-   is the only function that needs to change. */
+   On a serverless host (Vercel) the filesystem is read-only, so sending is
+   reported as `unavailable` and the form shows an "in development" notice.
+   Swap `save()` for an email or database call to enable it there. */
 
 export type BriefState =
   | { status: "idle" }
-  /** `missing` empty = the save failed, not the visitor. `version` lets the
-      letter ignore this reply once they switch to the other version. */
+  /** `version` lets the letter ignore this reply once they switch to the
+      other version. */
   | { status: "error"; version: "quick" | "full"; message: string; missing: string[] }
-  | { status: "sent"; ref: string; firstName: string; contact: string };
+  | { status: "sent"; ref: string; firstName: string; contact: string }
+  /** Submissions cannot be stored on this deployment yet. */
+  | { status: "unavailable" };
 
 async function save(record: object, ref: string, receivedAt: string) {
   const dir = path.join(process.cwd(), "content-submissions");
@@ -88,6 +89,8 @@ export async function sendStory(
   if (values.email && !isEmail(values.email)) delete values.email;
   if (values.phone && !isPhone(values.phone)) delete values.phone;
 
+  if (process.env.VERCEL) return { status: "unavailable" };
+
   const ref = randomUUID().slice(0, 8).toUpperCase();
   const receivedAt = new Date().toISOString();
 
@@ -99,7 +102,7 @@ export async function sendStory(
     );
   } catch (err) {
     console.error("[contact] could not save story", err);
-    return { status: "error", version: version.key, message: "", missing: [] };
+    return { status: "unavailable" };
   }
 
   return {
