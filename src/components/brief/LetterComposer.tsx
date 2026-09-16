@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type FocusEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type FocusEvent } from "react";
 import Icon from "@/components/Icon";
-import Toast from "@/components/Toast";
 import { BRIEF_SEND, BRIEF_UI } from "@/content/brief";
 import Stage from "./anim/Stage";
 import {
@@ -156,9 +155,6 @@ export default function LetterComposer() {
 
   const { progress, state } = brief;
   const p = progress.total ? progress.filled / progress.total : 0;
-  /* Keyed to the reply object, so every new "unavailable" reply reopens it. */
-  const [dismissed, setDismissed] = useState<object | null>(null);
-  const closeToast = useCallback(() => setDismissed(state), [state]);
 
   if (state.status === "sent") {
     return (
@@ -297,23 +293,6 @@ export default function LetterComposer() {
           <Paper brief={brief} />
         </div>
       </dialog>
-
-      <Toast
-        open={state.status === "unavailable" && dismissed !== state}
-        title="This feature is in development"
-        onClose={closeToast}
-      >
-        Sending stories online isn&rsquo;t live yet. Your words are saved in
-        this browser; until then, email{" "}
-        <a href="mailto:connect@interloid.com" className="on-dark font-semibold text-white underline underline-offset-4">
-          connect@interloid.com
-        </a>{" "}
-        or call{" "}
-        <a href="tel:+919042032424" className="on-dark whitespace-nowrap font-semibold text-white underline underline-offset-4">
-          +91 9042032424
-        </a>
-        .
-      </Toast>
     </section>
   );
 }

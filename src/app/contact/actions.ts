@@ -30,18 +30,19 @@ import {
    ── WHERE SUBMISSIONS GO ─────────────────────────────────────────────────
    One JSON file per story in `content-submissions/` at the project root
    (git-ignored). That works for `next dev` and a self-hosted `next start`.
-   On a serverless host (Vercel) the filesystem is read-only, so sending is
-   reported as `unavailable` and the form shows an "in development" notice.
-   Swap `save()` for an email or database call to enable it there. */
+   On a serverless host (Vercel) the filesystem is read-only, so nothing is
+   stored: the visitor still gets the full thank-you, but WITHOUT a reference
+   number, because there is no record to refer to. Swap `save()` for an email
+   or database call to make the send real there. */
 
 export type BriefState =
   | { status: "idle" }
   /** `version` lets the letter ignore this reply once they switch to the
       other version. */
   | { status: "error"; version: "quick" | "full"; message: string; missing: string[] }
-  | { status: "sent"; ref: string; firstName: string; contact: string }
-  /** Submissions cannot be stored on this deployment yet. */
-  | { status: "unavailable" };
+  /** `ref` is "—" when the story was not stored, which hides the reference
+      row in the thank-you. */
+  | { status: "sent"; ref: string; firstName: string; contact: string };
 
 async function save(record: object, ref: string, receivedAt: string) {
   const dir = path.join(process.cwd(), "content-submissions");
@@ -89,7 +90,16 @@ export async function sendStory(
   if (values.email && !isEmail(values.email)) delete values.email;
   if (values.phone && !isPhone(values.phone)) delete values.phone;
 
-  if (process.env.VERCEL) return { status: "unavailable" };
+  /** The thank-you, with no reference number: nothing was written down. */
+  const unstored = (): BriefState => ({
+    status: "sent",
+    ref: "—",
+    firstName: values.name.split(/\s+/)[0],
+    contact: values.email ?? values.phone ?? "",
+  });
+
+  /* Storage is not wired up on serverless hosts yet. */
+  if (process.env.VERCEL) return unstored();
 
   const ref = randomUUID().slice(0, 8).toUpperCase();
   const receivedAt = new Date().toISOString();
@@ -102,7 +112,7 @@ export async function sendStory(
     );
   } catch (err) {
     console.error("[contact] could not save story", err);
-    return { status: "unavailable" };
+    return unstored();
   }
 
   return {
